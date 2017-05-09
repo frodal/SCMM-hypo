@@ -21,15 +21,15 @@
 !-----------------------------------------------------------------------
 !		Solution Dependent state Variables
 !-----------------------------------------------------------------------
-! State(1:9)	= Rotation tensor components (R)
-! State(10:21)	= Critical resolved shear stresses (\tau_c^{(\alpha)})
-! State(22)		= Accumulated plastic shear strain (\Gamma)
-! State(23)		= Equivalent von Mises stress (\sigma_{eq})
-! State(24)		= Equivalent von Mises plastic strain (\varepsilon_{eq})
-! State(25)		= Number of sub-steps for the current time step (n_{sub})
-! State(26)		= Euler angle (\phi_1)
-! State(27)		= Euler angle (\Phi)
-! State(28)		= Euler angle (\phi_2)
+! State(1)		= Euler angle (\phi_1)
+! State(2)		= Euler angle (\Phi)
+! State(3)		= Euler angle (\phi_2)
+! State(4:12)	= Rotation tensor components (R)
+! State(13:24)	= Critical resolved shear stresses (\tau_c^{(\alpha)})
+! State(25)		= Accumulated plastic shear strain (\Gamma)
+! State(26)		= Equivalent von Mises stress (\sigma_{eq})
+! State(27)		= Equivalent von Mises plastic strain (\varepsilon_{eq})
+! State(28)		= Number of sub-steps for the current time step (n_{sub})
 !-----------------------------------------------------------------------
 !		Subroutine Hypo
 !-----------------------------------------------------------------------
@@ -188,11 +188,11 @@
 !		Time greater than zero
 !-----------------------------------------------------------------------
        do km = 1, nblock
-         if(stateold(km,10).le.1d-9)then ! First step
+         if(stateold(km,13).le.1d-9)then ! First step
 		    if (Txflag.eq.2)then
-			    phi1	= STATEOLD(km,26)
-				PHI		= STATEOLD(km,27)
-				phi2	= STATEOLD(km,28)
+			    phi1	= STATEOLD(km,1)
+				PHI		= STATEOLD(km,2)
+				phi2	= STATEOLD(km,3)
 			endif
 !		Initializing the rotation tensor
             R      =  zero
@@ -213,16 +213,16 @@
 !-----------------------------------------------------------------------
 !		Defining state variables from last increment
 !-----------------------------------------------------------------------
-            a = 1
+            a = 4
             do i=1,3
                do j=1,3
                   R(i,j) = STATEOLD(km,a)
                   a      = a+1
                enddo
             enddo
-            tau_c = STATEOLD(km,10:21)
-            gamma = STATEOLD(km,22)
-            PEQ   = STATEOLD(km,24)
+            tau_c = STATEOLD(km,13:24)
+            gamma = STATEOLD(km,25)
+            PEQ   = STATEOLD(km,27)
          endif
 !
 !-----------------------------------------------------------------------
@@ -438,26 +438,26 @@
 !-----------------------------------------------------------------------
 !		Updating output variables
 !-----------------------------------------------------------------------
-         a = 1
+         a = 4
          do i=1,3
             do j=1,3
                STATENEW(km,a) = R(i,j)! Rotation tensor
                a              = a+1
             enddo
          enddo
-         STATENEW(km,10:21) = tau_c! Critical resolved shear stresses/ Slip resistances
-         STATENEW(km,22)    = gamma! Accumulated plastic strain
-         STATENEW(km,23)    = sqrt(half*((sigma(1)-sigma(2))**two
+         STATENEW(km,13:24) = tau_c! Critical resolved shear stresses/ Slip resistances
+         STATENEW(km,25)    = gamma! Accumulated plastic strain
+         STATENEW(km,26)    = sqrt(half*((sigma(1)-sigma(2))**two
      +                                  +(sigma(2)-sigma(3))**two
      +                                  +(sigma(3)-sigma(1))**two)
      +                       +three*sigma(4)**two+three*sigma(5)**two
      +                       +three*sigma(6)**two)! Equivalent von Mises stress
-         STATENEW(km,24) = PEQ! Equivalent von mises plastic strain
-         STATENEW(km,25) = nsub! Number of sub steps
+         STATENEW(km,27) = PEQ! Equivalent von mises plastic strain
+         STATENEW(km,28) = nsub! Number of sub steps
 !
          call euler(R,ang)
 !
-         STATENEW(km,26:28) = ang! Euler angles phi1, PHI, phi2
+         STATENEW(km,1:3) = ang! Euler angles phi1, PHI, phi2
 !-----------------------------------------------------------------------
 !		end loops
 !-----------------------------------------------------------------------
