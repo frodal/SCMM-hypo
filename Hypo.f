@@ -190,9 +190,9 @@
        do km = 1, nblock
          if(stateold(km,13).le.1d-9)then ! First step
 		    if (Txflag.eq.2)then
-			    phi1	= STATEOLD(km,1)
-				PHI		= STATEOLD(km,2)
-				phi2	= STATEOLD(km,3)
+			    phi1	= STATEOLD(km,1)*Pi/180.d0
+				PHI		= STATEOLD(km,2)*Pi/180.d0
+				phi2	= STATEOLD(km,3)*Pi/180.d0
 			endif
 !		Initializing the rotation tensor
             R      =  zero
