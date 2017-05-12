@@ -96,16 +96,6 @@
              Fold(2,1) = defgradOld(km,7)
              Fold(3,2) = defgradOld(km,8)
              Fold(1,3) = defgradOld(km,9)
-!		  New deformation gradient, F
-             Fnew(1,1) = defgradNew(km,1)
-             Fnew(2,2) = defgradNew(km,2)
-             Fnew(3,3) = defgradNew(km,3)
-			 Fnew(1,2) = defgradNew(km,4)
-			 Fnew(2,3) = defgradNew(km,5)
-			 Fnew(3,1) = defgradNew(km,6)
-			 Fnew(2,1) = defgradNew(km,7)
-			 Fnew(3,2) = defgradNew(km,8)
-			 Fnew(1,3) = defgradNew(km,9)
 !		  Old stretch tensor, U
 			 uu(1,1) 	= stretchOld(km,1)
 			 uu(2,2) 	= stretchOld(km,2)
@@ -147,6 +137,16 @@
 !		Transforming the stress tensor from the global system to the Rotated coordinate system used in Abaqus/Explicit
 !-----------------------------------------------------------------------
 		  do km=1,nblock
+!		  New deformation gradient, F
+             Fnew(1,1) = defgradNew(km,1)
+             Fnew(2,2) = defgradNew(km,2)
+             Fnew(3,3) = defgradNew(km,3)
+			 Fnew(1,2) = defgradNew(km,4)
+			 Fnew(2,3) = defgradNew(km,5)
+			 Fnew(3,1) = defgradNew(km,6)
+			 Fnew(2,1) = defgradNew(km,7)
+			 Fnew(3,2) = defgradNew(km,8)
+			 Fnew(1,3) = defgradNew(km,9)
 !		New stretch tensor, U
 			 uu(1,1) 	= stretchNew(km,1)
 			 uu(2,2) 	= stretchNew(km,2)
