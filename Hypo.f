@@ -126,6 +126,14 @@
          tau1   = props(14)! Hardening parameter
          theta2 = props(15)! Hardening parameter
          tau2   = props(16)! Hardening parameter
+		 if(tau1.lt.1d-6)then
+		     theta1 = zero
+			 tau1	= one
+		 endif
+		 if(tau2.lt.1d-6)then
+		     theta2 = zero
+			 tau2	= one
+		 endif
       elseif(hflag.eq.2)then
 		! Kalidindi et al.
          h0     = props(13)! Hardening parameter
