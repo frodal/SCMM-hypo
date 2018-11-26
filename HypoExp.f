@@ -53,7 +53,9 @@
 	  real*8 sigsOld(nblock,ndir+nshr)! Old Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
 	  real*8 sigsNew(nblock,ndir+nshr)! New Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
 	  real*8 Dissipation(nblock)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
+      real*8 zero
 	  integer km
+      parameter (zero=0.d0)
 !-----------------------------------------------------------------------
 !     	Read parameters from ABAQUS material card
 !-----------------------------------------------------------------------
