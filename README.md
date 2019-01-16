@@ -10,7 +10,8 @@ Before compiling the user material subroutine for the FEM code, install and chec
 ## Compilation
 
 On Linux platforms:
-###1. First case, run a simulation with a local compiled library (the compilation will be done each time before a simulation)
+
+1. First case, run a simulation with a local compiled library (the compilation will be done each time before a simulation)
   - Clone the repository: `SCMM-hypo` from the SIMLab project on www.code.sintef.no
   - Change the current directory to the `SCMM-hypo` folder.
   - Copy the simulation input (e.g. `MySim.inp`) to the current directory.
@@ -18,7 +19,7 @@ On Linux platforms:
   - Use the option `user=HypoImp` for the implicit solver (ABAQUS/Standard).
   - Use the option `user=HypoExp` for the explicit solver (ABAQUS/Explicit).
 
-###2. Second case, compile a library and share it:
+2. Second case, compile a library and share it:
   - If needed, make a directory where to place the ABAQUS library (e.g. library-dir =
   `/home/username/bin/abaqus`)
   - Clone the repository: `SCMM-hypo` from the SIMLab project on www.code.sintef.no
