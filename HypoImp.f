@@ -1,24 +1,31 @@
+!-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       include './Hypo.f'
+!-----------------------------------------------------------------------
       subroutine UMAT(STRESS,STATEV,DDSDDE,SSE,SPD,SCD,
      +                RPL,DDSDDT,DRPLDE,DRPLDT,
      +                STRAN,DSTRAN,TIMEA,DTIMEA,TEMP,DTEMP,PREDEF,DPRED,
      +                CMNAME,NDI,NSHR,NTENS,NSTATV,PROPS,NPROPS,COORDS,
      +                DROT,PNEWDT,CELENT,DFGRD0,DFGRD1,NOEL,NPT,LAYER,
      +                KSPT,KSTEP,KINC)
+!-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       INCLUDE 'ABA_PARAM.INC'
 !      implicit none
+!-----------------------------------------------------------------------
       character*80 CMNAME
+!-----------------------------------------------------------------------
 !      real*8 STRESS(NTENS),STATEV(NSTATV),DDSDDE(NTENS,NTENS),
       DIMENSION STRESS(NTENS),STATEV(NSTATV),DDSDDE(NTENS,NTENS),
      +          DDSDDT(NTENS),DRPLDE(NTENS),STRAN(NTENS),DSTRAN(NTENS),
      +          TIMEA(2),PREDEF(1),DPRED(1),PROPS(NPROPS),COORDS(3),
      +          DROT(3,3),DFGRD0(3,3),DFGRD1(3,3)
-
+!-----------------------------------------------------------------------
       real*8 SSE,SPD,SCD,PNEWDT,CELENT,RPL,DRPLDT,TEMP,DTEMP,DTIMEA
       integer NDI,NSHR,NTENS,NSTATV,NPROPS,NOEL,NPT,LAYER,KSPT,KSTEP,
      +        KINC
-!
-      integer k,kk,i,j
+!-----------------------------------------------------------------------
+      integer k,kk,i,j,flagCTO
       real*8 defgradOld(1,9),defgradNew(1,9)
       real*8 stateOld(1,NSTATV),stateNew(1,NSTATV)
       real*8 stressOld(1,6),stressNew(1,6)
@@ -28,7 +35,6 @@
 	  real*8 DissipationTGT(12)
 	  real*8 StressPower
 	  real*8 SPRIME(6), TDROT(3,3)
-!
       real*8 d(12,6),epsinc(6),spininc(3)
       real*8 L11(12),L12(12),L13(12)
       real*8 L21(12),L22(12),L23(12)
@@ -37,8 +43,8 @@
       real*8 stateTGTold(12,NSTATV),stateTGTnew(12,NSTATV)
       real*8 stressTGTold(12,NSTATV),stressTGTnew(12,NSTATV)
       real*8 CTO(6,6),CTO2(6,6)
-      real*8 pert,o2pert
-      parameter(pert=1e-6,o2pert=1.0/(2.0*pert))
+      real*8 pert,o2pert,zero,one
+      parameter(pert=1e-6,o2pert=1.0/(2.0*pert),zero=0.d0,one=1.d0)
 !-----------------------------------------------------------------------
 !     Packaging Deformation gradient
 !-----------------------------------------------------------------------
@@ -51,7 +57,7 @@
       defgradOld(1,7) = DFGRD0(2,1)
       defgradOld(1,8) = DFGRD0(3,2)
       defgradOld(1,9) = DFGRD0(1,3)
-!
+!-----------------------------------------------------------------------
       defgradNew(1,1) = DFGRD1(1,1)
       defgradNew(1,2) = DFGRD1(2,2)
       defgradNew(1,3) = DFGRD1(3,3)
@@ -68,12 +74,12 @@
          stateOld(1,k) = STATEV(k)
       enddo
 !-----------------------------------------------------------------------
-!     Rotate the stress tensor to the right coordinate system
+!     Rotate the stress tensor to the correct coordinate system
 !-----------------------------------------------------------------------
       Call mtransp(DROT,TDROT)
-	  CALL ROTSIG(STRESS,TDROT,SPRIME,1,NDI,NSHR)
-	  STRESS	= SPRIME
-	  stressOld(1,1) = STRESS(1)
+      CALL ROTSIG(STRESS,TDROT,SPRIME,1,NDI,NSHR)
+      STRESS = SPRIME
+      stressOld(1,1) = STRESS(1)
       stressOld(1,2) = STRESS(2)
       stressOld(1,3) = STRESS(3)
       stressOld(1,4) = STRESS(4)
@@ -94,37 +100,42 @@
 !-----------------------------------------------------------------------
       flagCTO = int(props(17))
       if(flagCTO.eq.1)then
+!-----------------------------------------------------------------------
+!     Elastic tangent operator
+!-----------------------------------------------------------------------
          C11 = props(1)
          C12 = props(2)
          C44 = props(3)
-!
-         DDSDDE = 0.0
-!
+!-----------------------------------------------------------------------
+         DDSDDE = zero
+!-----------------------------------------------------------------------
          DDSDDE(1,1) = C11
          DDSDDE(1,2) = C12
          DDSDDE(1,3) = C12
-!
+!-----------------------------------------------------------------------
          DDSDDE(2,1) = C12
          DDSDDE(2,2) = C11
          DDSDDE(2,3) = C12
-!
+!-----------------------------------------------------------------------
          DDSDDE(3,1) = C12
          DDSDDE(3,2) = C12
          DDSDDE(3,3) = C11
-!
+!-----------------------------------------------------------------------
          DDSDDE(4,4) = C44
          DDSDDE(5,5) = C44
          DDSDDE(6,6) = C44
-!
       else
+!-----------------------------------------------------------------------
+!     Consistent tangent operator
+!-----------------------------------------------------------------------
          call sinc(DFGRD0,DFGRD1,dt,epsinc,spininc)
-!
+!-----------------------------------------------------------------------
          do i=1,6
             do k=1,12
                d(k,i) = epsinc(i)
             enddo
          enddo
-!
+!-----------------------------------------------------------------------
          kk = 1
          do i=1,6
             do k=1,2
@@ -132,7 +143,7 @@
                kk      = kk+1
             enddo
          enddo
-!
+!-----------------------------------------------------------------------
          do k=1,12
             L11(k) = d(k,1)
             L12(k) = d(k,4)-spininc(3)
@@ -167,7 +178,7 @@
             F(k,3) = DFGRD0(3,3)*(L33(k)+1.0)+DFGRD0(1,3)*L31(k)
      +           +DFGRD0(2,3)*L32(k)
          enddo
-!
+!-----------------------------------------------------------------------
          do k=1,12
             Fold(k,1) = DFGRD0(1,1)
             Fold(k,2) = DFGRD0(2,2)
@@ -179,13 +190,13 @@
             Fold(k,8) = DFGRD0(3,2)
             Fold(k,9) = DFGRD0(1,3)
          enddo
-!
+!-----------------------------------------------------------------------
          do i=1,NSTATV
             do k=1,12
                stateTGTold(k,i) = STATEV(i)
             enddo
          enddo
-!
+!-----------------------------------------------------------------------
          do k=1,12
             stressTGTold(k,1) = STRESS(1)
             stressTGTold(k,2) = STRESS(2)
@@ -194,11 +205,13 @@
             stressTGTold(k,5) = STRESS(6)
             stressTGTold(k,6) = STRESS(5)
          enddo
-!
+!-----------------------------------------------------------------------
+!        Calculating stress state based on perturbation
+!-----------------------------------------------------------------------
          call Hypo(stressTGTnew,stateTGTnew,F,
      +         stressTGTold,stateTGTold,Fold,dt,props,
      +         12, 3, 3, NSTATV, nprops,DissipationTGT)
-!
+!-----------------------------------------------------------------------
          kk = 0
          do i=1,12,2
             kk = kk+1
@@ -206,13 +219,13 @@
                CTO(kk,j) = (stressTGTnew(i+1,j)-stressTGTnew(i,j))*o2pert
             enddo
          enddo
-!
+!-----------------------------------------------------------------------
          do i=1,6
             do j=1,6
                CTO2(j,i) = CTO(i,j)
             enddo
          enddo
-!
+!-----------------------------------------------------------------------
          do i=1,4
             do j=1,4
                DDSDDE(i,j) = CTO2(i,j)
@@ -247,23 +260,21 @@
 !-----------------------------------------------------------------------
 !     Update Energies
 !-----------------------------------------------------------------------
-!      SPD = hisv(1,int(dm(214))+4)
-!      SSE = hisv(1,int(dm(214))+1)
 !-----------------------------------------------------------------------
-!		Updating the dissipated inelastic specific energy
+!     Updating the dissipated inelastic specific energy
 !-----------------------------------------------------------------------
-	  SPD	= SPD+Dissipation(1)
+      SPD = SPD+Dissipation(1)
 !-----------------------------------------------------------------------
-!		Updating the specific elastic internal energy
+!     Updating the specific elastic internal energy
 !-----------------------------------------------------------------------
-	  StressPower = 5.d-1*(
+      StressPower = 5.d-1*(
      +          (stressOld(1,1)+stressNew(1,1))*epsinc(1) +
      +          (stressOld(1,2)+stressNew(1,2))*epsinc(2) +
      +          (stressOld(1,3)+stressNew(1,3))*epsinc(3) +
      +      2.d0*(stressOld(1,4)+stressNew(1,4))*epsinc(4) +
      +      2.d0*(stressOld(1,5)+stressNew(1,5))*epsinc(5) +
      +      2.d0*(stressOld(1,6)+stressNew(1,6))*epsinc(6) )
-	  SSE	= SSE+(StressPower-Dissipation(1))
+      SSE = SSE+(StressPower-Dissipation(1))
 !-----------------------------------------------------------------------
 !     End of subroutine
 !-----------------------------------------------------------------------
