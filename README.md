@@ -1,17 +1,15 @@
 # SIMLab Crystal Mechanics model - Hypoelastic formulation (SCMM-Hypo)
 User defined material model for ABAQUS Standard/Explicit
 
-## Prerequistes
+## Prerequisites
 Before compiling the user material subroutine for the FEM code, install and check:
 
 - A Fortran compiler compatible with the FE code (e.g. Intel Visual Fortran)
-- Check the licence of FE solver and the version of the FE solver
+- Check the license of the FE solver, and the version of the FE solver
 
 ## Compilation
 
-On Linux platforms:
-
-1. First case, run a simulation with a local compiled library (the compilation will be done each time before a simulation)
+1. First case, run a simulation with a local compiled library (the compilation will be done each time a simulation is run)
   - Clone the repository: `SCMM-hypo` from the SIMLab project on www.code.sintef.no
   - Change the current directory to the `SCMM-hypo` folder.
   - Copy the simulation input (e.g. `MySim.inp`) to the current directory.
@@ -20,8 +18,7 @@ On Linux platforms:
   - Use the option `user=HypoExp` for the explicit solver (ABAQUS/Explicit).
 
 2. Second case, compile a library and share it:
-  - If needed, make a directory where to place the ABAQUS library (e.g. library-dir =
-  `/home/username/bin/abaqus`)
+  - If needed, make a directory where to place the ABAQUS library (e.g. library-dir = `/home/username/bin/abaqus` for Linux or `C:\Users\username\abaqus` for Windows)
   - Clone the repository: `SCMM-hypo` from the SIMLab project on www.code.sintef.no
   - Change the current directory to the `SCMM-hypo` folder.
   - Run the command: `abaqus make library=HypoImp directory=library-dir`
