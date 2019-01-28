@@ -55,9 +55,9 @@
       real*8 sigsOld(nblock,ndir+nshr)! Old Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
       real*8 sigsNew(nblock,ndir+nshr)! New Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
       real*8 Dissipation(nblock)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
-      real*8 zero, two
+      real*8 zero, two, half
       integer km
-      parameter (zero=0.d0, two=2.d0)
+      parameter (zero=0.d0, two=2.d0, half=5.d-1)
 !-----------------------------------------------------------------------
 !     Initial step
 !-----------------------------------------------------------------------
@@ -74,14 +74,14 @@
 !-----------------------------------------------------------------------
         do km = 1, nblock
             stressNew(km,1) = C11*strainInc(km,1)+
-     +                          C12*strainInc(km,2)+
-     +                          C12*strainInc(km,3)
+     +                        C12*strainInc(km,2)+
+     +                        C12*strainInc(km,3)
             stressNew(km,2) = C12*strainInc(km,1)+
-     +                          C11*strainInc(km,2)+
-     +                          C12*strainInc(km,3)
+     +                        C11*strainInc(km,2)+
+     +                        C12*strainInc(km,3)
             stressNew(km,3) = C12*strainInc(km,1)+
-     +                          C12*strainInc(km,2)+
-     +                          C11*strainInc(km,3)
+     +                        C12*strainInc(km,2)+
+     +                        C11*strainInc(km,3)
             stressNew(km,4) = two*C44*strainInc(km,4)
             stressNew(km,5) = two*C44*strainInc(km,5)
             stressNew(km,6) = two*C44*strainInc(km,6)
@@ -206,7 +206,7 @@
 !     Updating the specific internal energy
 !-----------------------------------------------------------------------
       do km=1,nblock
-        StressPower = 5.d-1*(
+        StressPower = half*(
      +          (stressOld(km,1)+stressNew(km,1))*strainInc(km,1) +
      +          (stressOld(km,2)+stressNew(km,2))*strainInc(km,2) +
      +          (stressOld(km,3)+stressNew(km,3))*strainInc(km,3) +

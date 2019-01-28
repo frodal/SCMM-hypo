@@ -43,8 +43,9 @@
       real*8 stateTGTold(12,NSTATV),stateTGTnew(12,NSTATV)
       real*8 stressTGTold(12,NSTATV),stressTGTnew(12,NSTATV)
       real*8 CTO(6,6),CTO2(6,6)
-      real*8 pert,o2pert,zero,one
-      parameter(pert=1e-6,o2pert=1.0/(2.0*pert),zero=0.d0,one=1.d0)
+      real*8 pert,o2pert,zero,one,two,half
+      parameter(pert=1e-6,o2pert=1.0/(2.0*pert),zero=0.d0,one=1.d0,
+     .          two=2.d0,half=5.d-1)
 !-----------------------------------------------------------------------
 !     Packaging Deformation gradient
 !-----------------------------------------------------------------------
@@ -139,7 +140,7 @@
          kk = 1
          do i=1,6
             do k=1,2
-               d(kk,i) = epsinc(i)+pert*(-1.0)**real(k)
+               d(kk,i) = epsinc(i)+pert*(-one)**real(k)
                kk      = kk+1
             enddo
          enddo
@@ -159,23 +160,23 @@
 !     Update Consistent tangent operator
 !-----------------------------------------------------------------------
          do k=1,12
-            F(k,1) = DFGRD0(1,1)*(L11(k)+1.0)+DFGRD0(2,1)*L12(k)
+            F(k,1) = DFGRD0(1,1)*(L11(k)+one)+DFGRD0(2,1)*L12(k)
      +           +DFGRD0(3,1)*L13(k)
-            F(k,4) = DFGRD0(1,2)*(L11(k)+1.0)+DFGRD0(2,2)*L12(k)
+            F(k,4) = DFGRD0(1,2)*(L11(k)+one)+DFGRD0(2,2)*L12(k)
      +           +DFGRD0(3,2)*L13(k)
-            F(k,9) = DFGRD0(1,3)*(L11(k)+1.0)+DFGRD0(2,3)*L12(k)
+            F(k,9) = DFGRD0(1,3)*(L11(k)+one)+DFGRD0(2,3)*L12(k)
      +           +DFGRD0(3,3)*L13(k)
-            F(k,7) = DFGRD0(2,1)*(L22(k)+1.0)+DFGRD0(1,1)*L21(k)
+            F(k,7) = DFGRD0(2,1)*(L22(k)+one)+DFGRD0(1,1)*L21(k)
      +           +DFGRD0(3,1)*L23(k)
-            F(k,2) = DFGRD0(2,2)*(L22(k)+1.0)+DFGRD0(1,2)*L21(k)
+            F(k,2) = DFGRD0(2,2)*(L22(k)+one)+DFGRD0(1,2)*L21(k)
      +           +DFGRD0(3,2)*L23(k)
-            F(k,5) = DFGRD0(2,3)*(L22(k)+1.0)+DFGRD0(1,3)*L21(k)
+            F(k,5) = DFGRD0(2,3)*(L22(k)+one)+DFGRD0(1,3)*L21(k)
      +           +DFGRD0(3,3)*L23(k)
-            F(k,6) = DFGRD0(3,1)*(L33(k)+1.0)+DFGRD0(1,1)*L31(k)
+            F(k,6) = DFGRD0(3,1)*(L33(k)+one)+DFGRD0(1,1)*L31(k)
      +           +DFGRD0(2,1)*L32(k)
-            F(k,8) = DFGRD0(3,2)*(L33(k)+1.0)+DFGRD0(1,2)*L31(k)
+            F(k,8) = DFGRD0(3,2)*(L33(k)+one)+DFGRD0(1,2)*L31(k)
      +           +DFGRD0(2,2)*L32(k)
-            F(k,3) = DFGRD0(3,3)*(L33(k)+1.0)+DFGRD0(1,3)*L31(k)
+            F(k,3) = DFGRD0(3,3)*(L33(k)+one)+DFGRD0(1,3)*L31(k)
      +           +DFGRD0(2,3)*L32(k)
          enddo
 !-----------------------------------------------------------------------
@@ -216,7 +217,8 @@
          do i=1,12,2
             kk = kk+1
             do j=1,6
-               CTO(kk,j) = (stressTGTnew(i+1,j)-stressTGTnew(i,j))*o2pert
+               CTO(kk,j) = (stressTGTnew(i+1,j)-stressTGTnew(i,j))
+     .                     *o2pert
             enddo
          enddo
 !-----------------------------------------------------------------------
@@ -267,13 +269,13 @@
 !-----------------------------------------------------------------------
 !     Updating the specific elastic internal energy
 !-----------------------------------------------------------------------
-      StressPower = 5.d-1*(
+      StressPower = half*(
      +          (stressOld(1,1)+stressNew(1,1))*epsinc(1) +
      +          (stressOld(1,2)+stressNew(1,2))*epsinc(2) +
      +          (stressOld(1,3)+stressNew(1,3))*epsinc(3) +
-     +      2.d0*(stressOld(1,4)+stressNew(1,4))*epsinc(4) +
-     +      2.d0*(stressOld(1,5)+stressNew(1,5))*epsinc(5) +
-     +      2.d0*(stressOld(1,6)+stressNew(1,6))*epsinc(6) )
+     +      two*(stressOld(1,4)+stressNew(1,4))*epsinc(4) +
+     +      two*(stressOld(1,5)+stressNew(1,5))*epsinc(5) +
+     +      two*(stressOld(1,6)+stressNew(1,6))*epsinc(6) )
       SSE = SSE+(StressPower-Dissipation(1))
 !-----------------------------------------------------------------------
 !     End of subroutine

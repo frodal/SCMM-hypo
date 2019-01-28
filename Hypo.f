@@ -94,12 +94,13 @@
       real*8 xmat1(3,3), xmat2(3,3)! Tensors used for transformations
       real*8 Dissipation(nblock)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
       real*8 ang(3)! Euler angles phi1, PHI, phi2
-      real*8 four, three, two, one, half, zero
-      real*8 Pi, oSqrtThree, oSqrtTwo
+      real*8 four, three, two, one, half, zero, halfCirc
+      real*8 Pi, oSqrtThree, oSqrtTwo, small, critEps
       parameter (Pi=4.d0*atan(1.d0))
       parameter(four=4.d0, three=3.d0, two=2.d0, one=1.d0,
      +          half=5d-1, zero=0.d0, oSqrtThree=1.d0/sqrt(3.d0),
-     +          oSqrtTwo=1.d0/sqrt(2.d0))! Constants
+     +          oSqrtTwo=1.d0/sqrt(2.d0), small=1.d-6, critEps=1.d-6,
+     +          halfCirc=180.d0)! Constants
       integer nsub,k! Nuber of sub-steps and sub-step loop variable
       real*8 dti! Sub-stepping time step
 !-----------------------------------------------------------------------
@@ -113,9 +114,9 @@
       tau0_c     = props(6)! Initial critical resolved shear stress
       qhard      = props(7)! Latent hardening coefficient
       Txflag     = int(props(8))! Texture flag (1=Euler angle from material card,2=Euler angle from history card)
-      phi1       = props(9)*Pi/180.d0! Euler angle phi1 in radians
-      PHI        = props(10)*Pi/180.d0! Euler angle PHI in radians
-      phi2       = props(11)*Pi/180.d0! Euler angle phi2 in radians
+      phi1       = props(9)*Pi/halfCirc! Euler angle phi1 in radians
+      PHI        = props(10)*Pi/halfCirc! Euler angle PHI in radians
+      phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
       hflag      = int(props(12))! Hardening type (1=Voce,2=Kalidindi)
 !-----------------------------------------------------------------------
 !     Determine the hardening law based on hflag
@@ -142,11 +143,11 @@
         tau1   = props(14)! Hardening parameter
         theta2 = props(15)! Hardening parameter
         tau2   = props(16)! Hardening parameter
-        if(tau1.lt.1d-6)then
+        if(tau1.lt.small)then
           theta1 = zero
           tau1   = one
         endif
-        if(tau2.lt.1d-6)then
+        if(tau2.lt.small)then
           theta2 = zero
           tau2   = one
         endif
@@ -214,11 +215,11 @@
 !     Time greater than zero
 !-----------------------------------------------------------------------
       do km = 1, nblock
-        if(stateold(km,13).le.1d-9)then ! First step
+        if(stateold(km,13).lt.small)then ! First step
             if (Txflag.eq.2)then
-              phi1 = STATEOLD(km,1)*Pi/180.d0
-              PHI  = STATEOLD(km,2)*Pi/180.d0
-              phi2 = STATEOLD(km,3)*Pi/180.d0
+              phi1 = STATEOLD(km,1)*Pi/halfCirc
+              PHI  = STATEOLD(km,2)*Pi/halfCirc
+              phi2 = STATEOLD(km,3)*Pi/halfCirc
             endif
 !-----------------------------------------------------------------------
 !       Initializing the rotation tensor
@@ -306,7 +307,7 @@
         nsub = ceiling(sqrt(epsinc(1)**two+epsinc(2)**two+
      +                      epsinc(3)**two+two*epsinc(4)**two+
      +                      two*epsinc(5)**two+
-     +                      two*epsinc(6)**two)/(1.0d-6)) 
+     +                      two*epsinc(6)**two)/(critEps))
 !-----------------------------------------------------------------------
         epsinc  = epsinc/nsub
         spininc = spininc/nsub
