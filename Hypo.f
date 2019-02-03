@@ -244,8 +244,8 @@
 !       Defining state variables from last increment
 !-----------------------------------------------------------------------
           a = 4
-          do i=1,3
-            do j=1,3
+          do j=1,3
+            do i=1,3
               R(i,j) = STATEOLD(km,a)
               a      = a+1
             enddo
@@ -461,8 +461,8 @@
 !       Updating output variables
 !-----------------------------------------------------------------------
         a = 4
-        do i=1,3
-          do j=1,3
+        do j=1,3
+          do i=1,3
             STATENEW(km,a) = R(i,j)! Rotation tensor
             a              = a+1
           enddo
@@ -488,4 +488,4 @@
 !     End Subroutine
 !-----------------------------------------------------------------------
       return
-      end
+      end subroutine Hypo

@@ -47,7 +47,6 @@
       real*8 rrt(3,3)! Transpose of rr
       real*8 uu(3,3)! Stretch tensor U in polar decomposition F=RU
       real*8 uui(3,3)! inverse of uu
-      real*8 StressPower! The change in internal energy (sigma_ij*D_ij*dt)
       real*8 C11! Elastic coefficient
       real*8 C12! Elastic coefficient
       real*8 C44! Elastic coefficient
@@ -206,20 +205,17 @@
 !     Updating the specific internal energy
 !-----------------------------------------------------------------------
       do km=1,nblock
-        StressPower = half*(
+        enerInternNew(km) = enerInternOld(km)+half*(
      +          (stressOld(km,1)+stressNew(km,1))*strainInc(km,1) +
      +          (stressOld(km,2)+stressNew(km,2))*strainInc(km,2) +
      +          (stressOld(km,3)+stressNew(km,3))*strainInc(km,3) +
      +      two*(stressOld(km,4)+stressNew(km,4))*strainInc(km,4) +
      +      two*(stressOld(km,5)+stressNew(km,5))*strainInc(km,5) +
      +      two*(stressOld(km,6)+stressNew(km,6))*strainInc(km,6))
-!
-        enerInternNew(km) = enerInternOld(km)+StressPower/density(km)
-      enddo
+     +      /density(km)
 !-----------------------------------------------------------------------
 !     Updating the dissipated inelastic specific energy
 !-----------------------------------------------------------------------
-      do km=1,nblock
         enerInelasNew(km) = enerInelasOld(km)+
      +                       Dissipation(km)/density(km)
       enddo
@@ -227,4 +223,4 @@
 !     End Subroutine
 !-----------------------------------------------------------------------
       return
-      end
+      end subroutine vumat

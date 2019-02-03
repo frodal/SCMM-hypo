@@ -31,10 +31,9 @@
       real*8 stressOld(1,6),stressNew(1,6)
       real*8 dt
       real*8 C11,C12,C44
-	  real*8 Dissipation(1)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
-	  real*8 DissipationTGT(12)
-	  real*8 StressPower
-	  real*8 SPRIME(6), TDROT(3,3)
+      real*8 Dissipation(1)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
+      real*8 DissipationTGT(12)
+      real*8 SPRIME(6), TDROT(3,3)
       real*8 d(12,6),epsinc(6),spininc(3)
       real*8 L11(12),L12(12),L13(12)
       real*8 L21(12),L22(12),L23(12)
@@ -71,14 +70,14 @@
 !-----------------------------------------------------------------------
 !     Packaging history variables
 !-----------------------------------------------------------------------
-      do k=1,(NSTATV)
+      do k=1,NSTATV
          stateOld(1,k) = STATEV(k)
       enddo
 !-----------------------------------------------------------------------
 !     Rotate the stress tensor to the correct coordinate system
 !-----------------------------------------------------------------------
-      Call mtransp(DROT,TDROT)
-      CALL ROTSIG(STRESS,TDROT,SPRIME,1,NDI,NSHR)
+      call mtransp(DROT,TDROT)
+      call ROTSIG(STRESS,TDROT,SPRIME,1,NDI,NSHR)
       STRESS = SPRIME
       stressOld(1,1) = STRESS(1)
       stressOld(1,2) = STRESS(2)
@@ -93,7 +92,7 @@
 !-----------------------------------------------------------------------
 !     Call the Hypo Subroutine
 !-----------------------------------------------------------------------
-      CALL Hypo(stressNew, stateNew, defgradNew,
+      call Hypo(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld,dt,props,
      +         1, 3, 3, NSTATV, nprops,Dissipation)
 !-----------------------------------------------------------------------
@@ -228,8 +227,8 @@
             enddo
          enddo
 !-----------------------------------------------------------------------
-         do i=1,4
-            do j=1,4
+         do j=1,4
+            do i=1,4
                DDSDDE(i,j) = CTO2(i,j)
             enddo
          enddo
@@ -269,16 +268,16 @@
 !-----------------------------------------------------------------------
 !     Updating the specific elastic internal energy
 !-----------------------------------------------------------------------
-      StressPower = half*(
+      SSE = SSE+(half*(
      +          (stressOld(1,1)+stressNew(1,1))*epsinc(1) +
      +          (stressOld(1,2)+stressNew(1,2))*epsinc(2) +
      +          (stressOld(1,3)+stressNew(1,3))*epsinc(3) +
      +      two*(stressOld(1,4)+stressNew(1,4))*epsinc(4) +
      +      two*(stressOld(1,5)+stressNew(1,5))*epsinc(5) +
-     +      two*(stressOld(1,6)+stressNew(1,6))*epsinc(6) )
-      SSE = SSE+(StressPower-Dissipation(1))
+     +      two*(stressOld(1,6)+stressNew(1,6))*epsinc(6))
+     +       -Dissipation(1))
 !-----------------------------------------------------------------------
 !     End of subroutine
 !-----------------------------------------------------------------------
       return
-      end
+      end subroutine UMAT
