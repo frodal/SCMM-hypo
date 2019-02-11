@@ -206,7 +206,7 @@
 !-----------------------------------------------------------------------
 !     This material subroutine is only for solid elements
 !-----------------------------------------------------------------------
-      if (ndir+nshr .ne. 6) then
+      if (ndir+nshr.ne.6)then
          write(*,*) 'This material subroutine is only for
      + solid elements'
          stop
