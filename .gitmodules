@@ -1,0 +1,3 @@
+[submodule "SCMMhypo-Manual"]
+	path = SCMMhypo-Manual
+	url = https://github.com/frodal/SCMMhypo-Manual
