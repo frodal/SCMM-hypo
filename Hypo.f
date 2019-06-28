@@ -113,11 +113,11 @@
       bm         = props(5)! Instantaneous strain rate sensitivity
       tau0_c     = props(6)! Initial critical resolved shear stress
       qhard      = props(7)! Latent hardening coefficient
-      Txflag     = int(props(8))! Texture flag (1=Euler angle from material card,2=Euler angle from history card)
+      Txflag     = nint(props(8))! Texture flag (1=Euler angle from material card,2=Euler angle from history card)
       phi1       = props(9)*Pi/halfCirc! Euler angle phi1 in radians
       PHI        = props(10)*Pi/halfCirc! Euler angle PHI in radians
       phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
-      hflag      = int(props(12))! Hardening type (1=Voce,2=Kalidindi)
+      hflag      = nint(props(12))! Hardening type (1=Voce,2=Kalidindi)
 !-----------------------------------------------------------------------
 !     Determine the hardening law based on hflag
 !-----------------------------------------------------------------------
@@ -206,7 +206,7 @@
 !-----------------------------------------------------------------------
 !     This material subroutine is only for solid elements
 !-----------------------------------------------------------------------
-      if (ndir+nshr .ne. 6) then
+      if (ndir+nshr.ne.6)then
          write(*,*) 'This material subroutine is only for
      + solid elements'
          stop
