@@ -18,6 +18,10 @@
 ! Props(15) = \theta_2 or a (Hardening parameter depending on hflag)
 ! Props(16) = \tau_2 or not used (Hardening parameter used when hflag=1)
 ! Props(17) = CTOflag (Consistent tangent operator flag used for the implicit version 1=elastic tangent operator, 2=Consistent tangent operator)
+! Props(18) = f0 (Initial damage / void volume fraction)
+! Props(19) = fc (Critical damage / void volume fraction)
+! Props(20) = q1 (Damage evolution parameter)
+! Props(21) = q2 (Damage evolution parameter)
 !-----------------------------------------------------------------------
 !       Solution Dependent state Variables
 !-----------------------------------------------------------------------
@@ -30,6 +34,8 @@
 ! State(26)     = Equivalent von Mises stress (\sigma_{eq})
 ! State(27)     = Equivalent von Mises plastic strain (\varepsilon_{eq})
 ! State(28)     = Number of sub-steps for the current time step (n_{sub})
+! State(29)     = Damage variable / void volume fraction (f)
+! State(30)     = Status used for element deletion
 !-----------------------------------------------------------------------
 !     Subroutine Hypo
 !-----------------------------------------------------------------------
@@ -103,6 +109,16 @@
      +          halfCirc=180.d0)! Constants
       integer nsub,k! Nuber of sub-steps and sub-step loop variable
       real*8 dti! Sub-stepping time step
+      real*8 VVF0, VVFC, VVF, q1, q2 ! Damage variables
+      integer isActive ! Is the integration point active (0=deleted, 1=active)
+!-----------------------------------------------------------------------
+!     This material subroutine is only for solid elements
+!-----------------------------------------------------------------------
+      if (ndir+nshr.ne.6)then
+        write(*,*) 'This material subroutine is only for
+     + solid elements'
+        stop
+      endif
 !-----------------------------------------------------------------------
 !     Read parameters from ABAQUS material card
 !-----------------------------------------------------------------------
@@ -118,6 +134,10 @@
       PHI        = props(10)*Pi/halfCirc! Euler angle PHI in radians
       phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
       hflag      = nint(props(12))! Hardening type (1=Voce,2=Kalidindi)
+      VVF0       = props(18) ! Initial damage / void volume fraction
+      VVFC       = props(19) ! Critical damage / void volume fraction
+      q1         = props(20) ! Damage evolution parameter
+      q2         = props(21) ! Damage evolution parameter
 !-----------------------------------------------------------------------
 !     Determine the hardening law based on hflag
 !-----------------------------------------------------------------------
@@ -204,14 +224,6 @@
          enddo
       enddo
 !-----------------------------------------------------------------------
-!     This material subroutine is only for solid elements
-!-----------------------------------------------------------------------
-      if (ndir+nshr.ne.6)then
-         write(*,*) 'This material subroutine is only for
-     + solid elements'
-         stop
-      endif
-!-----------------------------------------------------------------------
 !     Time greater than zero
 !-----------------------------------------------------------------------
       do km = 1, nblock
@@ -239,6 +251,8 @@
             tau_c  = tau0_c
             gamma  = zero
             PEQ    = zero
+            VVF    = VVF0
+            isActive = 1
         else
 !-----------------------------------------------------------------------
 !       Defining state variables from last increment
@@ -253,6 +267,16 @@
           tau_c = STATEOLD(km,13:24)
           gamma = STATEOLD(km,25)
           PEQ   = STATEOLD(km,27)
+          VVF   = STATEOLD(km,29)
+          isActive = nint(STATEOLD(km,30))
+        endif
+!-----------------------------------------------------------------------
+!       Check if integration point is active
+!-----------------------------------------------------------------------
+        if(isActive.eq.0)then
+            stressNew(km,1:6) = zero
+            STATENEW(km,1:nstatev) = STATEOLD(km,1:nstatev)
+            cycle ! Continue to next loop cycle
         endif
 !-----------------------------------------------------------------------
 !       Co-rotating the stress tensor, strain increments and incremental spins
@@ -353,7 +377,8 @@
      +               sigma(5)*(S(a,2,3)+S(a,3,2))+
      +               sigma(6)*(S(a,3,1)+S(a,1,3))
             dgamma(a) = dti*gamma0_dot*
-     +                (abs(tau(a)/tau_c(a)))**(one/bm)*sign(one,tau(a))
+     +                (abs(tau(a)/((one-VVF)*tau_c(a))))**(one/bm)*
+     +                sign(one,tau(a))
 !-----------------------------------------------------------------------
 !       Calculating corotated incremental plastic strain and spin
 !-----------------------------------------------------------------------
@@ -381,18 +406,21 @@
 !-----------------------------------------------------------------------
 !       Updating corotated stress tensor
 !-----------------------------------------------------------------------
-          sigma(1) = sigma(1)+C11*(depsilon(1)-depsilon_p(1))
-     +                       +C12*(depsilon(2)-depsilon_p(2))
-     +                       +C12*(depsilon(3)-depsilon_p(3))
-          sigma(2) = sigma(2)+C12*(depsilon(1)-depsilon_p(1))
-     +                       +C11*(depsilon(2)-depsilon_p(2))
-     +                       +C12*(depsilon(3)-depsilon_p(3))
-          sigma(3) = sigma(3)+C12*(depsilon(1)-depsilon_p(1))
-     +                       +C12*(depsilon(2)-depsilon_p(2))
-     +                       +C11*(depsilon(3)-depsilon_p(3))
-          sigma(4) = sigma(4)+two*C44*(depsilon(4)-depsilon_p(4))
-          sigma(5) = sigma(5)+two*C44*(depsilon(5)-depsilon_p(5))
-          sigma(6) = sigma(6)+two*C44*(depsilon(6)-depsilon_p(6))
+          sigma(1) = sigma(1)+C11*(depsilon(1)-depsilon_p(1))*(one-VVF)
+     +                       +C12*(depsilon(2)-depsilon_p(2))*(one-VVF)
+     +                       +C12*(depsilon(3)-depsilon_p(3))*(one-VVF)
+          sigma(2) = sigma(2)+C12*(depsilon(1)-depsilon_p(1))*(one-VVF)
+     +                       +C11*(depsilon(2)-depsilon_p(2))*(one-VVF)
+     +                       +C12*(depsilon(3)-depsilon_p(3))*(one-VVF)
+          sigma(3) = sigma(3)+C12*(depsilon(1)-depsilon_p(1))*(one-VVF)
+     +                       +C12*(depsilon(2)-depsilon_p(2))*(one-VVF)
+     +                       +C11*(depsilon(3)-depsilon_p(3))*(one-VVF)
+          sigma(4) = sigma(4)+
+     +               two*C44*(depsilon(4)-depsilon_p(4))*(one-VVF)
+          sigma(5) = sigma(5)+
+     +               two*C44*(depsilon(5)-depsilon_p(5))*(one-VVF)
+          sigma(6) = sigma(6)+
+     +               two*C44*(depsilon(6)-depsilon_p(6))*(one-VVF)
 !-----------------------------------------------------------------------
 !       Updating critical resolved shear stresses
 !-----------------------------------------------------------------------
@@ -442,6 +470,15 @@
           call updateR(domega_e,R)
           call mtransp(R,RT)
 !-----------------------------------------------------------------------
+!       Updating damage
+!-----------------------------------------------------------------------
+          call UpdateDamage(VVF,sigma,dgamma,q1,q2,alpha)
+          if((VVF.ge.VVFC).or.(VVF.ge.one))then
+            sigma = zero
+            isActive = 0
+            exit ! Break out of do-loop
+          endif
+!-----------------------------------------------------------------------
 !       End sub-stepping
 !-----------------------------------------------------------------------
         enddo! End sub-stepping
@@ -476,6 +513,8 @@
      +                      +three*sigma(6)**two)! Equivalent von Mises stress
         STATENEW(km,27) = PEQ! Equivalent von mises plastic strain
         STATENEW(km,28) = nsub! Number of sub steps
+        STATENEW(km,29) = VVF ! Damage / void volume fraction
+        STATENEW(km,30) = isActive ! Is the element active or should it be deleted (Abaqus status variable)
 !-----------------------------------------------------------------------
         call euler(R,ang)
 !-----------------------------------------------------------------------

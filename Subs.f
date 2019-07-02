@@ -387,3 +387,42 @@
 !
       return
       end subroutine euler
+!-----------------------------------------------------------------------
+!                         SUBROUTINE UpdateDamage
+!-----------------------------------------------------------------------
+! Updates the damage variable / void volume fraction
+!-----------------------------------------------------------------------
+      subroutine UpdateDamage(VVF,sigma,dgamma,q1,q2,alpha)
+!
+      implicit none
+!
+      real*8, intent(inout) :: VVF
+      integer, intent(in) :: alpha
+      real*8, intent(in) :: sigma(6),dgamma(alpha),q1,q2
+!     Local variables
+      real*8 Seq,Sh,deltaGamma,oThree,small,one,zero,half,two,three
+      parameter(zero=0.d0,one=1.d0,oThree=1.d0/3.d0,small=1.d-6,
+     +          half=5.d-1,two=2.d0,three=3.d0)
+!-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+      Seq = sqrt(half*((sigma(1)-sigma(2))**two
+     +      +(sigma(2)-sigma(3))**two
+     +      +(sigma(3)-sigma(1))**two)
+     +      +three*sigma(4)**two+three*sigma(5)**two
+     +      +three*sigma(6)**two)! Equivalent von Mises stress
+!-----------------------------------------------------------------------
+      if(Seq.lt.small) return
+!-----------------------------------------------------------------------
+      Sh = (sigma(1)+sigma(2)+sigma(3))*oThree ! hydrostatic stress
+!-----------------------------------------------------------------------
+      deltaGamma = abs(dgamma(1))+abs(dgamma(2))+abs(dgamma(3))+
+     +             abs(dgamma(4))+abs(dgamma(5))+abs(dgamma(6))+
+     +             abs(dgamma(7))+abs(dgamma(8))+abs(dgamma(9))+
+     +            abs(dgamma(10))+abs(dgamma(11))+abs(dgamma(12))
+!-----------------------------------------------------------------------
+      VVF = VVF + q1*VVF*(one-VVF)*exp(q2*Sh/Seq)*deltaGamma
+      VVF = max(VVF,zero)
+!-----------------------------------------------------------------------
+      return
+      end subroutine UpdateDamage
+!
