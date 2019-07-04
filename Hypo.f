@@ -276,6 +276,7 @@
         if(isActive.eq.0)then
             stressNew(km,1:6) = zero
             STATENEW(km,1:nstatev) = STATEOLD(km,1:nstatev)
+            Dissipation(km) = zero
             cycle ! Continue to next loop cycle
         endif
 !-----------------------------------------------------------------------
