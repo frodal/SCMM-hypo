@@ -85,7 +85,6 @@
       real*8 sigs(6)! Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
       real*8 sigma(6)! Corotaional stress tensor components, S11, S22, S33, S12, S23, S31 w.r.t. W
       real*8 depsilon(6)! Corotaional incremental strain tensor components, dE11, dE22, dE33, dE12, dE23, dE31 w.r.t. W
-      real*8 domega(3)! Corotaional incremental spin tensor components, dW32, dW13, dW21 w.r.t. W
       real*8 depsilon_p(6)! Corotaional incremental plastic strain tensor components, dE11, dE22, dE33, dE12, dE23, dE31 w.r.t. W
       real*8 domega_p(3)! Corotaional incremental plastic spin tensor components, dW32, dW13, dW21 w.r.t. W
       real*8 domega_e(3)! Incremental elastic spin tensor components, dW32, dW13, dW21 in global coordinate system
@@ -322,24 +321,6 @@
           call transform(xmat1,RT,xmat2)
           call mat2vec(xmat2,depsilon)
 !-----------------------------------------------------------------------
-!       Incremental spins, domega_hat=R**T domega R
-!-----------------------------------------------------------------------
-          xmat1(1,1) = zero
-          xmat1(1,2) = -spininc(3)
-          xmat1(1,3) =  spininc(2)
-          xmat1(2,1) =  spininc(3)
-          xmat1(2,2) = zero
-          xmat1(2,3) = -spininc(1)
-          xmat1(3,1) = -spininc(2)
-          xmat1(3,2) =  spininc(1)
-          xmat1(3,3) = zero
-!-----------------------------------------------------------------------
-          call transform(xmat1,RT,xmat2)
-!-----------------------------------------------------------------------
-          domega(1) = xmat2(3,2)
-          domega(2) = xmat2(1,3)
-          domega(3) = xmat2(2,1)
-!-----------------------------------------------------------------------
 !         Calculating resolved shear stresses at n and estimate the shear strain increments at n+1
 !-----------------------------------------------------------------------
           depsilon_p = zero
@@ -422,20 +403,20 @@
 !       Calculating incremental elastic rotation in the global coordinate system
 !-----------------------------------------------------------------------
           xmat1(1,1) = zero
-          xmat1(1,2) = -(domega(3)-domega_p(3))
-          xmat1(1,3) = (domega(2)-domega_p(2))
-          xmat1(2,1) = (domega(3)-domega_p(3))
+          xmat1(1,2) = -domega_p(3)
+          xmat1(1,3) = domega_p(2)
+          xmat1(2,1) = domega_p(3)
           xmat1(2,2) = zero
-          xmat1(2,3) = -(domega(1)-domega_p(1))
-          xmat1(3,1) = -(domega(2)-domega_p(2))
-          xmat1(3,2) = (domega(1)-domega_p(1))
+          xmat1(2,3) = -domega_p(1)
+          xmat1(3,1) = -domega_p(2)
+          xmat1(3,2) = domega_p(1)
           xmat1(3,3) = zero
 !-----------------------------------------------------------------------
           call transform(xmat1,R,xmat2)
 !-----------------------------------------------------------------------
-          domega_e(1) = xmat2(3,2)
-          domega_e(2) = xmat2(1,3)
-          domega_e(3) = xmat2(2,1)
+          domega_e(1) = spininc(1)-xmat2(3,2)
+          domega_e(2) = spininc(2)-xmat2(1,3)
+          domega_e(3) = spininc(3)-xmat2(2,1)
 !-----------------------------------------------------------------------
 !       Updating the rotation tensor
 !-----------------------------------------------------------------------
