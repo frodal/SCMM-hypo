@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+#$ -N abaqus
+#$ -cwd
+#$ -j y
+#$ -r y
+#$ -S /bin/bash
+#$ -pe smp 1
+
+#
+export WDIR=/state/partition1
+#
+/share/apps/abaqus/Commands/abq2019 job=SimpleShear cpus=$NSLOTS mp_mode=mpi double inter scratch=$WDIR
