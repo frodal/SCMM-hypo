@@ -18,6 +18,7 @@
 *.cae
 *.jnl
 *.rpy*
+Tests/Abaqus/*/**/*.inp
 # Snurre job files
 jobaba
 *.o*
