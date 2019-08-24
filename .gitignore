@@ -18,6 +18,11 @@
 *.cae
 *.jnl
 *.rpy*
+*.src
+*.cid
+*.simlog
+*.lck
+*.SMA*
 Tests/Abaqus/*/**/*.inp
 # Snurre job files
 jobaba

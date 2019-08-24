@@ -5,6 +5,22 @@ import os
 import enum
 from pathlib import Path
 import shutil
+import argparse
+import glob
+##----------------------------------------------------------------------
+## Context manager class
+##----------------------------------------------------------------------
+class cd:
+    """Context manager for changing the current working directory"""
+    def __init__(self, newPath):
+        self.newPath = os.path.expanduser(newPath)
+
+    def __enter__(self):
+        self.savedPath = os.getcwd()
+        os.chdir(self.newPath)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.savedPath)
 ##----------------------------------------------------------------------
 ## Abaqus solver Enum
 ##----------------------------------------------------------------------
@@ -13,7 +29,7 @@ class AbaqusSolver(enum.Enum):
     # Generates the value to the auto method
     def _generate_next_value_(name, start, count, last_values):
         return name
-    #Enums
+    # Enums
     Explicit = enum.auto()
     Implicit = enum.auto()
 ##----------------------------------------------------------------------
@@ -100,11 +116,12 @@ class AbaqusTest(Test):
 
     # Sets up the Abaqus job files
     def SetupAbaqusJob(self):
+        # Creates the test working directory
         if not self.testPath.exists():
             self.testPath.mkdir(parents=True)
         # Copies the Abaqus input file to the test working directory
-        shutil.copy(self.inputfile,self.testPath.joinpath(self.name+'.inp'))
-        #
+        self.currentInputFile = self.testPath.joinpath(self.name+'.inp')
+        shutil.copy(self.inputfile,self.currentInputFile)
         # Writes a material card to the test working directory
         self.material.WriteMaterailCard(self.testPath)
 
@@ -119,15 +136,16 @@ class AbaqusTest(Test):
         jobabaFile = self.testPath.joinpath(jobabaName)
         jobabaFile.write_text(jobabaContent)
         # Submit the job to the queue on Snurre
-        os.system('qsub '+str(jobabaFile))
-        # print('qsub '+str(jobabaFile))
-
+        with cd(self.testPath):
+            os.system('qsub '+jobabaName)
 
     # Runs the test on the current PC
     def Run(self):
-        # TODO: Implement a method(this) to run the test on the current PC
         # Sets up the test
         self.SetupAbaqusJob()
+        # Run the abaqus solver
+        with cd(self.testPath):
+            os.system('abaqus double job='+str(self.name)+' interactive')
 ##----------------------------------------------------------------------
 class FortranTest(Test):
     # Constructor
@@ -136,9 +154,20 @@ class FortranTest(Test):
         super().__init__(name)
     # TODO: Implement tests to test parts of the Fortran code
 ##----------------------------------------------------------------------
-## Main
+## Clean working directories
 ##----------------------------------------------------------------------
-def main():
+def Clean():
+    print('Started cleaning')
+    abaqusPath = Path(__file__).parent.joinpath('Abaqus')
+    for folder in glob.glob(str(abaqusPath)+'/*/'):
+        shutil.rmtree(folder)
+        print('Directory deleted: '+folder)
+    print('Cleaning completed successfully!')
+##----------------------------------------------------------------------
+## Run tests
+##----------------------------------------------------------------------
+def RunTests(location):
+    print('Running tests')
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -183,8 +212,48 @@ def main():
                         AbaqusSolver.Implicit,material))
     
     # Run Tests
-    for test in tests:
-        test.RunOnSnurre()
+    if location==0:
+        for test in tests:
+            test.Run()
+    else:
+        for test in tests:
+            test.RunOnSnurre()
+    print('Tests completed!')
+##----------------------------------------------------------------------
+## Post-process tests
+##----------------------------------------------------------------------
+def PostProcess():
+    print('Post-processing tests')
+    # TODO: Implement some post-processing of the tests
+    # Call abaqus python with a specific post-processing script for each test
+    # TODO: Create a python script to post-process the SimpleShear test
+    print('Finished processing tests')
+##----------------------------------------------------------------------
+## Main
+##----------------------------------------------------------------------
+def main():
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Run tests for the SCMM-hypo subroutine.')
+    parser.add_argument('action',type=str,choices=['run','clean','post'],
+                        help='Choose what to do.'+
+                        ' "run": For running the tests.'+
+                        ' "clean": For cleaning the test working directories.'+
+                        ' "post": For post-processing the results.')
+    parser.add_argument('--location',default=1,type=int,choices=[0,1],
+                        help='Choose where the test is run.'+
+                        ' 0: For running the tests on the current PC.'+
+                        ' 1: For running the tests on Snurre (Default option).')
+    args = parser.parse_args()
+    location = args.location
+    action = args.action
+    
+    # Do stuff
+    if action=='run':
+        RunTests(location)
+    elif action=='clean':
+        Clean()
+    elif action=='post':
+        PostProcess()
 ##----------------------------------------------------------------------
 ## Entry point
 ##----------------------------------------------------------------------
