@@ -10,4 +10,4 @@
 #
 export WDIR=/state/partition1
 #
-/share/apps/abaqus/Commands/abq2019 job=<<jobName>> cpus=$NSLOTS mp_mode=mpi double inter scratch=$WDIR
+/share/apps/abaqus/Commands/abq2019 job=<<jobName>> cpus=$NSLOTS double inter scratch=$WDIR

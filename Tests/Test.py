@@ -94,7 +94,7 @@ class Test:
 ##----------------------------------------------------------------------
 class AbaqusTest(Test):
     # Constructor
-    def __init__(self,name,inputfile,solver,material):
+    def __init__(self,name,inputfile,solver,postScript,material):
         # Calls the base (super) class's constructor
         super().__init__(name)
         # Saves the path to the input file provided as an absolute path
@@ -105,6 +105,10 @@ class AbaqusTest(Test):
         self.solver = solver
         assert (self.solver == AbaqusSolver.Explicit or self.solver == AbaqusSolver.Implicit),(
             'Unknown solver: '+str(self.solver))
+        # Saves the path to the post-processing script provided as an absolute path
+        self.postScript = Path(__file__).parent.joinpath(postScript).absolute()
+        assert (self.postScript.exists()),(
+            'The post-processing script provided could not be found: '+str(self.postScript))
         # Saves the material to be used
         self.material = material
         assert (isinstance(material,Material)),(
@@ -115,7 +119,7 @@ class AbaqusTest(Test):
             self.solver.name).joinpath(self.material.name)
 
     # Sets up the Abaqus job files
-    def SetupAbaqusJob(self):
+    def _SetupAbaqusJob(self):
         # Creates the test working directory
         if not self.testPath.exists():
             self.testPath.mkdir(parents=True)
@@ -124,11 +128,14 @@ class AbaqusTest(Test):
         shutil.copy(self.inputfile,self.currentInputFile)
         # Writes a material card to the test working directory
         self.material.WriteMaterailCard(self.testPath)
+        # Copies the Abaqus environment file to the test working directory
+        shutil.copy(self.abaqusPath.joinpath('abaqus_v6.env'),
+                    self.testPath.joinpath('abaqus_v6.env'))
 
     # Runs the test on Snurre. Note that the script should be run from Snurre
-    def RunOnSnurre(self):
+    def _RunOnSnurre(self):
         # Sets up the test
-        self.SetupAbaqusJob()
+        self._SetupAbaqusJob()
         # Reads the template jobaba file and writes a jobaba file to the test working directory
         jobabaTemplateFile = self.abaqusPath.joinpath('Snurre-jobaba')
         jobabaContent = jobabaTemplateFile.read_text().replace('<<jobName>>',self.name)
@@ -140,12 +147,27 @@ class AbaqusTest(Test):
             os.system('qsub '+jobabaName)
 
     # Runs the test on the current PC
-    def Run(self):
+    def _RunHere(self):
         # Sets up the test
-        self.SetupAbaqusJob()
+        self._SetupAbaqusJob()
         # Run the abaqus solver
         with cd(self.testPath):
             os.system('abaqus double job='+str(self.name)+' interactive')
+    
+    # Runs the test
+    def Run(self,location=1):
+        if location==0:
+            self._RunHere()
+        else:
+            self._RunOnSnurre()
+    
+    # Post-process the test
+    def Process(self):
+        with cd(self.testPath):
+            # Call abaqus python with the post-processing script
+            os.system('abaqus python '+str(self.postScript))
+            # Read result
+            # TODO: Read results and compare with reference curves and output pass or fail
 ##----------------------------------------------------------------------
 class FortranTest(Test):
     # Constructor
@@ -166,8 +188,52 @@ def Clean():
 ##----------------------------------------------------------------------
 ## Run tests
 ##----------------------------------------------------------------------
-def RunTests(location):
+def RunTests(tests,location):
     print('Running tests')
+    for test in tests:
+        test.Run(location)
+    print('Tests completed!')
+##----------------------------------------------------------------------
+## Post-process tests
+##----------------------------------------------------------------------
+def PostProcess(tests):
+    print('Post-processing tests')
+    for test in tests:
+        test.Process()
+    print('Finished processing tests')
+##----------------------------------------------------------------------
+## Main
+##----------------------------------------------------------------------
+def main():
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Run tests for the SCMM-hypo subroutine.')
+    parser.add_argument('action',type=str,choices=['run','clean','post'],
+                        help='Choose what to do.'+
+                        ' "run": For running the tests.'+
+                        ' "clean": For cleaning the test working directories.'+
+                        ' "post": For post-processing the results.')
+    parser.add_argument('--location',default=1,type=int,choices=[0,1],
+                        help='Choose where the test is run.'+
+                        ' 0: For running the tests on the current PC.'+
+                        ' 1: For running the tests on Snurre (Default option).')
+    args = parser.parse_args()
+    location = args.location
+    action = args.action
+    
+    # Creates the tests
+    tests = CreateTests()
+
+    # Do stuff
+    if action=='run':
+        RunTests(tests,location)
+    elif action=='clean':
+        Clean()
+    elif action=='post':
+        PostProcess(tests)
+##----------------------------------------------------------------------
+## Creates tests
+##----------------------------------------------------------------------
+def CreateTests():
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -201,59 +267,17 @@ def RunTests(location):
     # Add SimpleShear tests using Abaqus/Explicit and the kalidindi materials
     for material in kalidindiMaterials:
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
-                        AbaqusSolver.Explicit,material))
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
     # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials
     for material in voceMaterials:
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
-                        AbaqusSolver.Explicit,material))
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
     # Add SimpleShear tests using Abaqus/Standard and the kalidindi materials
     for material in kalidindiMaterials:
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Implicit.inp',
-                        AbaqusSolver.Implicit,material))
+                    AbaqusSolver.Implicit,'Abaqus/SimpleShearExtract.py',material))
     
-    # Run Tests
-    if location==0:
-        for test in tests:
-            test.Run()
-    else:
-        for test in tests:
-            test.RunOnSnurre()
-    print('Tests completed!')
-##----------------------------------------------------------------------
-## Post-process tests
-##----------------------------------------------------------------------
-def PostProcess():
-    print('Post-processing tests')
-    # TODO: Implement some post-processing of the tests
-    # Call abaqus python with a specific post-processing script for each test
-    # TODO: Create a python script to post-process the SimpleShear test
-    print('Finished processing tests')
-##----------------------------------------------------------------------
-## Main
-##----------------------------------------------------------------------
-def main():
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Run tests for the SCMM-hypo subroutine.')
-    parser.add_argument('action',type=str,choices=['run','clean','post'],
-                        help='Choose what to do.'+
-                        ' "run": For running the tests.'+
-                        ' "clean": For cleaning the test working directories.'+
-                        ' "post": For post-processing the results.')
-    parser.add_argument('--location',default=1,type=int,choices=[0,1],
-                        help='Choose where the test is run.'+
-                        ' 0: For running the tests on the current PC.'+
-                        ' 1: For running the tests on Snurre (Default option).')
-    args = parser.parse_args()
-    location = args.location
-    action = args.action
-    
-    # Do stuff
-    if action=='run':
-        RunTests(location)
-    elif action=='clean':
-        Clean()
-    elif action=='post':
-        PostProcess()
+    return tests
 ##----------------------------------------------------------------------
 ## Entry point
 ##----------------------------------------------------------------------

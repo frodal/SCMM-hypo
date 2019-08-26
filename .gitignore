@@ -23,7 +23,8 @@
 *.simlog
 *.lck
 *.SMA*
-Tests/Abaqus/*/**/*.inp
+# Abaqus tests working directory
+Tests/Abaqus/*/**/*
 # Snurre job files
 jobaba
 *.o*
