@@ -7,6 +7,10 @@ from pathlib import Path
 import shutil
 import argparse
 import glob
+import pandas as pd
+from scipy import interpolate
+import numpy as np
+# import matplotlib.pyplot as plt
 ##----------------------------------------------------------------------
 ## Context manager class
 ##----------------------------------------------------------------------
@@ -97,8 +101,10 @@ class AbaqusTest(Test):
     def __init__(self,name,inputfile,solver,postScript,material):
         # Calls the base (super) class's constructor
         super().__init__(name)
+        # Current directory
+        pythonPath = Path(__file__).parent
         # Saves the path to the input file provided as an absolute path
-        self.inputfile = Path(__file__).parent.joinpath(inputfile)
+        self.inputfile = pythonPath.joinpath(inputfile)
         assert (self.inputfile.exists()),(
             'The inputfile provided could not be found: '+str(self.inputfile))
         # Saves the solver to use in Abaqus
@@ -106,7 +112,7 @@ class AbaqusTest(Test):
         assert (self.solver == AbaqusSolver.Explicit or self.solver == AbaqusSolver.Implicit),(
             'Unknown solver: '+str(self.solver))
         # Saves the path to the post-processing script provided as an absolute path
-        self.postScript = Path(__file__).parent.joinpath(postScript).absolute()
+        self.postScript = pythonPath.joinpath(postScript).absolute()
         assert (self.postScript.exists()),(
             'The post-processing script provided could not be found: '+str(self.postScript))
         # Saves the material to be used
@@ -114,9 +120,11 @@ class AbaqusTest(Test):
         assert (isinstance(material,Material)),(
             'Unknown material: '+str(self.material))
         # Sets up the Abaqus folder path and the test working directory path
-        self.abaqusPath = Path(__file__).parent.joinpath('Abaqus')
+        self.abaqusPath = pythonPath.joinpath('Abaqus')
         self.testPath = self.abaqusPath.joinpath(self.name).joinpath(
             self.solver.name).joinpath(self.material.name)
+        self.referencePath = pythonPath.joinpath('ReferenceData').joinpath(
+            self.name).joinpath(self.solver.name).joinpath(self.material.name)
 
     # Sets up the Abaqus job files
     def _SetupAbaqusJob(self):
@@ -163,11 +171,38 @@ class AbaqusTest(Test):
     
     # Post-process the test
     def Process(self):
+        self.passed = True
         with cd(self.testPath):
             # Call abaqus python with the post-processing script
             os.system('abaqus python '+str(self.postScript))
-            # Read result
-            # TODO: Read results and compare with reference curves and output pass or fail
+        # Read test result
+        try:
+            testData = pd.read_csv(self.testPath.joinpath('Result.csv')).T.to_numpy()
+        except:
+            self.passed = False
+            return self.passed
+        # Read reference data
+        try:
+            referenceData = pd.read_csv(self.referencePath.joinpath('Result.csv')).T.to_numpy()
+        except:
+            self.passed = False
+            assert (False),'Could not read the test reference data'
+            return self.passed
+        # Check length of data
+        if len(testData[0])<0.9*len(referenceData[0]):
+            self.passed = False
+            return self.passed
+        # Assume that the test result contains x and y data
+        xRef  = referenceData[0]
+        # Creates interpolation functions as to evaluate the difference at the same x-values 
+        fTest = interpolate.interp1d(testData[0],testData[1])
+        fRef  = interpolate.interp1d(xRef,referenceData[1])
+        # 
+        x     = np.linspace(xRef.min(),xRef.max(),len(xRef))
+        yTest = fTest(x)
+        yRef  = fRef(x)
+        self.passed = np.sum(np.power((yRef-yTest)/yRef.max(),2))<0.001
+        return self.passed
 ##----------------------------------------------------------------------
 class FortranTest(Test):
     # Constructor
@@ -189,18 +224,19 @@ def Clean():
 ## Run tests
 ##----------------------------------------------------------------------
 def RunTests(tests,location):
-    print('Running tests')
     for test in tests:
         test.Run(location)
-    print('Tests completed!')
 ##----------------------------------------------------------------------
 ## Post-process tests
 ##----------------------------------------------------------------------
 def PostProcess(tests):
-    print('Post-processing tests')
     for test in tests:
         test.Process()
-    print('Finished processing tests')
+        name = test.name+'-'+test.solver.name+'-'+test.material.name
+        if test.passed:
+            print('PASSED test "{}"'.format(name))
+        else:
+            print('FAILED test "{}"'.format(name))
 ##----------------------------------------------------------------------
 ## Main
 ##----------------------------------------------------------------------

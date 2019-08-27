@@ -43,10 +43,10 @@ def main():
         exit(1)
 
     # Write equivalent von Mises plastic strain and stress to the result file
-    with open('SimpleShearResult.dat','w') as fil:
-        fil.write('%20s %20s\n' % ('VM eq. plastic strain','VM eq. stress'))
+    with open('Result.csv','w') as fil:
+        fil.write('%20s , %20s\n' % ('VM eq. pl. strain','VM eq. stress'))
         for eps,sig in zip(SDV27,SDV26):
-	        fil.write('%20.8e %20.8f\n' % (eps,sig))
+	        fil.write('%20.8e , %20.8f\n' % (eps,sig))
 
 ##----------------------------------------------------------------------
 ## Entry point
