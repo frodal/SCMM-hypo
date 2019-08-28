@@ -201,7 +201,8 @@ class AbaqusTest(Test):
         x     = np.linspace(xRef.min(),xRef.max(),len(xRef))
         yTest = fTest(x)
         yRef  = fRef(x)
-        self.passed = np.sum(np.power((yRef-yTest)/yRef.max(),2))<0.001
+        self.residual = np.sum(np.power((yRef-yTest)/(yRef.max()-yRef.min()),2))
+        self.passed = self.residual<0.001
         return self.passed
 ##----------------------------------------------------------------------
 class FortranTest(Test):
@@ -214,12 +215,10 @@ class FortranTest(Test):
 ## Clean working directories
 ##----------------------------------------------------------------------
 def Clean():
-    print('Started cleaning')
     abaqusPath = Path(__file__).parent.joinpath('Abaqus')
     for folder in glob.glob(str(abaqusPath)+'/*/'):
         shutil.rmtree(folder)
         print('Directory deleted: '+folder)
-    print('Cleaning completed successfully!')
 ##----------------------------------------------------------------------
 ## Run tests
 ##----------------------------------------------------------------------
@@ -234,9 +233,9 @@ def PostProcess(tests):
         test.Process()
         name = test.name+'-'+test.solver.name+'-'+test.material.name
         if test.passed:
-            print('PASSED test "{}"'.format(name))
+            print('PASSED test {:40} residual = {:e}'.format(name,test.residual))
         else:
-            print('FAILED test "{}"'.format(name))
+            print('FAILED test {:40} residual = {:e}'.format(name,test.residual))
 ##----------------------------------------------------------------------
 ## Main
 ##----------------------------------------------------------------------
