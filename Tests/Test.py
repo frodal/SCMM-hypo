@@ -216,6 +216,14 @@ class FortranTest(Test):
     def __init__(self,name):
         # Calls the base (super) class's constructor
         super().__init__(name)
+    
+    # Runs the test
+    def Run(self):
+        pass
+
+    # Post-process the test
+    def Process(self):
+        pass
     # TODO: Implement tests to test parts of the Fortran code
 ##----------------------------------------------------------------------
 ## Clean working directories
