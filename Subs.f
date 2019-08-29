@@ -199,7 +199,6 @@
 !     Local variables
       real*8 L(3,3), Favginv(3,3), Favg(3,3), Fdot(3,3), Lt(3,3)
       real*8 Ddt(3,3), Wdt(3,3), half
-      integer i, j
       parameter(half=5.d-1)
 !-----------------------------------------------------------------------
       Fdot = (Fnew-Fold)/dt
@@ -220,7 +219,8 @@
 !-----------------------------------------------------------------------
 !                         SUBROUTINE updateR
 !-----------------------------------------------------------------------
-! Computes the new rotation tensor based on lattice/elastic rotation increments
+! Computes the new rotation tensor based on the 
+! lattice/elastic rotation increments
 !-----------------------------------------------------------------------
       subroutine updateR(domega_e,R)
 !
@@ -233,7 +233,8 @@
       real*8 newR(3,3), zero, one, half
       parameter(zero=0.d0,one=1.d0,half=5.d-1)
 !-----------------------------------------------------------------------
-      ! Calculating B(i,l)=INV((I(i,k)-0.5*domega_e(i,k)))*(I(k,l)+0.5*domega_e(k,l))
+      ! Calculating 
+      !B(i,l)=INV((I(i,k)-0.5*domega_e(i,k)))*(I(k,l)+0.5*domega_e(k,l))
       ! R(n+1)=B*R(n)
       We(1,1)  = zero
       We(1,2)  = -domega_e(3)
@@ -361,7 +362,6 @@
       real*8, intent(out) :: ang(3)
 !     Local variables
       real*8 pi, zero, one, circ, small, halfCirc
-      integer i
       parameter(pi=4.d0*atan(1.d0),zero=0.d0,one=1.d0,circ=360.d0,
      .          small=1.d-9,halfCirc=180.d0)
 !-----------------------------------------------------------------------

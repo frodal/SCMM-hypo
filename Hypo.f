@@ -8,7 +8,8 @@
 ! Props(5)  = m (Instantaneous strain rate sensitivity)
 ! Props(6)  = \tau_{c0} (Initial critical resolved shear stress)
 ! Props(7)  = q (Latent hardening coefficient)
-! Props(8)  = Txflag (Texture flag 1=Euler angle from material card, 2=Euler angle from history card)
+! Props(8)  = Txflag (Texture flag 1=Euler angle from material card, 
+!                                  2=Euler angle from history card)
 ! Props(9)  = \phi_1 (Initial Euler angle)
 ! Props(10) = \Phi (Initial Euler angle)
 ! Props(11) = \phi_2 (Initial Euler angle)
@@ -17,7 +18,9 @@
 ! Props(14) = \tau_1 or \tau_s (Hardening parameter depending on hflag)
 ! Props(15) = \theta_2 or a (Hardening parameter depending on hflag)
 ! Props(16) = \tau_2 or not used (Hardening parameter used when hflag=1)
-! Props(17) = CTOflag (Consistent tangent operator flag used for the implicit version 1=elastic tangent operator, 2=Consistent tangent operator)
+! Props(17) = CTOflag (Consistent tangent operator flag used for the 
+! implicit version 1=elastic tangent operator, 
+!                  2=Consistent tangent operator)
 !-----------------------------------------------------------------------
 !       Solution Dependent state Variables
 !-----------------------------------------------------------------------
@@ -29,7 +32,7 @@
 ! State(25)     = Accumulated plastic shear strain (\Gamma)
 ! State(26)     = Equivalent von Mises stress (\sigma_{eq})
 ! State(27)     = Equivalent von Mises plastic strain (\varepsilon_{eq})
-! State(28)     = Number of sub-steps for the current time step (n_{sub})
+! State(28)     = Number of sub-steps for the current time step(n_{sub})
 !-----------------------------------------------------------------------
 !     Subroutine Hypo
 !-----------------------------------------------------------------------
@@ -69,11 +72,13 @@
       real*8 h0! Hardening parameter
       real*8 tau_s! Hardening parameter
       real*8 am! Hardening parameter
-      real*8 dtau_c(alpha)! Critical resolved shear stress increment for slip system alpha
+      real*8 dtau_c(alpha)! Critical resolved shear stress increment
+! for slip system alpha
       real*8 qhard! Latent hardening coefficient
       real*8 q(12,12)! Latent hardening matrix
       real*8 tau(alpha)! Resolved shear stress for slip system alpha
-      real*8 tau_c(alpha)! Critical resolved shear stress for slip system alpha
+      real*8 tau_c(alpha)! Critical resolved shear stress 
+! for slip system alpha
       real*8 n(alpha,3)! Slip plane normal for slip system alpha
       real*8 m(alpha,3)! Slip direction for slip system alpha
       real*8 Fold(3,3)! Old Deformation gradient F=RU
@@ -82,16 +87,26 @@
       real*8 phi1, PHI, phi2! Euler angles (phi1, PHI, phi2)
       real*8 S(alpha,3,3)! Schmid tensor for slip system alpha
       integer a,i,j! Loop variables
-      real*8 sigs(6)! Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
-      real*8 sigma(6)! Corotaional stress tensor components, S11, S22, S33, S12, S23, S31 w.r.t. W
-      real*8 depsilon(6)! Corotaional incremental strain tensor components, dE11, dE22, dE33, dE12, dE23, dE31 w.r.t. W
-      real*8 depsilon_p(6)! Corotaional incremental plastic strain tensor components, dE11, dE22, dE33, dE12, dE23, dE31 w.r.t. W
-      real*8 domega_p(3)! Corotaional incremental plastic spin tensor components, dW32, dW13, dW21 w.r.t. W
-      real*8 domega_e(3)! Incremental elastic spin tensor components, dW32, dW13, dW21 in global coordinate system
-      real*8 spininc(3)! Incremental spin tensor components, dW32, dW13, dW21 in global coordinate system
-      real*8 epsinc(6)! Incremental incremental strain tensor components, dE11, dE22, dE33, dE12, dE23, dE31 in global coordinate system
+      real*8 sigs(6)! Stress tensor components, 
+! S11, S22, S33, S12, S23, S31 in global coordinate system
+      real*8 sigma(6)! Corotaional stress tensor components, 
+! S11, S22, S33, S12, S23, S31 w.r.t. W
+      real*8 depsilon(6)! Corotaional incremental strain tensor 
+! components, dE11, dE22, dE33, dE12, dE23, dE31 w.r.t. W
+      real*8 depsilon_p(6)! Corotaional incremental plastic strain
+! tensor components, dE11, dE22, dE33, dE12, dE23, dE31 w.r.t. W
+      real*8 domega_p(3)! Corotaional incremental plastic spin tensor 
+! components, dW32, dW13, dW21 w.r.t. W
+      real*8 domega_e(3)! Incremental elastic spin tensor components,
+! dW32, dW13, dW21 in global coordinate system
+      real*8 spininc(3)! Incremental spin tensor components, 
+! dW32, dW13, dW21 in global coordinate system
+      real*8 epsinc(6)! Incremental incremental strain tensor 
+! components, dE11, dE22, dE33, dE12, dE23, dE31 in the 
+! global coordinate system
       real*8 xmat1(3,3), xmat2(3,3)! Tensors used for transformations
-      real*8 Dissipation(nblock)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
+      real*8 Dissipation(nblock)! The change in dissipated inelastic 
+! specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
       real*8 ang(3)! Euler angles phi1, PHI, phi2
       real*8 four, three, two, one, half, zero, halfCirc
       real*8 Pi, oSqrtThree, oSqrtTwo, small, critEps
@@ -112,7 +127,9 @@
       bm         = props(5)! Instantaneous strain rate sensitivity
       tau0_c     = props(6)! Initial critical resolved shear stress
       qhard      = props(7)! Latent hardening coefficient
-      Txflag     = nint(props(8))! Texture flag (1=Euler angle from material card,2=Euler angle from history card)
+! Texture flag (1=Euler angle from material card,
+!               2=Euler angle from history card)
+      Txflag     = nint(props(8))
       phi1       = props(9)*Pi/halfCirc! Euler angle phi1 in radians
       PHI        = props(10)*Pi/halfCirc! Euler angle PHI in radians
       phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
@@ -254,7 +271,7 @@
           PEQ   = STATEOLD(km,27)
         endif
 !-----------------------------------------------------------------------
-!       Co-rotating the stress tensor, strain increments and incremental spins
+!       Co-rotating the stress tensor, strain increments
 !-----------------------------------------------------------------------
         sigs(1) = stressOld(km,1)
         sigs(2) = stressOld(km,2)
@@ -321,7 +338,8 @@
           call transform(xmat1,RT,xmat2)
           call mat2vec(xmat2,depsilon)
 !-----------------------------------------------------------------------
-!         Calculating resolved shear stresses at n and estimate the shear strain increments at n+1
+!         Calculating resolved shear stresses at n and estimate the 
+!         shear strain increments at n+1
 !-----------------------------------------------------------------------
           depsilon_p = zero
           domega_p   = zero
@@ -380,7 +398,8 @@
           if(hflag.eq.1)then
             call Voce(alpha,q,theta1,tau1,theta2,
      +                tau2,dgamma,gamma,tau_c)
-          else ! hflag=2 (have already checked if hflag is not equal to 1 or 2)
+! hflag=2 (have already checked if hflag is not equal to 1 or 2)
+          else 
             call Kalidindi(alpha,q,h0,tau_s,am,dgamma,tau_c)
           endif
 !-----------------------------------------------------------------------
@@ -400,7 +419,8 @@
      +                    two*depsilon_p(5)**two+
      +                    two*depsilon_p(6)**two)/three)
 !-----------------------------------------------------------------------
-!       Calculating incremental elastic rotation in the global coordinate system
+!       Calculating incremental elastic rotation in the 
+!       global coordinate system
 !-----------------------------------------------------------------------
           xmat1(1,1) = zero
           xmat1(1,2) = -domega_p(3)
@@ -448,13 +468,15 @@
             a              = a+1
           enddo
         enddo
-        STATENEW(km,13:24) = tau_c! Critical resolved shear stresses/ Slip resistances
+        ! Critical resolved shear stresses/ Slip resistances
+        STATENEW(km,13:24) = tau_c
         STATENEW(km,25)    = gamma! Accumulated plastic strain
+        ! Equivalent von Mises stress
         STATENEW(km,26)    = sqrt(half*((sigma(1)-sigma(2))**two
      +                                 +(sigma(2)-sigma(3))**two
      +                                 +(sigma(3)-sigma(1))**two)
      +                      +three*sigma(4)**two+three*sigma(5)**two
-     +                      +three*sigma(6)**two)! Equivalent von Mises stress
+     +                      +three*sigma(6)**two)
         STATENEW(km,27) = PEQ! Equivalent von mises plastic strain
         STATENEW(km,28) = nsub! Number of sub steps
 !-----------------------------------------------------------------------
