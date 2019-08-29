@@ -55,6 +55,7 @@ class Material:
     # static class members
     nProps = 17
     nStatev = 28
+
     # Constructor
     def __init__(self,name,density,props):
         self.name = name
@@ -64,12 +65,14 @@ class Material:
             'Wrong number of material properties given in material: '+self.name+'\n'+
             'Please supply '+str(Material.nProps)+' material properties')
         self.eulerAngles = EulerAngles(self.props[8],self.props[9],self.props[10])
+    
     # Sets the Euler angles
     def SetEulerAngles(self,phi1,PHI,phi2):
         self.eulerAngles.Set(phi1,PHI,phi2)
         self.props[8] = phi1
         self.props[9] = PHI
         self.props[10]= phi2
+    
     # Writes an Abaqus material card for the current material
     def WriteMaterailCard(self,writePath):
         abaqusMaterialName = 'Material-1'
@@ -84,7 +87,7 @@ class Material:
             for i in range(self.nProps):
                 if (i+1)%8 == 0:
                     fp.write('{:8}'.format(self.props[i]))
-                    if i!=self.nProps:
+                    if (i+1)!=self.nProps:
                         fp.write('\n')
                 else:
                     fp.write('{:8},'.format(self.props[i]))
@@ -103,7 +106,7 @@ class AbaqusTest(Test):
         super().__init__(name)
         # Current directory
         pythonPath = Path(__file__).parent
-        # Saves the path to the input file provided as an absolute path
+        # Saves the path to the input file provided
         self.inputfile = pythonPath.joinpath(inputfile)
         assert (self.inputfile.exists()),(
             'The inputfile provided could not be found: '+str(self.inputfile))
@@ -119,12 +122,17 @@ class AbaqusTest(Test):
         self.material = material
         assert (isinstance(material,Material)),(
             'Unknown material: '+str(self.material))
-        # Sets up the Abaqus folder path and the test working directory path
+        # Sets up the Abaqus folder path, the test working directory path, and reference data path
         self.abaqusPath = pythonPath.joinpath('Abaqus')
         self.testPath = self.abaqusPath.joinpath(self.name).joinpath(
             self.solver.name).joinpath(self.material.name)
         self.referencePath = pythonPath.joinpath('ReferenceData').joinpath(
             self.name).joinpath(self.solver.name).joinpath(self.material.name)
+        # Current input file path
+        self.currentInputFile = self.testPath.joinpath(self.name+'.inp')
+        # Initialize
+        self.passed = False
+        self.residual = np.inf
 
     # Sets up the Abaqus job files
     def _SetupAbaqusJob(self):
@@ -132,7 +140,6 @@ class AbaqusTest(Test):
         if not self.testPath.exists():
             self.testPath.mkdir(parents=True)
         # Copies the Abaqus input file to the test working directory
-        self.currentInputFile = self.testPath.joinpath(self.name+'.inp')
         shutil.copy(self.inputfile,self.currentInputFile)
         # Writes a material card to the test working directory
         self.material.WriteMaterailCard(self.testPath)
@@ -145,9 +152,9 @@ class AbaqusTest(Test):
         # Sets up the test
         self._SetupAbaqusJob()
         # Reads the template jobaba file and writes a jobaba file to the test working directory
+        jobabaName = 'jobaba'
         jobabaTemplateFile = self.abaqusPath.joinpath('Snurre-jobaba')
         jobabaContent = jobabaTemplateFile.read_text().replace('<<jobName>>',self.name)
-        jobabaName = 'jobaba'
         jobabaFile = self.testPath.joinpath(jobabaName)
         jobabaFile.write_text(jobabaContent)
         # Submit the job to the queue on Snurre
@@ -171,7 +178,8 @@ class AbaqusTest(Test):
     
     # Post-process the test
     def Process(self):
-        self.passed = True
+        self.passed = False
+        self.residual = np.inf
         with cd(self.testPath):
             # Call abaqus python with the post-processing script
             os.system('abaqus python '+str(self.postScript))
@@ -179,18 +187,15 @@ class AbaqusTest(Test):
         try:
             testData = pd.read_csv(self.testPath.joinpath('Result.csv')).T.to_numpy()
         except:
-            self.passed = False
             return self.passed
         # Read reference data
         try:
             referenceData = pd.read_csv(self.referencePath.joinpath('Result.csv')).T.to_numpy()
         except:
-            self.passed = False
             assert (False),'Could not read the test reference data'
             return self.passed
         # Check length of data
         if len(testData[0])<0.9*len(referenceData[0]):
-            self.passed = False
             return self.passed
         # Assume that the test result contains x and y data
         xRef  = referenceData[0]
@@ -201,6 +206,7 @@ class AbaqusTest(Test):
         x     = np.linspace(xRef.min(),xRef.max(),len(xRef))
         yTest = fTest(x)
         yRef  = fRef(x)
+        # Calculates the residual of the test
         self.residual = np.sum(np.power((yRef-yTest)/(yRef.max()-yRef.min()),2))
         self.passed = self.residual<0.001
         return self.passed
@@ -237,6 +243,54 @@ def PostProcess(tests):
         else:
             print('FAILED test {:40} residual = {:e}'.format(name,test.residual))
 ##----------------------------------------------------------------------
+## Creates tests
+##----------------------------------------------------------------------
+def CreateTests():
+    # Material density
+    density = 2.7e-9
+    # Euler angles to be used
+    eulerAngles = [ EulerAngles(     0.0,     0.0,     0.0),
+                    EulerAngles(    45.0,     0.0,     0.0),
+                    EulerAngles(129.2315,114.0948,333.4349),
+                    EulerAngles(206.5651,114.0948,50.76848)]
+    
+    # Creates Kalidindi materials
+    kalidindiMaterialNames = ['000','4500','inverted','other']
+    kalidindiMaterials = []
+    for materialName,eAngles in zip(kalidindiMaterialNames,eulerAngles):
+        kalidindiMaterials.append(
+            Material(materialName,density,
+            [    106430.,      60350.,       28210., 0.01,   0.005, 46.7301,     1.4, 1.,
+            eAngles.phi1, eAngles.PHI, eAngles.phi2,   2., 411.256, 104.029, 1.35459, 0.,
+                      1.]))
+    
+    # Creates Voce hardening materials
+    voceMaterialNames = ['000-Voce','4500-Voce','inverted-Voce','other-Voce']
+    voceMaterials = []
+    for materialName,eAngles in zip(voceMaterialNames,eulerAngles):
+        voceMaterials.append(
+            Material(materialName,density,
+            [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+            eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
+                      1.]))
+    
+    # Add different tests to be run
+    tests = []
+    # Add SimpleShear tests using Abaqus/Explicit and the kalidindi materials
+    for material in kalidindiMaterials:
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
+    # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials
+    for material in voceMaterials:
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
+    # Add SimpleShear tests using Abaqus/Standard and the kalidindi materials
+    for material in kalidindiMaterials:
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Implicit.inp',
+                    AbaqusSolver.Implicit,'Abaqus/SimpleShearExtract.py',material))
+    
+    return tests
+##----------------------------------------------------------------------
 ## Main
 ##----------------------------------------------------------------------
 def main():
@@ -265,54 +319,6 @@ def main():
         Clean()
     elif action=='post':
         PostProcess(tests)
-##----------------------------------------------------------------------
-## Creates tests
-##----------------------------------------------------------------------
-def CreateTests():
-    # Material density
-    density = 2.7e-9
-    # Euler angles to be used
-    eulerAngles = [EulerAngles(0.0,0.0,0.0),
-                    EulerAngles(45.0,0.0,0.0),
-                    EulerAngles(129.2315,114.0948,333.4349),
-                    EulerAngles(206.5651,114.0948,50.76848)]
-    
-    # Creates Kalidindi materials
-    kalidindiMaterialNames = ['000','4500','inverted','other']
-    kalidindiMaterials = []
-    for i in range(len(kalidindiMaterialNames)):
-        kalidindiMaterials.append(
-            Material(kalidindiMaterialNames[i],density,
-            [106430., 60350., 28210., 0.01, 0.005, 46.7301, 1.4, 1.,
-            eulerAngles[i].phi1,eulerAngles[i].PHI,eulerAngles[i].phi2, 2., 411.256, 104.029, 1.35459, 0.,
-                      1.]))
-    
-    # Creates Voce hardening materials
-    voceMaterialNames = ['000 - Voce','4500 - Voce','inverted - Voce','other - Voce']
-    voceMaterials = []
-    for i in range(len(voceMaterialNames)):
-        voceMaterials.append(
-            Material(voceMaterialNames[i],density,
-            [106430.,  60350., 28210., 0.01, 0.005, 46.7301, 1.4, 1.,
-            eulerAngles[i].phi1,eulerAngles[i].PHI,eulerAngles[i].phi2, 1., 20.48, 18.07, 157.3, 39.11,
-                      1.]))
-    
-    # Add different tests to be run
-    tests = []
-    # Add SimpleShear tests using Abaqus/Explicit and the kalidindi materials
-    for material in kalidindiMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
-                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
-    # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials
-    for material in voceMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
-                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
-    # Add SimpleShear tests using Abaqus/Standard and the kalidindi materials
-    for material in kalidindiMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Implicit.inp',
-                    AbaqusSolver.Implicit,'Abaqus/SimpleShearExtract.py',material))
-    
-    return tests
 ##----------------------------------------------------------------------
 ## Entry point
 ##----------------------------------------------------------------------
