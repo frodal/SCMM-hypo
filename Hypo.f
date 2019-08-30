@@ -124,7 +124,8 @@
       integer nsub,k! Nuber of sub-steps and sub-step loop variable
       real*8 dti! Sub-stepping time step
       real*8 VVF0, VVFC, VVF, q1, q2 ! Damage variables
-      integer isActive ! Is the integration point active (0=deleted, 1=active)
+      integer isActive ! Is the integration point active (0=deleted, 
+!                                                         1=active)
 !-----------------------------------------------------------------------
 !     This material subroutine is only for solid elements
 !-----------------------------------------------------------------------
@@ -518,7 +519,8 @@
         STATENEW(km,27) = PEQ! Equivalent von mises plastic strain
         STATENEW(km,28) = nsub! Number of sub steps
         STATENEW(km,29) = VVF ! Damage / void volume fraction
-        STATENEW(km,30) = isActive ! Is the element active or should it be deleted (Abaqus status variable)
+! Is the element active or should it be deleted (Abaqus status variable)
+        STATENEW(km,30) = isActive
 !-----------------------------------------------------------------------
         call euler(R,ang)
 !-----------------------------------------------------------------------

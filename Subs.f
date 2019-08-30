@@ -187,8 +187,8 @@
 !-----------------------------------------------------------------------
 !                         SUBROUTINE SINC
 !-----------------------------------------------------------------------
-! Computes the strain and rotation increments from the deformation gradient F
-! in the global coordinate system
+! Computes the strain and rotation increments from the deformation 
+! gradient F in the global coordinate system
 !-----------------------------------------------------------------------
       subroutine sinc(Fold,Fnew,dt,epsinc,spininc)
 !

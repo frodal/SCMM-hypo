@@ -53,8 +53,9 @@ class EulerAngles:
 ##----------------------------------------------------------------------
 class Material:
     # static class members
-    nProps = 17
-    nStatev = 28
+    nProps = 21
+    nStatev = 30
+    nDelete = 30
 
     # Constructor
     def __init__(self,name,density,props):
@@ -81,7 +82,7 @@ class Material:
             fp.write('*Material, name={}\n'.format(abaqusMaterialName))
             fp.write('*Density\n')
             fp.write('{:8},\n'.format(self.density))
-            fp.write('*Depvar\n')
+            fp.write('*Depvar, delete={}\n'.format(self.nDelete))
             fp.write('{:8},\n'.format(self.nStatev))
             fp.write('*User Material, constants={}\n'.format(self.nProps))
             for i in range(self.nProps):
@@ -203,7 +204,8 @@ class AbaqusTest(Test):
         fTest = interpolate.interp1d(testData[0],testData[1])
         fRef  = interpolate.interp1d(xRef,referenceData[1])
         # 
-        x     = np.linspace(xRef.min(),xRef.max(),len(xRef))
+        xLength = max(1001,len(xRef))
+        x     = np.linspace(xRef.min(),xRef.max(),xLength)
         yTest = fTest(x)
         yRef  = fRef(x)
         # Calculates the residual of the test
@@ -270,7 +272,7 @@ def CreateTests():
             Material(materialName,density,
             [    106430.,      60350.,       28210., 0.01,   0.005, 46.7301,     1.4, 1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   2., 411.256, 104.029, 1.35459, 0.,
-                      1.]))
+                      1.,         0.0,          1.0,  0.0,     0.0]))
     
     # Creates Voce hardening materials
     voceMaterialNames = ['000-Voce','4500-Voce','inverted-Voce','other-Voce']
@@ -280,7 +282,7 @@ def CreateTests():
             Material(materialName,density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      1.]))
+                      1.,         0.0,          1.0,  0.0,   0.0]))
     
     # Add different tests to be run
     tests = []
