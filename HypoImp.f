@@ -46,6 +46,14 @@
       parameter(pert=1e-6,o2pert=1.0/(2.0*pert),zero=0.d0,one=1.d0,
      .          two=2.d0,half=5.d-1)
 !-----------------------------------------------------------------------
+!     This material subroutine is only for solid elements
+!-----------------------------------------------------------------------
+      if (NDI+NSHR.ne.6)then
+        write(*,*) 'This material subroutine is only for
+     + solid elements'
+        stop
+      endif
+!-----------------------------------------------------------------------
 !     Packaging Deformation gradient
 !-----------------------------------------------------------------------
       defgradOld(1,1) = DFGRD0(1,1)
@@ -77,7 +85,7 @@
 !     Rotate the stress tensor to the correct coordinate system
 !-----------------------------------------------------------------------
       call mtransp(DROT,TDROT)
-      call ROTSIG(STRESS,TDROT,SPRIME,1,NDI,NSHR)
+      call ROTSIG(STRESS,TDROT,SPRIME,1,3,3)
       STRESS = SPRIME
       stressOld(1,1) = STRESS(1)
       stressOld(1,2) = STRESS(2)
