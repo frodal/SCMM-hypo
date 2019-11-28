@@ -24,17 +24,17 @@
       integer nblock, ndir, nshr, nstatev, nfieldv, nprops, lanneal
       real*8 stepTime, totalTime, dt
       dimension props(nprops), density(nblock), coordMp(nblock,*),
-     +  charLength(nblock), strainInc(nblock,ndir+nshr),
-     +  relSpinInc(nblock,nshr), tempOld(nblock),
-     +  stretchOld(nblock,ndir+nshr),
-     +  defgradOld(nblock,ndir+nshr+nshr),
-     +  fieldOld(nblock,nfieldv), stressOld(nblock,ndir+nshr),
+     +  charLength(nblock), strainInc(nblock,6),
+     +  relSpinInc(nblock,3), tempOld(nblock),
+     +  stretchOld(nblock,6),
+     +  defgradOld(nblock,9),
+     +  fieldOld(nblock,nfieldv), stressOld(nblock,6),
      +  stateOld(nblock,nstatev), enerInternOld(nblock),
      +  enerInelasOld(nblock), tempNew(nblock),
-     +  stretchNew(nblock,ndir+nshr),
-     +  defgradNew(nblock,ndir+nshr+nshr),
+     +  stretchNew(nblock,6),
+     +  defgradNew(nblock,9),
      +  fieldNew(nblock,nfieldv),
-     +  stressNew(nblock,ndir+nshr), stateNew(nblock,nstatev),
+     +  stressNew(nblock,6), stateNew(nblock,nstatev),
      +  enerInternNew(nblock), enerInelasNew(nblock)
 !-----------------------------------------------------------------------
       character*80 cmname
@@ -51,12 +51,20 @@
       real*8 C12! Elastic coefficient
       real*8 C44! Elastic coefficient
       real*8 xmat1(3,3), xmat2(3,3)! Tensors used for transformations
-      real*8 sigsOld(nblock,ndir+nshr)! Old Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
-      real*8 sigsNew(nblock,ndir+nshr)! New Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
+      real*8 sigsOld(nblock,6)! Old Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
+      real*8 sigsNew(nblock,6)! New Stress tensor components, S11, S22, S33, S12, S23, S31 in global coordinate system
       real*8 Dissipation(nblock)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
       real*8 zero, two, half
       integer km
       parameter (zero=0.d0, two=2.d0, half=5.d-1)
+!-----------------------------------------------------------------------
+!     This material subroutine is only for solid elements
+!-----------------------------------------------------------------------
+      if (ndir+nshr.ne.6)then
+        write(*,*) 'This material subroutine is only for
+     + solid elements'
+        stop
+      endif
 !-----------------------------------------------------------------------
 !     Initial step
 !-----------------------------------------------------------------------
@@ -133,7 +141,8 @@
 !-----------------------------------------------------------------------
         call minv(uu,uui)
         call mmult(Fold,uui,rr)
-        call transform(xmat1,rr,xmat2)
+        call mtransp(rr,rrt)
+        call transform(xmat1,rr,rrt,xmat2)
         sigsOld(km,1) = xmat2(1,1)
         sigsOld(km,2) = xmat2(2,2)
         sigsOld(km,3) = xmat2(3,3)
@@ -146,7 +155,7 @@
 !-----------------------------------------------------------------------
       call Hypo(sigsNew,stateNew,defgradNew,
      +          sigsOld,stateOld,defgradOld,dt,props,
-     +          nblock,ndir,nshr,nstatev,nprops,Dissipation)
+     +          nblock,3,3,nstatev,nprops,Dissipation)
 !-----------------------------------------------------------------------
 !     Transforming the stress tensor from the global system to the Rotated coordinate system used in Abaqus/Explicit
 !-----------------------------------------------------------------------
@@ -193,7 +202,7 @@
         call minv(uu,uui)
         call mmult(Fnew,uui,rr)
         call mtransp(rr,rrt)
-        call transform(xmat1,rrt,xmat2)
+        call transform(xmat1,rrt,rr,xmat2)
         stressNew(km,1) = xmat2(1,1)
         stressNew(km,2) = xmat2(2,2)
         stressNew(km,3) = xmat2(3,3)
