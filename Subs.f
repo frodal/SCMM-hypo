@@ -15,16 +15,15 @@
 ! Rotates a matrix from one frame to another
 ! B = P.A.P^T
 !-----------------------------------------------------------------------
-      subroutine transform(a,xp,b)
+      subroutine transform(a,xp,xpt,b)
 !
       implicit none
 !
-      real*8, intent(in) :: a(3,3),xp(3,3)
+      real*8, intent(in) :: a(3,3),xp(3,3),xpt(3,3)
       real*8, intent(out) :: b(3,3)
 !     Local variables
-      real*8 xpt(3,3),xmat(3,3)
+      real*8 xmat(3,3)
 !-----------------------------------------------------------------------
-      call mtransp(xp,xpt)
       call mmult(a,xpt,xmat)
       call mmult(xp,xmat,b)
 !
