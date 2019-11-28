@@ -141,7 +141,8 @@
 !-----------------------------------------------------------------------
         call minv(uu,uui)
         call mmult(Fold,uui,rr)
-        call transform(xmat1,rr,xmat2)
+        call mtransp(rr,rrt)
+        call transform(xmat1,rr,rrt,xmat2)
         sigsOld(km,1) = xmat2(1,1)
         sigsOld(km,2) = xmat2(2,2)
         sigsOld(km,3) = xmat2(3,3)
@@ -201,7 +202,7 @@
         call minv(uu,uui)
         call mmult(Fnew,uui,rr)
         call mtransp(rr,rrt)
-        call transform(xmat1,rrt,xmat2)
+        call transform(xmat1,rrt,rr,xmat2)
         stressNew(km,1) = xmat2(1,1)
         stressNew(km,2) = xmat2(2,2)
         stressNew(km,3) = xmat2(3,3)

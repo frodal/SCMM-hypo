@@ -279,7 +279,7 @@
 !       Stress components, sigma_hat=R**T sigma R
 !-----------------------------------------------------------------------
         call vec2mat(sigs,xmat1)
-        call transform(xmat1,RT,xmat2)
+        call transform(xmat1,RT,R,xmat2)
         call mat2vec(xmat2,sigma)
 !-----------------------------------------------------------------------
 !       Calculating the strain and spin increments from
@@ -327,7 +327,7 @@
 !       Strain increments, depsilon_hat=R**T depsilon R
 !-----------------------------------------------------------------------
           call vec2mat(epsinc,xmat1)
-          call transform(xmat1,RT,xmat2)
+          call transform(xmat1,RT,R,xmat2)
           call mat2vec(xmat2,depsilon)
 !-----------------------------------------------------------------------
 !         Calculating resolved shear stresses at n and estimate the 
@@ -424,7 +424,7 @@
           xmat1(3,2) = domega_p(1)
           xmat1(3,3) = zero
 !-----------------------------------------------------------------------
-          call transform(xmat1,R,xmat2)
+          call transform(xmat1,R,RT,xmat2)
 !-----------------------------------------------------------------------
           domega_e(1) = spininc(1)-xmat2(3,2)
           domega_e(2) = spininc(2)-xmat2(1,3)
@@ -442,7 +442,7 @@
 !       Transform the stress tensor back to the global coordinate system
 !-----------------------------------------------------------------------
         call vec2mat(sigma,xmat1)
-        call transform(xmat1,R,xmat2)
+        call transform(xmat1,R,RT,xmat2)
         call mat2vec(xmat2,sigs)
         stressNew(km,1) = sigs(1)
         stressNew(km,2) = sigs(2)
