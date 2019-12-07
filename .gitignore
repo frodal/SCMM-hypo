@@ -24,7 +24,7 @@
 *.lck
 *.SMA*
 # Abaqus tests working directory
-Tests/Abaqus/*/**/*
+Tests/Abaqus/WorkingDirectory/*/**/*
 # Snurre job files
 jobaba
 *.o*

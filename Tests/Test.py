@@ -61,7 +61,7 @@ class Material:
         self.name = name
         self.density = density
         self.props = props
-        assert(len(props)==self.nProps),(
+        assert(len(props)==Material.nProps),(
             'Wrong number of material properties given in material: '+self.name+'\n'+
             'Please supply '+str(Material.nProps)+' material properties')
         self.eulerAngles = EulerAngles(self.props[8],self.props[9],self.props[10])
@@ -124,7 +124,7 @@ class AbaqusTest(Test):
             'Unknown material: '+str(self.material))
         # Sets up the Abaqus folder path, the test working directory path, and reference data path
         self.abaqusPath = pythonPath.joinpath('Abaqus')
-        self.testPath = self.abaqusPath.joinpath(self.name).joinpath(
+        self.testPath = self.abaqusPath.joinpath('WorkingDirectory').joinpath(self.name).joinpath(
             self.solver.name).joinpath(self.material.name)
         self.referencePath = pythonPath.joinpath('ReferenceData').joinpath(
             self.name).joinpath(self.solver.name).joinpath(self.material.name)
@@ -229,10 +229,9 @@ class FortranTest(Test):
 ## Clean working directories
 ##----------------------------------------------------------------------
 def Clean():
-    abaqusPath = Path(__file__).parent.joinpath('Abaqus')
-    for folder in glob.glob(str(abaqusPath)+'/*/'):
-        shutil.rmtree(folder)
-        print('Directory deleted: '+folder)
+    workingDir = Path(__file__).parent.joinpath('Abaqus').joinpath('WorkingDirectory')
+    shutil.rmtree(workingDir)
+    print('Working directory removed: '+str(workingDir))
 ##----------------------------------------------------------------------
 ## Run tests
 ##----------------------------------------------------------------------
@@ -286,16 +285,16 @@ def CreateTests():
     tests = []
     # Add SimpleShear tests using Abaqus/Explicit and the kalidindi materials
     for material in kalidindiMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
-                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',material))
     # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials
     for material in voceMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
-                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',material))
     # Add SimpleShear tests using Abaqus/Standard and the kalidindi materials
     for material in kalidindiMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Implicit.inp',
-                    AbaqusSolver.Implicit,'Abaqus/SimpleShearExtract.py',material))
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Implicit.inp',
+                    AbaqusSolver.Implicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',material))
     
     return tests
 ##----------------------------------------------------------------------
