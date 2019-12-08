@@ -10,7 +10,7 @@ import glob
 import pandas as pd
 from scipy import interpolate
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 ##----------------------------------------------------------------------
 ## Context manager class
 ##----------------------------------------------------------------------
@@ -25,6 +25,18 @@ class cd:
 
     def __exit__(self, etype, value, traceback):
         os.chdir(self.savedPath)
+##----------------------------------------------------------------------
+## Print colored text class
+##----------------------------------------------------------------------
+class printColors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 ##----------------------------------------------------------------------
 ## Abaqus solver Enum
 ##----------------------------------------------------------------------
@@ -62,7 +74,7 @@ class Material:
         self.name = name
         self.density = density
         self.props = props
-        assert(len(props)==self.nProps),(
+        assert(len(props)==Material.nProps),(
             'Wrong number of material properties given in material: '+self.name+'\n'+
             'Please supply '+str(Material.nProps)+' material properties')
         self.eulerAngles = EulerAngles(self.props[8],self.props[9],self.props[10])
@@ -102,7 +114,7 @@ class Test:
 ##----------------------------------------------------------------------
 class AbaqusTest(Test):
     # Constructor
-    def __init__(self,name,inputfile,solver,postScript,material):
+    def __init__(self,name,inputfile,solver,postScript,material,ncpu):
         # Calls the base (super) class's constructor
         super().__init__(name)
         # Current directory
@@ -121,11 +133,15 @@ class AbaqusTest(Test):
             'The post-processing script provided could not be found: '+str(self.postScript))
         # Saves the material to be used
         self.material = material
-        assert (isinstance(material,Material)),(
+        assert (isinstance(self.material,Material)),(
             'Unknown material: '+str(self.material))
+        # Saves the number of cores to be used
+        self.ncpu = ncpu
+        assert (isinstance(self.ncpu,int)and(self.ncpu>0)),(
+            'ncpu should be a positive integer: '+str(self.ncpu))
         # Sets up the Abaqus folder path, the test working directory path, and reference data path
         self.abaqusPath = pythonPath.joinpath('Abaqus')
-        self.testPath = self.abaqusPath.joinpath(self.name).joinpath(
+        self.testPath = self.abaqusPath.joinpath('WorkingDirectory').joinpath(self.name).joinpath(
             self.solver.name).joinpath(self.material.name)
         self.referencePath = pythonPath.joinpath('ReferenceData').joinpath(
             self.name).joinpath(self.solver.name).joinpath(self.material.name)
@@ -155,7 +171,9 @@ class AbaqusTest(Test):
         # Reads the template jobaba file and writes a jobaba file to the test working directory
         jobabaName = 'jobaba'
         jobabaTemplateFile = self.abaqusPath.joinpath('Snurre-jobaba')
-        jobabaContent = jobabaTemplateFile.read_text().replace('<<jobName>>',self.name)
+        if self.ncpu>12:
+            self.ncpu = 12
+        jobabaContent = jobabaTemplateFile.read_text().replace('<<jobName>>',self.name).replace('<<ncpu>>',str(self.ncpu))
         jobabaFile = self.testPath.joinpath(jobabaName)
         jobabaFile.write_text(jobabaContent)
         # Submit the job to the queue on Snurre
@@ -168,7 +186,7 @@ class AbaqusTest(Test):
         self._SetupAbaqusJob()
         # Run the abaqus solver
         with cd(self.testPath):
-            os.system('abaqus double job='+str(self.name)+' interactive')
+            os.system('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu)+' interactive')
     
     # Runs the test
     def Run(self,location=1):
@@ -178,7 +196,7 @@ class AbaqusTest(Test):
             self._RunOnSnurre()
     
     # Post-process the test
-    def Process(self):
+    def Process(self,shouldPlot=False):
         self.passed = False
         self.residual = np.inf
         with cd(self.testPath):
@@ -195,22 +213,29 @@ class AbaqusTest(Test):
         except:
             assert (False),'Could not read the test reference data'
             return self.passed
-        # Check length of data
-        if len(testData[0])<0.9*len(referenceData[0]):
-            return self.passed
         # Assume that the test result contains x and y data
         xRef  = referenceData[0]
+        yRef  = referenceData[1]
+        nRef  = len(xRef)
+        # Check length of data
+        if len(testData[0])<0.9*nRef:
+            return self.passed
         # Creates interpolation functions as to evaluate the difference at the same x-values 
-        fTest = interpolate.interp1d(testData[0],testData[1])
-        fRef  = interpolate.interp1d(xRef,referenceData[1])
+        fTest = interpolate.interp1d(testData[0],testData[1],bounds_error=False,fill_value=yRef.max())
+        fRef  = interpolate.interp1d(xRef,yRef)
         # 
-        xLength = max(1001,len(xRef))
-        x     = np.linspace(xRef.min(),xRef.max(),xLength)
+        x     = np.linspace(xRef.min(),xRef.max(),nRef)
         yTest = fTest(x)
-        yRef  = fRef(x)
+        y     = fRef(x)
         # Calculates the residual of the test
-        self.residual = np.sum(np.power((yRef-yTest)/(yRef.max()-yRef.min()),2))
-        self.passed = self.residual<0.001
+        self.residual = np.sum(np.power((y-yTest)/(y.max()-y.min()),2))/nRef
+        self.passed = self.residual<0.0001
+        # Plot results
+        if shouldPlot:
+            plt.figure()
+            plt.plot(xRef, yRef)
+            plt.plot(testData[0],testData[1])
+            plt.show()
         return self.passed
 ##----------------------------------------------------------------------
 class FortranTest(Test):
@@ -231,10 +256,9 @@ class FortranTest(Test):
 ## Clean working directories
 ##----------------------------------------------------------------------
 def Clean():
-    abaqusPath = Path(__file__).parent.joinpath('Abaqus')
-    for folder in glob.glob(str(abaqusPath)+'/*/'):
-        shutil.rmtree(folder)
-        print('Directory deleted: '+folder)
+    workingDir = Path(__file__).parent.joinpath('Abaqus').joinpath('WorkingDirectory')
+    shutil.rmtree(workingDir)
+    print('Working directory removed: '+str(workingDir))
 ##----------------------------------------------------------------------
 ## Run tests
 ##----------------------------------------------------------------------
@@ -244,14 +268,14 @@ def RunTests(tests,location):
 ##----------------------------------------------------------------------
 ## Post-process tests
 ##----------------------------------------------------------------------
-def PostProcess(tests):
+def PostProcess(tests,shouldPlot=False):
     for test in tests:
-        test.Process()
+        test.Process(shouldPlot)
         name = test.name+'-'+test.solver.name+'-'+test.material.name
         if test.passed:
-            print('PASSED test {:40} residual = {:e}'.format(name,test.residual))
+            print('{}PASSED{} test {:40} residual = {:e}'.format(printColors.OKGREEN,printColors.ENDC,name,test.residual))
         else:
-            print('FAILED test {:40} residual = {:e}'.format(name,test.residual))
+            print('{}FAILED{} test {:40} residual = {:e}'.format(printColors.FAIL,printColors.ENDC,name,test.residual))
 ##----------------------------------------------------------------------
 ## Creates tests
 ##----------------------------------------------------------------------
@@ -288,16 +312,19 @@ def CreateTests():
     tests = []
     # Add SimpleShear tests using Abaqus/Explicit and the kalidindi materials
     for material in kalidindiMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
-                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
+                    material,1))
     # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials
     for material in voceMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Explicit.inp',
-                    AbaqusSolver.Explicit,'Abaqus/SimpleShearExtract.py',material))
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
+                    material,1))
     # Add SimpleShear tests using Abaqus/Standard and the kalidindi materials
     for material in kalidindiMaterials:
-        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShear-Implicit.inp',
-                    AbaqusSolver.Implicit,'Abaqus/SimpleShearExtract.py',material))
+        tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Implicit.inp',
+                    AbaqusSolver.Implicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
+                    material,1))
     
     return tests
 ##----------------------------------------------------------------------
@@ -315,9 +342,12 @@ def main():
                         help='Choose where the test is run.'+
                         ' 0: For running the tests on the current PC.'+
                         ' 1: For running the tests on Snurre (Default option).')
+    parser.add_argument('--plot',default=False,const=True,action='store_const',
+                        help='Add this flag to plot the referance data and the test data during post-processing.')
     args = parser.parse_args()
     location = args.location
     action = args.action
+    shouldPlot = args.plot
     
     # Creates the tests
     tests = CreateTests()
@@ -328,7 +358,7 @@ def main():
     elif action=='clean':
         Clean()
     elif action=='post':
-        PostProcess(tests)
+        PostProcess(tests,shouldPlot)
 ##----------------------------------------------------------------------
 ## Entry point
 ##----------------------------------------------------------------------
