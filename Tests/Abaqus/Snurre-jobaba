@@ -5,7 +5,7 @@
 #$ -j y
 #$ -r y
 #$ -S /bin/bash
-#$ -pe smp 1
+#$ -pe smp <<ncpu>>
 
 #
 export WDIR=/state/partition1
