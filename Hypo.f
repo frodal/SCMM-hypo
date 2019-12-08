@@ -127,14 +127,6 @@
       integer isActive ! Is the integration point active (0=deleted, 
 !                                                         1=active)
 !-----------------------------------------------------------------------
-!     This material subroutine is only for solid elements
-!-----------------------------------------------------------------------
-      if (ndir+nshr.ne.6)then
-        write(*,*) 'This material subroutine is only for
-     + solid elements'
-        stop
-      endif
-!-----------------------------------------------------------------------
 !     Read parameters from ABAQUS material card
 !-----------------------------------------------------------------------
       C11        = props(1)! Elastic coefficient
