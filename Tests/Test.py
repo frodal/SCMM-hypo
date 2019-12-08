@@ -113,7 +113,7 @@ class Test:
 ##----------------------------------------------------------------------
 class AbaqusTest(Test):
     # Constructor
-    def __init__(self,name,inputfile,solver,postScript,material):
+    def __init__(self,name,inputfile,solver,postScript,material,ncpu):
         # Calls the base (super) class's constructor
         super().__init__(name)
         # Current directory
@@ -132,8 +132,12 @@ class AbaqusTest(Test):
             'The post-processing script provided could not be found: '+str(self.postScript))
         # Saves the material to be used
         self.material = material
-        assert (isinstance(material,Material)),(
+        assert (isinstance(self.material,Material)),(
             'Unknown material: '+str(self.material))
+        # Saves the number of cores to be used
+        self.ncpu = ncpu
+        assert (isinstance(self.ncpu,int)and(self.ncpu>0)),(
+            'ncpu should be a positive integer: '+str(self.ncpu))
         # Sets up the Abaqus folder path, the test working directory path, and reference data path
         self.abaqusPath = pythonPath.joinpath('Abaqus')
         self.testPath = self.abaqusPath.joinpath('WorkingDirectory').joinpath(self.name).joinpath(
@@ -166,7 +170,9 @@ class AbaqusTest(Test):
         # Reads the template jobaba file and writes a jobaba file to the test working directory
         jobabaName = 'jobaba'
         jobabaTemplateFile = self.abaqusPath.joinpath('Snurre-jobaba')
-        jobabaContent = jobabaTemplateFile.read_text().replace('<<jobName>>',self.name)
+        if self.ncpu>12:
+            self.ncpu = 12
+        jobabaContent = jobabaTemplateFile.read_text().replace('<<jobName>>',self.name).replace('<<ncpu>>',str(self.ncpu))
         jobabaFile = self.testPath.joinpath(jobabaName)
         jobabaFile.write_text(jobabaContent)
         # Submit the job to the queue on Snurre
@@ -179,7 +185,7 @@ class AbaqusTest(Test):
         self._SetupAbaqusJob()
         # Run the abaqus solver
         with cd(self.testPath):
-            os.system('abaqus double job='+str(self.name)+' interactive')
+            os.system('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu)+' interactive')
     
     # Runs the test
     def Run(self,location=1):
@@ -306,15 +312,18 @@ def CreateTests():
     # Add SimpleShear tests using Abaqus/Explicit and the kalidindi materials
     for material in kalidindiMaterials:
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
-                    AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',material))
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
+                    material,1))
     # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials
     for material in voceMaterials:
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
-                    AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',material))
+                    AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
+                    material,1))
     # Add SimpleShear tests using Abaqus/Standard and the kalidindi materials
     for material in kalidindiMaterials:
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Implicit.inp',
-                    AbaqusSolver.Implicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',material))
+                    AbaqusSolver.Implicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
+                    material,1))
     
     return tests
 ##----------------------------------------------------------------------
