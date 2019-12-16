@@ -49,7 +49,7 @@ def main():
             u_w = U2[i][1]
             u_t = U3[i][1]
             epsilon = log(1.0 + u)
-            sigma = F[i]/((1.0+u_t)*(1.0+u_w))
+            sigma = -F[i]/((1.0+u_t)*(1.0+u_w))
             fil.write('%20.8f %20.8f\n' % (epsilon, sigma))
     # Close odb
     odb.close()
