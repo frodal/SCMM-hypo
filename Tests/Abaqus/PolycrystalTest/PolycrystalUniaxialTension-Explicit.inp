@@ -5124,7 +5124,7 @@ Set-1184, 1, 1
 0.06, 1.2
 ** Mass Scaling: Semi-Automatic
 **               Whole Model
-*Fixed Mass Scaling, dt=0.0001, type=uniform
+*Fixed Mass Scaling, dt=0.001, type=uniform
 ** 
 ** BOUNDARY CONDITIONS
 ** 
