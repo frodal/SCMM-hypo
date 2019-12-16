@@ -217,7 +217,7 @@ class AbaqusTest(Test):
         yRef  = referenceData[1]
         nRef  = len(xRef)
         # Check length of data
-        if len(testData[0])<0.9*nRef:
+        if len(testData[0]) != nRef:
             return self.passed
         # Creates interpolation functions as to evaluate the difference at the same x-values 
         fTest = interpolate.interp1d(testData[0],testData[1],bounds_error=False,fill_value=yRef.max())
