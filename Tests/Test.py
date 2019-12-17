@@ -347,7 +347,7 @@ def CreateUniaxialTensionTests():
             Material(materialName,'AL',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.]))
+                      2.,         0.0,          1.0,  0.0,   0.0]))
     
     # Add different tests to be run
     tests = []
@@ -375,7 +375,7 @@ def CreatePolycrystalTests():
     material = Material(materialName,'AL',density,
         [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
                  0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
-                  2.])
+                  2.,         0.0,          1.0,  0.0,   0.0])
     
     # Add different tests to be run
     tests = []
