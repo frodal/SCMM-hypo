@@ -69,8 +69,9 @@ class Material:
     nStatev = 28
 
     # Constructor
-    def __init__(self,name,density,props):
+    def __init__(self,name,abaqusMaterialName,density,props):
         self.name = name
+        self.abaqusMaterialName = abaqusMaterialName
         self.density = density
         self.props = props
         assert(len(props)==Material.nProps),(
@@ -87,10 +88,9 @@ class Material:
     
     # Writes an Abaqus material card for the current material
     def WriteMaterailCard(self,writePath):
-        abaqusMaterialName = 'Material-1'
         materialCardPath = Path(writePath).joinpath('material.inp')
         with open(materialCardPath,'w') as fp:
-            fp.write('*Material, name={}\n'.format(abaqusMaterialName))
+            fp.write('*Material, name={}\n'.format(self.abaqusMaterialName))
             fp.write('*Density\n')
             fp.write('{:8},\n'.format(self.density))
             fp.write('*Depvar\n')
@@ -217,7 +217,7 @@ class AbaqusTest(Test):
         yRef  = referenceData[1]
         nRef  = len(xRef)
         # Check length of data
-        if len(testData[0])<0.9*nRef:
+        if len(testData[0]) != nRef:
             return self.passed
         # Creates interpolation functions as to evaluate the difference at the same x-values 
         fTest = interpolate.interp1d(testData[0],testData[1],bounds_error=False,fill_value=yRef.max())
@@ -276,9 +276,9 @@ def PostProcess(tests,shouldPlot=False):
         else:
             print('{}FAILED{} test {:40} residual = {:e}'.format(printColors.FAIL,printColors.ENDC,name,test.residual))
 ##----------------------------------------------------------------------
-## Creates tests
+## Creates the SimpleShear tests
 ##----------------------------------------------------------------------
-def CreateTests():
+def CreateSimpleShearTests():
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -292,7 +292,7 @@ def CreateTests():
     kalidindiMaterials = []
     for materialName,eAngles in zip(kalidindiMaterialNames,eulerAngles):
         kalidindiMaterials.append(
-            Material(materialName,density,
+            Material(materialName,'Material-1',density,
             [    106430.,      60350.,       28210., 0.01,   0.005, 46.7301,     1.4, 1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   2., 411.256, 104.029, 1.35459, 0.,
                       1.]))
@@ -302,7 +302,7 @@ def CreateTests():
     voceMaterials = []
     for materialName,eAngles in zip(voceMaterialNames,eulerAngles):
         voceMaterials.append(
-            Material(materialName,density,
+            Material(materialName,'Material-1',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
                       1.]))
@@ -324,6 +324,68 @@ def CreateTests():
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Implicit.inp',
                     AbaqusSolver.Implicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
                     material,1))
+    
+    return tests
+##----------------------------------------------------------------------
+## Creates the uniaxial tension tests
+##----------------------------------------------------------------------
+def CreateUniaxialTensionTests():
+    # Material density
+    density = 2.7e-9
+    # Euler angles to be used
+    eulerAngles = [EulerAngles(  0.0,  0.0,  0.0),
+                   EulerAngles( 45.0,  0.0,  0.0),
+                   EulerAngles(  0.0, 45.0,  0.0),
+                   EulerAngles( 35.0, 45.0,  0.0)]
+    
+    # Creates Voce hardening materials
+    MaterialNames = ['000-Voce','4500-Voce','0450-Voce','35450-Voce']
+    Materials = []
+    for materialName,eAngles in zip(MaterialNames,eulerAngles):
+        Materials.append(
+            Material(materialName,'AL',density,
+            [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+            eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
+                      2.]))
+    
+    # Add different tests to be run
+    tests = []
+    # Add Uniaxial tension tests using Abaqus/Explicit and the Voce hardening materials
+    for material in Materials:
+        tests.append(AbaqusTest('UniaxialTension','Abaqus/UniaxialTensionTest/UniaxialTension-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/UniaxialTensionTest/UniaxialTensionExtract.py',
+                    material,1))
+    # Add Uniaxial tension tests using Abaqus/Standard and the Voce hardening materials
+    for material in Materials:
+        tests.append(AbaqusTest('UniaxialTension','Abaqus/UniaxialTensionTest/UniaxialTension-Implicit.inp',
+                    AbaqusSolver.Implicit,'Abaqus/UniaxialTensionTest/UniaxialTensionExtract.py',
+                    material,1))
+    
+    return tests
+##----------------------------------------------------------------------
+## Creates the polycrystal tests
+##----------------------------------------------------------------------
+def CreatePolycrystalTests():
+    # Material density
+    density = 2.7e-9
+    
+    # Creates Voce hardening materials
+    materialName = 'Voce'
+    material = Material(materialName,'AL',density,
+        [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
+                 0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
+                  2.])
+    
+    # Add different tests to be run
+    tests = []
+    # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials
+    tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Explicit.inp',
+                AbaqusSolver.Explicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
+                material,6))
+    # Add polycrystal tests using Abaqus/Standard and the Voce hardening materials
+    tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Implicit.inp',
+                AbaqusSolver.Implicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
+                material,6))
     
     return tests
 ##----------------------------------------------------------------------
@@ -349,7 +411,9 @@ def main():
     shouldPlot = args.plot
     
     # Creates the tests
-    tests = CreateTests()
+    tests = CreateSimpleShearTests()
+    tests += CreateUniaxialTensionTests()
+    tests += CreatePolycrystalTests()
 
     # Do stuff
     if action=='run':
