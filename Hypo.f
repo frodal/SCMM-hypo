@@ -46,11 +46,11 @@
 !-----------------------------------------------------------------------
       subroutine Hypo(stressNew,stateNew,defgradNew,
      +               stressOld,stateOld,defgradOld,dt,props,
-     +               nblock,ndir,nshr,nstatev,nprops,Dissipation)
+     +               nblock,nstatev,nprops,Dissipation)
 !-----------------------------------------------------------------------
       implicit none
 !-----------------------------------------------------------------------
-      integer nblock, ndir, nshr, nstatev, nprops
+      integer nblock, nstatev, nprops
       real*8 dt
       real*8 props(nprops),defgradOld(nblock,9),
      +  stressOld(nblock,6),
