@@ -155,7 +155,7 @@
 !-----------------------------------------------------------------------
       call Hypo(sigsNew,stateNew,defgradNew,
      +          sigsOld,stateOld,defgradOld,dt,props,
-     +          nblock,3,3,nstatev,nprops,Dissipation)
+     +          nblock,nstatev,nprops,Dissipation)
 !-----------------------------------------------------------------------
 !     Transforming the stress tensor from the global system to the Rotated coordinate system used in Abaqus/Explicit
 !-----------------------------------------------------------------------
