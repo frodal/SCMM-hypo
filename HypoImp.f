@@ -102,7 +102,7 @@
 !-----------------------------------------------------------------------
       call Hypo(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld,dt,props,
-     +         1, 3, 3, NSTATV, nprops,Dissipation)
+     +         1, NSTATV, nprops,Dissipation)
 !-----------------------------------------------------------------------
 !     Update Consistent tangent operator
 !-----------------------------------------------------------------------
@@ -218,7 +218,7 @@
 !-----------------------------------------------------------------------
          call Hypo(stressTGTnew,stateTGTnew,F,
      +         stressTGTold,stateTGTold,Fold,dt,props,
-     +         12, 3, 3, NSTATV, nprops,DissipationTGT)
+     +         12, NSTATV, nprops,DissipationTGT)
 !-----------------------------------------------------------------------
          kk = 0
          do i=1,12,2
