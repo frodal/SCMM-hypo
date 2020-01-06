@@ -23,6 +23,10 @@ User defined material model for Abaqus/Standard and Abaqus/Explicit
 |              15 | Hardening parameter, *a* or *θ*<sub>2</sub> depending on hflag                     |
 |              16 | Hardening parameter, 0.0 or *τ*<sub>2</sub>                                        |
 |              17 | Tangent operator flag (1=Elastic tangent operator, 2=Consistent tangent operator)  |
+|              18 | Initial damage, *f*<sub>0</sub>                                                    |
+|              19 | Critical damage, *f*<sub>0</sub>                                                   |
+|              20 | Damage evolution parameter, *q*<sub>1</sub>                                        |
+|              21 | Damage evolution parameter, *q*<sub>2</sub>                                        |
 
 Note that the Tangent operator flag, property number 17, is only used for Abaqus Standard,
 and the Quasi-Newton solution technique should be used when the Elastic tangent operator is
@@ -43,6 +47,8 @@ the Kalidindi et al. (1992) hardening model is used with Abaqus Standard.
 |              26 | Equivalent von Mises stress *σ*<sub>eq</sub>                     |
 |              27 | Equivalent von Mises plastic strain *ε*<sup>p</sup><sub>eq</sub> |
 |              28 | Number of sub-steps in the current time step n<sub>sub</sub>     |
+|              29 | Damage variable, *f*                                             |
+|              30 | Status variable used for element deletion in Abaqus/Explicit     |
 
 ## Prerequisites
 
