@@ -2,6 +2,48 @@
 
 User defined material model for Abaqus/Standard and Abaqus/Explicit
 
+## Subroutine input
+
+| Property number | Material input                                                                     |
+|:---------------:|:---------------------------------------------------------------------------------- |
+|               1 | Elastic constant *c*<sub>11</sub>                                                  |
+|               2 | Elastic constant *c*<sub>12</sub>                                                  |
+|               3 | Elastic constant *c*<sub>44</sub>                                                  |
+|               4 | Reference slip rate, *γ*<sub>0</sub>                                               |
+|               5 | Instantaneous strain rate sensitivity, *m*                                         |
+|               6 | Initial critical resolved shear stress, *τ*<sub>*c*0</sub>                         |
+|               7 | Latent hardening coefficient, *q*                                                  |
+|               8 | Texture flag (1=Euler angles from material card, 2=Euler angles from history card) |
+|               9 | Initial Euler angle, *ϕ*<sub>1</sub> in degree                                     |
+|              10 | Initial Euler angle, Φ in degree                                                   |
+|              11 | Initial Euler angle, *ϕ*<sub>2</sub> in degree                                     |
+|              12 | Hardening flag (1 for Voce or 2 for Kalidindi et al. (1992))                       |
+|              13 | Hardening parameter, *h*<sub>0</sub> or *θ*<sub>1</sub> depending on hflag         |
+|              14 | Hardening parameter, *τ*<sub>s</sub> or *τ*<sub>1</sub> depending on hflag         |
+|              15 | Hardening parameter, *a* or *θ*<sub>2</sub> depending on hflag                     |
+|              16 | Hardening parameter, 0.0 or *τ*<sub>2</sub>                                        |
+|              17 | Tangent operator flag (1=Elastic tangent operator, 2=Consistent tangent operator)  |
+
+Note that the Tangent operator flag, property number 17, is only used for Abaqus Standard,
+and the Quasi-Newton solution technique should be used when the Elastic tangent operator is
+selected. The Quasi-Newton solution technique is located under the step settings in the Abaqus
+CAE.
+
+Note also that the last Hardening parameter, property number 16, should be put to 0.0 when
+the Kalidindi et al. (1992) hardening model is used with Abaqus Standard.
+
+## Subroutine output
+
+| Variable number | Solution dependent variable                                      |
+|:---------------:|:---------------------------------------------------------------- |
+|             1-3 | Euler angles, *ϕ*<sub>1</sub>, Φ, *ϕ*<sub>2</sub>                |
+|            4-12 | Components of the rotation tensor ***R***                        |
+|           13-24 | Critical resolved shear stresses *τ*<sub>*c*</sub><sup>(α)</sup> |
+|              25 | Accumulated plastic shear strain *Γ*                             |
+|              26 | Equivalent von Mises stress *σ*<sub>eq</sub>                     |
+|              27 | Equivalent von Mises plastic strain *ε*<sup>p</sup><sub>eq</sub> |
+|              28 | Number of sub-steps in the current time step n<sub>sub</sub>     |
+
 ## Prerequisites
 
 Before compiling the user material subroutine for the FEM code, install and check:
@@ -40,7 +82,7 @@ To run the tests:
 3. Make sure that you have Abaqus and Python 3 installed with the necessary Python libraries (See `./Tests/Test.py`)
 4. Change the current directory to the `SCMM-hypo` folder
 5. Run the command: `python3 ./Tests/Test.py run --location=0` to run the tests (To run the tests on Snurre use `--location=1` instead, note that the Python script must be run from Snurre in this case)
-6. When the Abaqus jobs have finished, run the command: `python3 ./Tests/Test.py post` to post-process the tests
+6. When the Abaqus jobs have finished, run the command: `python3 ./Tests/Test.py post` to post-process the tests (The flag `--plot` can be appended this command to plot the results)
 7. To clean the test directory, run the command: `python3 ./Tests/Test.py clean`
 
 ## Contributing
