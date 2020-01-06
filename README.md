@@ -24,7 +24,7 @@ User defined material model for Abaqus/Standard and Abaqus/Explicit
 |              16 | Hardening parameter, 0.0 or *τ*<sub>2</sub>                                        |
 |              17 | Tangent operator flag (1=Elastic tangent operator, 2=Consistent tangent operator)  |
 |              18 | Initial damage, *f*<sub>0</sub>                                                    |
-|              19 | Critical damage, *f*<sub>0</sub>                                                   |
+|              19 | Critical damage, *f*<sub>*c*</sub>                                                 |
 |              20 | Damage evolution parameter, *q*<sub>1</sub>                                        |
 |              21 | Damage evolution parameter, *q*<sub>2</sub>                                        |
 
