@@ -220,7 +220,7 @@ class AbaqusTest(Test):
         if len(testData[0]) != nRef:
             return self.passed
         # Creates interpolation functions as to evaluate the difference at the same x-values 
-        fTest = interpolate.interp1d(testData[0],testData[1],bounds_error=False,fill_value=yRef.max())
+        fTest = interpolate.interp1d(testData[0],testData[1],bounds_error=False,fill_value=(testData[1][0],testData[1][-1]))
         fRef  = interpolate.interp1d(xRef,yRef)
         # 
         x     = np.linspace(xRef.min(),xRef.max(),nRef)
