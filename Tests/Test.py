@@ -257,8 +257,9 @@ class FortranTest(Test):
 ##----------------------------------------------------------------------
 def Clean():
     workingDir = Path(__file__).parent.joinpath('Abaqus').joinpath('WorkingDirectory')
-    shutil.rmtree(workingDir)
-    print('Working directory removed: '+str(workingDir))
+    if workingDir.exists():
+        shutil.rmtree(workingDir)
+        print('Working directory removed: '+str(workingDir))
 ##----------------------------------------------------------------------
 ## Run tests
 ##----------------------------------------------------------------------
