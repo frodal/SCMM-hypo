@@ -189,11 +189,11 @@ class AbaqusTest(Test):
             os.system('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu)+' interactive')
     
     # Runs the test
-    def Run(self,location=1):
-        if location==0:
-            self._RunHere()
-        else:
+    def Run(self,onSnurre=False):
+        if onSnurre:
             self._RunOnSnurre()
+        else:
+            self._RunHere()
     
     # Post-process the test
     def Process(self,shouldPlot=False):
@@ -235,7 +235,6 @@ class AbaqusTest(Test):
             plt.figure()
             plt.plot(xRef, yRef)
             plt.plot(testData[0],testData[1])
-            plt.show()
         return self.passed
 ##----------------------------------------------------------------------
 class FortranTest(Test):
@@ -258,14 +257,17 @@ class FortranTest(Test):
 def Clean():
     workingDir = Path(__file__).parent.joinpath('Abaqus').joinpath('WorkingDirectory')
     if workingDir.exists():
-        shutil.rmtree(workingDir)
-        print('Working directory removed: '+str(workingDir))
+        try:
+            shutil.rmtree(workingDir)
+            print('Working directory removed: '+str(workingDir))
+        except:
+            print('Could not remove the working directory: '+str(workingDir)+'\n'+'Try again later!')
 ##----------------------------------------------------------------------
 ## Run tests
 ##----------------------------------------------------------------------
-def RunTests(tests,location):
+def RunTests(tests,onSnurre=False):
     for test in tests:
-        test.Run(location)
+        test.Run(onSnurre)
 ##----------------------------------------------------------------------
 ## Post-process tests
 ##----------------------------------------------------------------------
@@ -277,6 +279,8 @@ def PostProcess(tests,shouldPlot=False):
             print('{}PASSED{} test {:40} residual = {:e}'.format(printColors.OKGREEN,printColors.ENDC,name,test.residual))
         else:
             print('{}FAILED{} test {:40} residual = {:e}'.format(printColors.FAIL,printColors.ENDC,name,test.residual))
+        if shouldPlot:
+            plt.show()
 ##----------------------------------------------------------------------
 ## Creates the SimpleShear tests
 ##----------------------------------------------------------------------
@@ -441,25 +445,24 @@ def main():
                         ' "run": For running the tests.'+
                         ' "clean": For cleaning the test working directories.'+
                         ' "post": For post-processing the results.')
-    parser.add_argument('--location',default=1,type=int,choices=[0,1],
-                        help='Choose where the test is run.'+
-                        ' 0: For running the tests on the current PC.'+
-                        ' 1: For running the tests on Snurre (Default option).')
+    parser.add_argument('--snurre',default=False,const=True,action='store_const',
+                        help='Add this flag when running the tests on Snurre.')
     parser.add_argument('--plot',default=False,const=True,action='store_const',
                         help='Add this flag to plot the referance data and the test data during post-processing.')
     args = parser.parse_args()
-    location = args.location
+    onSnurre = args.snurre
     action = args.action
     shouldPlot = args.plot
     
     # Creates the tests
-    tests = CreateSimpleShearTests()
+    tests = []
+    tests += CreateSimpleShearTests()
     tests += CreateUniaxialTensionTests()
     tests += CreatePolycrystalTests()
 
     # Do stuff
     if action=='run':
-        RunTests(tests,location)
+        RunTests(tests,onSnurre)
     elif action=='clean':
         Clean()
     elif action=='post':
