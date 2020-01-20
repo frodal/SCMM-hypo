@@ -63,7 +63,7 @@ Follow point 1 or 2 below to compile
     - Use the option `user=HypoImp` for the implicit solver (Abaqus/Standard)
     - Use the option `user=HypoExp` for the explicit solver (Abaqus/Explicit)
 2. Second case, compile a library:
-    - If needed, make a directory where to place the Abaqus library (e.g. library-dir = `/home/username/bin/abaqus` for Linux or `C:\Users\username\abaqus` for Windows)
+    - If needed, make a directory where to place the Abaqus library (e.g. library-dir = `/home/username/bin/abaqus` for Linux or `C:\\Users\\username\\abaqus` for Windows)
     - Clone the repository: `SCMM-hypo` from the SIMLab project on www.code.sintef.no or gitte.kt.ntnu.no
     - Change the current directory to the `SCMM-hypo` folder
     - Run the command: `abaqus make library=HypoImp directory=library-dir`
@@ -81,9 +81,9 @@ To run the tests:
 2. Edit the `abaqus_v6.env` file in the `./Tests/Abaqus/` folder so that it points to the folder where the compiled libraries are located, i.e., edit the entry `usub_lib_dir='library-dir'`
 3. Make sure that you have Abaqus and Python 3 installed with the necessary Python libraries (See `./Tests/Test.py`)
 4. Change the current directory to the `SCMM-hypo` folder
-5. Run the command: `python3 ./Tests/Test.py run --location=0` to run the tests (To run the tests on Snurre use `--location=1` instead, note that the Python script must be run from Snurre in this case)
-6. When the Abaqus jobs have finished, run the command: `python3 ./Tests/Test.py post` to post-process the tests (The flag `--plot` can be appended this command to plot the results)
-7. To clean the test directory, run the command: `python3 ./Tests/Test.py clean`
+5. Run the command: `python ./Tests/Test.py run` to run the tests (When running the tests on Snurre, append the flag `--snurre`, note that the Python script must be run from Snurre in this case)
+6. When the Abaqus jobs have finished, run the command: `python ./Tests/Test.py post` to post-process the tests (The flag `--plot` can be appended this command to plot the results)
+7. To clean the test directory, run the command: `python ./Tests/Test.py clean`
 
 ## Contributing
 
