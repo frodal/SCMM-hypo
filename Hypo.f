@@ -1,4 +1,10 @@
 !-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+!
+!     Subroutine Hypo
+!
+!-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
 !       Initial Material parameters
 !-----------------------------------------------------------------------
 ! Props(1)  = C_{11} (Elastic coefficient)
@@ -40,9 +46,14 @@
 ! State(29)     = Damage variable / void volume fraction (f)
 ! State(30)     = Status used for element deletion
 !-----------------------------------------------------------------------
-!     Subroutine Hypo
+! Preprocessor definitions
 !-----------------------------------------------------------------------
-      include './Subs.f'
+#ifndef SCMM_HYPO_HYPO
+#define SCMM_HYPO_HYPO
+!-----------------------------------------------------------------------
+! Include files
+!-----------------------------------------------------------------------
+#include './Subs.f'
 !-----------------------------------------------------------------------
       subroutine Hypo(stressNew,stateNew,defgradNew,
      +               stressOld,stateOld,defgradOld,dt,props,
@@ -193,8 +204,16 @@
          tau_s  = props(14)! Hardening parameter
          am     = props(15)! Hardening parameter
       else
-         write(*,*) 'Error Wrong Hardening model'
-         stop
+#if defined SCMM_HYPO_STANDARD
+         call STDB_ABQERR(-3,'Wrong Hardening model, hflag = %I',
+     .                    hflag,,)
+#elif defined SCMM_HYPO_EXPLICIT
+         call XPLB_ABQERR(-3,'Wrong Hardening model, hflag = %I',
+     .                    hflag,,)
+#else
+         write(*,*) 'hflag = ',hflag
+         error stop 'ERROR: Wrong Hardening model'
+#endif
       endif
 !-----------------------------------------------------------------------
 !     Slip normals and directions in local coordinate system for FCC
@@ -526,3 +545,8 @@
 !-----------------------------------------------------------------------
       return
       end subroutine Hypo
+!-----------------------------------------------------------------------
+! End preprocessor definitions
+!-----------------------------------------------------------------------
+#endif
+!-----------------------------------------------------------------------

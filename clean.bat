@@ -5,4 +5,4 @@ if exist HypoImp-std.obj del HypoImp-std.obj
 if exist explicitU.dll del explicitU.dll
 if exist explicitU-D.dll del explicitU-D.dll
 if exist standardU.dll del standardU.dll
-call python Test/Test.py clean
+call python Tests/Test.py clean
