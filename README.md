@@ -28,6 +28,8 @@ User defined material model for Abaqus/Standard and Abaqus/Explicit
 |              20 | Damage evolution parameter, *q*<sub>1</sub>                                        |
 |              21 | Damage evolution parameter, *q*<sub>2</sub>                                        |
 
+***Warning: Do not use a local coordinate system (CSYS) or a material orientation with this subroutine in Abaqus Standard. This will break the co-rotational formulation.***
+
 Note that the Tangent operator flag, property number 17, is only used for Abaqus Standard,
 and the Quasi-Newton solution technique should be used when the Elastic tangent operator is
 selected. The Quasi-Newton solution technique is located under the step settings in the Abaqus
