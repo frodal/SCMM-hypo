@@ -16,7 +16,7 @@
 !-----------------------------------------------------------------------
       subroutine UMAT(STRESS,STATEV,DDSDDE,SSE,SPD,SCD,
      +                RPL,DDSDDT,DRPLDE,DRPLDT,
-     +                STRAN,DSTRAN,TIMEA,DTIMEA,TEMP,DTEMP,PREDEF,DPRED,
+     +                STRAN,DSTRAN,TIMEA,dt,TEMP,DTEMP,PREDEF,DPRED,
      +                CMNAME,NDI,NSHR,NTENS,NSTATV,PROPS,NPROPS,COORDS,
      +                DROT,PNEWDT,CELENT,DFGRD0,DFGRD1,NOEL,NPT,LAYER,
      +                KSPT,KSTEP,KINC)
@@ -33,7 +33,7 @@
      +          TIMEA(2),PREDEF(1),DPRED(1),PROPS(NPROPS),COORDS(3),
      +          DROT(3,3),DFGRD0(3,3),DFGRD1(3,3)
 !-----------------------------------------------------------------------
-      real*8 SSE,SPD,SCD,PNEWDT,CELENT,RPL,DRPLDT,TEMP,DTEMP,DTIMEA
+      real*8 SSE,SPD,SCD,PNEWDT,CELENT,RPL,DRPLDT,TEMP,DTEMP,dt
       integer NDI,NSHR,NTENS,NSTATV,NPROPS,NOEL,NPT,LAYER,KSPT,KSTEP,
      +        KINC
 !-----------------------------------------------------------------------
@@ -41,7 +41,6 @@
       real*8 defgradOld(1,9),defgradNew(1,9)
       real*8 stateOld(1,NSTATV),stateNew(1,NSTATV)
       real*8 stressOld(1,6),stressNew(1,6)
-      real*8 dt
       real*8 C11,C12,C44
       real*8 Dissipation(1)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
       real*8 DissipationTGT(12)
@@ -104,10 +103,6 @@
       stressOld(1,4) = STRESS(4)
       stressOld(1,5) = STRESS(6)
       stressOld(1,6) = STRESS(5)
-!-----------------------------------------------------------------------
-!     Packaging time and time step
-!-----------------------------------------------------------------------
-      dt = DTIMEA
 !-----------------------------------------------------------------------
 !     Call the Hypo Subroutine
 !-----------------------------------------------------------------------
