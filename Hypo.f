@@ -85,7 +85,6 @@
       real*8 am! Hardening parameter
       real*8 dtau_c(alpha)! Critical resolved shear stress increment
 ! for slip system alpha
-      real*8 qhard! Latent hardening coefficient
       real*8 q(12,12)! Latent hardening matrix
       real*8 tau(alpha)! Resolved shear stress for slip system alpha
       real*8 tau_c(alpha)! Critical resolved shear stress 
@@ -137,7 +136,6 @@
       gamma0_dot = props(4)! Referance slip rate
       bm         = props(5)! Instantaneous strain rate sensitivity
       tau0_c     = props(6)! Initial critical resolved shear stress
-      qhard      = props(7)! Latent hardening coefficient
 ! Texture flag (1=Euler angle from material card,
 !               2=Euler angle from history card)
       Txflag     = nint(props(8))
@@ -146,93 +144,33 @@
       phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
       hflag      = nint(props(12))! Hardening type (1=Voce,2=Kalidindi)
 !-----------------------------------------------------------------------
-!     Determine the hardening law based on hflag
+!     Determine the hardening law parameters
 !-----------------------------------------------------------------------
-      q = qhard! Latent Hardening matrix q
 #ifdef SCMM_HYPO_VOCE_ONLY
 !-----------------------------------------------------------------------
 !       Voce
 !-----------------------------------------------------------------------
-      q(1,1)  = one
-      q(2,2)  = one
-      q(3,3)  = one
-      q(4,4)  = one
-      q(5,5)  = one
-      q(6,6)  = one
-      q(7,7)  = one
-      q(8,8)  = one
-      q(9,9)  = one
-      q(10,10) = one
-      q(11,11) = one
-      q(12,12) = one
-!-----------------------------------------------------------------------
-      theta1 = props(13)! Hardening parameter
-      tau1   = props(14)! Hardening parameter
-      theta2 = props(15)! Hardening parameter
-      tau2   = props(16)! Hardening parameter
-      if(tau1.lt.small)then
-        theta1 = zero
-        tau1   = one
-      endif
-      if(tau2.lt.small)then
-        theta2 = zero
-        tau2   = one
-      endif
+      call unpackVoce(nprops,props,theta1,tau1,theta2,tau2,q)
 #elif defined SCMM_HYPO_KALIDINDI_ONLY
 !-----------------------------------------------------------------------
 !       Kalidindi et al.
 !-----------------------------------------------------------------------
-      q(1:3,1:3)     = one
-      q(4:6,4:6)     = one
-      q(7:9,7:9)     = one
-      q(10:12,10:12) = one
-!-----------------------------------------------------------------------
-      h0     = props(13)! Hardening parameter
-      tau_s  = props(14)! Hardening parameter
-      am     = props(15)! Hardening parameter
+      call unpackKalidindi(nprops,props,h0,tau_s,am,q)
 #else
       if(hflag.eq.1)then
 !-----------------------------------------------------------------------
 !       Voce
 !-----------------------------------------------------------------------
-        q(1,1)  = one
-        q(2,2)  = one
-        q(3,3)  = one
-        q(4,4)  = one
-        q(5,5)  = one
-        q(6,6)  = one
-        q(7,7)  = one
-        q(8,8)  = one
-        q(9,9)  = one
-        q(10,10) = one
-        q(11,11) = one
-        q(12,12) = one
-!-----------------------------------------------------------------------
-        theta1 = props(13)! Hardening parameter
-        tau1   = props(14)! Hardening parameter
-        theta2 = props(15)! Hardening parameter
-        tau2   = props(16)! Hardening parameter
-        if(tau1.lt.small)then
-          theta1 = zero
-          tau1   = one
-        endif
-        if(tau2.lt.small)then
-          theta2 = zero
-          tau2   = one
-        endif
+        call unpackVoce(nprops,props,theta1,tau1,theta2,tau2,q)
       elseif(hflag.eq.2)then
 !-----------------------------------------------------------------------
 !       Kalidindi et al.
 !-----------------------------------------------------------------------
-        q(1:3,1:3)     = one
-        q(4:6,4:6)     = one
-        q(7:9,7:9)     = one
-        q(10:12,10:12) = one
-!-----------------------------------------------------------------------
-         h0     = props(13)! Hardening parameter
-         tau_s  = props(14)! Hardening parameter
-         am     = props(15)! Hardening parameter
+        call unpackKalidindi(nprops,props,h0,tau_s,am,q)
       else
+!-----------------------------------------------------------------------
+!       Error on wrong hflag
+!-----------------------------------------------------------------------
 #if defined SCMM_HYPO_STANDARD
          call STDB_ABQERR(-3,'Wrong Hardening model, hflag = %I',
      .                    hflag,,)
