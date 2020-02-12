@@ -85,7 +85,6 @@
       real*8 am! Hardening parameter
       real*8 dtau_c(alpha)! Critical resolved shear stress increment
 ! for slip system alpha
-      real*8 qhard! Latent hardening coefficient
       real*8 q(12,12)! Latent hardening matrix
       real*8 tau(alpha)! Resolved shear stress for slip system alpha
       real*8 tau_c(alpha)! Critical resolved shear stress 
@@ -137,7 +136,6 @@
       gamma0_dot = props(4)! Referance slip rate
       bm         = props(5)! Instantaneous strain rate sensitivity
       tau0_c     = props(6)! Initial critical resolved shear stress
-      qhard      = props(7)! Latent hardening coefficient
 ! Texture flag (1=Euler angle from material card,
 !               2=Euler angle from history card)
       Txflag     = nint(props(8))
@@ -146,51 +144,33 @@
       phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
       hflag      = nint(props(12))! Hardening type (1=Voce,2=Kalidindi)
 !-----------------------------------------------------------------------
-!     Determine the hardening law based on hflag
+!     Determine the hardening law parameters
 !-----------------------------------------------------------------------
-      q = qhard! Latent Hardening matrix q
+#ifdef SCMM_HYPO_VOCE_ONLY
+!-----------------------------------------------------------------------
+!       Voce
+!-----------------------------------------------------------------------
+      call unpackVoce(nprops,props,theta1,tau1,theta2,tau2,q)
+#elif defined SCMM_HYPO_KALIDINDI_ONLY
+!-----------------------------------------------------------------------
+!       Kalidindi et al.
+!-----------------------------------------------------------------------
+      call unpackKalidindi(nprops,props,h0,tau_s,am,q)
+#else
       if(hflag.eq.1)then
 !-----------------------------------------------------------------------
 !       Voce
 !-----------------------------------------------------------------------
-        q(1,1)  = one
-        q(2,2)  = one
-        q(3,3)  = one
-        q(4,4)  = one
-        q(5,5)  = one
-        q(6,6)  = one
-        q(7,7)  = one
-        q(8,8)  = one
-        q(9,9)  = one
-        q(10,10) = one
-        q(11,11) = one
-        q(12,12) = one
-!-----------------------------------------------------------------------
-        theta1 = props(13)! Hardening parameter
-        tau1   = props(14)! Hardening parameter
-        theta2 = props(15)! Hardening parameter
-        tau2   = props(16)! Hardening parameter
-        if(tau1.lt.small)then
-          theta1 = zero
-          tau1   = one
-        endif
-        if(tau2.lt.small)then
-          theta2 = zero
-          tau2   = one
-        endif
+        call unpackVoce(nprops,props,theta1,tau1,theta2,tau2,q)
       elseif(hflag.eq.2)then
 !-----------------------------------------------------------------------
 !       Kalidindi et al.
 !-----------------------------------------------------------------------
-        q(1:3,1:3)     = one
-        q(4:6,4:6)     = one
-        q(7:9,7:9)     = one
-        q(10:12,10:12) = one
-!-----------------------------------------------------------------------
-         h0     = props(13)! Hardening parameter
-         tau_s  = props(14)! Hardening parameter
-         am     = props(15)! Hardening parameter
+        call unpackKalidindi(nprops,props,h0,tau_s,am,q)
       else
+!-----------------------------------------------------------------------
+!       Error on wrong hflag
+!-----------------------------------------------------------------------
 #if defined SCMM_HYPO_STANDARD
          call STDB_ABQERR(-3,'Wrong Hardening model, hflag = %I',
      .                    hflag,,)
@@ -202,6 +182,7 @@
          error stop 'ERROR: Wrong Hardening model'
 #endif
       endif
+#endif
 !-----------------------------------------------------------------------
 !     Slip normals and directions in local coordinate system for FCC
 !-----------------------------------------------------------------------
@@ -241,15 +222,18 @@
 !-----------------------------------------------------------------------
 !     Time greater than zero
 !-----------------------------------------------------------------------
-      do km = 1, nblock
-        if(stateold(km,13).lt.small)then ! First step
-            if (Txflag.eq.2)then
-              phi1 = STATEOLD(km,1)*Pi/halfCirc
-              PHI  = STATEOLD(km,2)*Pi/halfCirc
-              phi2 = STATEOLD(km,3)*Pi/halfCirc
-            endif
+      if(stateold(1,13).lt.small)then ! First step
 !-----------------------------------------------------------------------
 !       Initializing the rotation tensor
+!-----------------------------------------------------------------------
+        if (Txflag.eq.2)then
+!-----------------------------------------------------------------------
+!         Load orientations from initial conditions
+!-----------------------------------------------------------------------
+          do km=1,nblock
+            phi1 = STATEOLD(km,1)*Pi/halfCirc
+            PHI  = STATEOLD(km,2)*Pi/halfCirc
+            phi2 = STATEOLD(km,3)*Pi/halfCirc
 !-----------------------------------------------------------------------
             R(1,1) =  cos(phi1)*cos(phi2)-sin(phi1)*sin(phi2)*cos(PHI)
             R(1,2) = -cos(phi1)*sin(phi2)-sin(phi1)*cos(phi2)*cos(PHI)
@@ -261,26 +245,64 @@
             R(3,2) =  cos(phi2)*sin(PHI)
             R(3,3) =  cos(PHI)
 !-----------------------------------------------------------------------
-!       Initializing the other state variables
-!-----------------------------------------------------------------------
-            tau_c  = tau0_c
-            gamma  = zero
-            PEQ    = zero
+            a = 4
+            do j=1,3
+              do i=1,3
+                STATEOLD(km,a) = R(i,j)
+                a              = a+1
+              enddo
+            enddo
+          enddo
         else
 !-----------------------------------------------------------------------
-!       Defining state variables from last increment
+!         Load orientation from material properties
+!-----------------------------------------------------------------------
+          R(1,1) =  cos(phi1)*cos(phi2)-sin(phi1)*sin(phi2)*cos(PHI)
+          R(1,2) = -cos(phi1)*sin(phi2)-sin(phi1)*cos(phi2)*cos(PHI)
+          R(1,3) =  sin(phi1)*sin(PHI)
+          R(2,1) =  sin(phi1)*cos(phi2)+cos(phi1)*sin(phi2)*cos(PHI)
+          R(2,2) = -sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2)*cos(PHI)
+          R(2,3) = -cos(phi1)*sin(PHI)
+          R(3,1) =  sin(phi2)*sin(PHI)
+          R(3,2) =  cos(phi2)*sin(PHI)
+          R(3,3) =  cos(PHI)
 !-----------------------------------------------------------------------
           a = 4
           do j=1,3
             do i=1,3
-              R(i,j) = STATEOLD(km,a)
-              a      = a+1
+              do km=1,nblock
+                STATEOLD(km,a) = R(i,j)
+              enddo
+              a              = a+1
             enddo
           enddo
-          tau_c = STATEOLD(km,13:24)
-          gamma = STATEOLD(km,25)
-          PEQ   = STATEOLD(km,27)
         endif
+!-----------------------------------------------------------------------
+!       Initializing the other state variables
+!-----------------------------------------------------------------------
+        do km=1,nblock
+          STATEOLD(km,13:24) = tau0_c
+          STATEOLD(km,25)    = zero
+          STATEOLD(km,27)    = zero
+        enddo
+      endif
+!-----------------------------------------------------------------------
+!     Loop over nblock integration points
+!-----------------------------------------------------------------------
+      do km = 1, nblock
+!-----------------------------------------------------------------------
+!       Defining state variables from last increment
+!-----------------------------------------------------------------------
+        a = 4
+        do j=1,3
+          do i=1,3
+            R(i,j) = STATEOLD(km,a)
+            a      = a+1
+          enddo
+        enddo
+        tau_c = STATEOLD(km,13:24)
+        gamma = STATEOLD(km,25)
+        PEQ   = STATEOLD(km,27)
 !-----------------------------------------------------------------------
 !       Co-rotating the stress tensor, strain increments
 !-----------------------------------------------------------------------
@@ -406,6 +428,12 @@
 !-----------------------------------------------------------------------
 !       Updating critical resolved shear stresses
 !-----------------------------------------------------------------------
+#ifdef SCMM_HYPO_VOCE_ONLY
+          call Voce(alpha,q,theta1,tau1,theta2,
+     +              tau2,dgamma,gamma,tau_c)
+#elif defined SCMM_HYPO_KALIDINDI_ONLY
+          call Kalidindi(alpha,q,h0,tau_s,am,dgamma,tau_c)
+#else
           if(hflag.eq.1)then
             call Voce(alpha,q,theta1,tau1,theta2,
      +                tau2,dgamma,gamma,tau_c)
@@ -413,6 +441,7 @@
           else 
             call Kalidindi(alpha,q,h0,tau_s,am,dgamma,tau_c)
           endif
+#endif
 !-----------------------------------------------------------------------
 !       Updating accumulated plastic shear strain
 !-----------------------------------------------------------------------
