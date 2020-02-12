@@ -16,8 +16,8 @@
 ! Subroutines should be inlined by the compiler
 !-----------------------------------------------------------------------
 !DIR$ATTRIBUTES FORCEINLINE  :: transform, minv, mmult, mtransp,
-!DIR$& mat2vec, vec2mat, determ2, sinc, updateR, Voce, Kalidindi,
-!DIR$& euler, UpdateDamage
+!DIR$& mat2vec, vec2mat, determ2, sinc, updateR, Voce, unpackVoce,
+!DIR$& Kalidindi, unpackKalidindi, euler, UpdateDamage
 !-----------------------------------------------------------------------
 !
 !-----------------------------------------------------------------------
@@ -314,6 +314,54 @@
       end subroutine Voce
 !
 !-----------------------------------------------------------------------
+!                         SUBROUTINE unpackVoce
+!-----------------------------------------------------------------------
+! Unpack parameters involved in the Voce hardening
+!-----------------------------------------------------------------------
+      subroutine unpackVoce(nprops,props,theta1,tau1,theta2,tau2,q)
+!
+      implicit none
+!
+      integer, intent(in) :: nprops
+      real*8, intent(in) :: props(nprops)
+      real*8, intent(out) :: theta1, tau1, theta2, tau2, q(12,12)
+!     Local variables
+      real*8 small, one, zero
+      parameter(small=1.d-6, one=1.d0, zero=0.d0)
+!-----------------------------------------------------------------------
+!     Latent Hardening matrix q
+!-----------------------------------------------------------------------
+      q        = props(7)
+      q(1,1)   = one
+      q(2,2)   = one
+      q(3,3)   = one
+      q(4,4)   = one
+      q(5,5)   = one
+      q(6,6)   = one
+      q(7,7)   = one
+      q(8,8)   = one
+      q(9,9)   = one
+      q(10,10) = one
+      q(11,11) = one
+      q(12,12) = one
+!-----------------------------------------------------------------------
+      theta1 = props(13)! Hardening parameter
+      tau1   = props(14)! Hardening parameter
+      theta2 = props(15)! Hardening parameter
+      tau2   = props(16)! Hardening parameter
+      if(tau1.lt.small)then
+        theta1 = zero
+        tau1   = one
+      endif
+      if(tau2.lt.small)then
+        theta2 = zero
+        tau2   = one
+      endif
+!
+      return
+      end subroutine unpackVoce
+!
+!-----------------------------------------------------------------------
 !                         SUBROUTINE Kalidindi
 !-----------------------------------------------------------------------
 ! Updates the critical resolved shear stresses/slip resistances
@@ -362,6 +410,37 @@
 !
       return
       end subroutine Kalidindi
+!
+!-----------------------------------------------------------------------
+!                         SUBROUTINE unpackVoce
+!-----------------------------------------------------------------------
+! Unpack parameters involved in the Kalidindi hardening
+!-----------------------------------------------------------------------
+      subroutine unpackKalidindi(nprops,props,h0,tau_s,am,q)
+!
+      implicit none
+!
+      integer, intent(in) :: nprops
+      real*8, intent(in) :: props(nprops)
+      real*8, intent(out) :: h0, tau_s, am, q(12,12)
+!     Local variables
+      real*8 one
+      parameter(one=1.d0)
+!-----------------------------------------------------------------------
+!     Latent Hardening matrix q
+!-----------------------------------------------------------------------
+      q              = props(7)
+      q(1:3,1:3)     = one
+      q(4:6,4:6)     = one
+      q(7:9,7:9)     = one
+      q(10:12,10:12) = one
+!-----------------------------------------------------------------------
+      h0     = props(13)! Hardening parameter
+      tau_s  = props(14)! Hardening parameter
+      am     = props(15)! Hardening parameter
+!
+      return
+      end subroutine unpackKalidindi
 !
 !-----------------------------------------------------------------------
 !                         SUBROUTINE EULER

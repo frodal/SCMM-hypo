@@ -81,6 +81,8 @@ Follow point 1 or 2 below to compile
       - If needed, create an environment file, `abaqus_v6.env`, in your home directory and/or the current directory. Settings in the home directory file will be applied to all jobs that you run. Settings in the current directory file will be applied only to jobs run from the current directory
       - Add the entry: `usub_lib_dir='library-dir'`
 
+Note that the subroutines use preprocessor directives to determine if it is compiled for Abaqus/Standard, Abaqus/Explicit or neither. Specific choices can also be done at compile time instead of at runtime, e.g., the choice of which hardening model to use. For further information on the availible preprocessor definitions see the `Definitions.f` file. If the subroutines are to be included in another file, use the preprocessor include directive (e.g., `#include 'HypoImp.f'`) instead of the Fortran include statement (e.g., `include 'HypoImp.f'`).
+
 ## Tests
 
 To run the tests:
