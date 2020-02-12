@@ -298,7 +298,7 @@
           STATEOLD(km,25)    = zero
           STATEOLD(km,27)    = zero
           STATEOLD(km,29)    = VVF0
-          STATEOLD(km,29)    = one
+          STATEOLD(km,30)    = one
         enddo
       endif
 !-----------------------------------------------------------------------
