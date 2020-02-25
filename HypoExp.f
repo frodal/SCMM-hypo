@@ -73,9 +73,9 @@
 !-----------------------------------------------------------------------
 !     This material subroutine is only for solid elements
 !-----------------------------------------------------------------------
-      if (ndir+nshr.ne.6)then
-        call XPLB_ABQERR(-3,'This material subroutine is only for
-     + solid elements',,,)
+      if(ndir+nshr.ne.6)then
+        call XPLB_ABQERR(-3,'This material subroutine is only for'//
+     + ' solid elements',,,)
       endif
 !-----------------------------------------------------------------------
 !     Initial step
