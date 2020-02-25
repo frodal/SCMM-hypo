@@ -60,9 +60,9 @@
 !-----------------------------------------------------------------------
 !     This material subroutine is only for solid elements
 !-----------------------------------------------------------------------
-      if (NDI+NSHR.ne.6)then
-        call STDB_ABQERR(-3,'This material subroutine is only for
-     + solid elements',,,)
+      if(NDI+NSHR.ne.6)then
+        call STDB_ABQERR(-3,'This material subroutine is only for'//
+     + ' solid elements',,,)
       endif
 !-----------------------------------------------------------------------
 !     Packaging Deformation gradient
