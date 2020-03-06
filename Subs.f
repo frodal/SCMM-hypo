@@ -514,7 +514,7 @@
      +             abs(dgamma(7))+abs(dgamma(8))+abs(dgamma(9))+
      +            abs(dgamma(10))+abs(dgamma(11))+abs(dgamma(12))
 !-----------------------------------------------------------------------
-      VVF = VVF + q1*VVF*(one-VVF)*exp(q2*Sh/Seq)*deltaGamma
+      VVF = VVF + q1*VVF*(one-VVF)*sinh(q2*Sh/Seq)*deltaGamma
       VVF = max(VVF,zero)
 !-----------------------------------------------------------------------
       return
