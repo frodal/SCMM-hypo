@@ -14,6 +14,7 @@
 ! Include files
 !-----------------------------------------------------------------------
 #include './Hypo.f'
+#include './Subs.f'
 !-----------------------------------------------------------------------
       subroutine UMAT(STRESS,STATEV,DDSDDE,SSE,SPD,SCD,
      +                RPL,DDSDDT,DRPLDE,DRPLDT,
