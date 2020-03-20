@@ -45,9 +45,7 @@
 #ifndef SCMM_HYPO_HYPO
 #define SCMM_HYPO_HYPO
 !-----------------------------------------------------------------------
-! Include files
-!-----------------------------------------------------------------------
-#include './Subs.f'
+! Subroutine Hypo
 !-----------------------------------------------------------------------
       subroutine Hypo(stressNew,stateNew,defgradNew,
      +               stressOld,stateOld,defgradOld,dt,props,
