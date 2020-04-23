@@ -349,7 +349,7 @@
       tau1   = props(14)! Hardening parameter
       theta2 = props(15)! Hardening parameter
       tau2   = props(16)! Hardening parameter
-      if((tau1.lt.small).and(tau1.gt.-small))then
+      if((tau1.lt.small).and.(tau1.gt.-small))then
         theta1 = zero
         tau1   = one
       endif
