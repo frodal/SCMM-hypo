@@ -486,12 +486,12 @@
 !-----------------------------------------------------------------------
 ! Updates the damage variable / void volume fraction
 !-----------------------------------------------------------------------
-      subroutine UpdateDamage(VVF,sigma,dgamma,q1,q2,alpha)
+      subroutine UpdateDamage(VVF,sigma,dgamma,q1,q2)
 !
       implicit none
 !
+      integer, parameter :: alpha = 12
       real*8, intent(inout) :: VVF
-      integer, intent(in) :: alpha
       real*8, intent(in) :: sigma(6),dgamma(alpha),q1,q2
 !     Local variables
       real*8 Seq,Sh,deltaGamma,oThree,small,one,zero,half,two,three

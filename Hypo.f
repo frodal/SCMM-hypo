@@ -513,7 +513,7 @@
 !-----------------------------------------------------------------------
 !       Updating damage
 !-----------------------------------------------------------------------
-          call UpdateDamage(VVF,sigma,dgamma,q1,q2,alpha)
+          call UpdateDamage(VVF,sigma,dgamma,q1,q2)
           if((VVF.ge.VVFC).or.(VVF.ge.one))then
             sigma = zero
             isActive = 0
