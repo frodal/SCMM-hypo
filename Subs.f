@@ -286,12 +286,12 @@
 !-----------------------------------------------------------------------
 ! Update the critical resolved shear stresses/slip resistances
 !-----------------------------------------------------------------------
-      subroutine Voce(alpha,q,theta1,tau1,theta2,
+      subroutine Voce(q,theta1,tau1,theta2,
      +                tau2,dgamma,gamma,tau_c)
 !
       implicit none
 !
-      integer, intent(in) :: alpha
+      integer, parameter :: alpha = 12
       real*8, intent(in) :: q(alpha,alpha),theta1,tau1,
      +                      theta2,tau2,dgamma(alpha),gamma
       real*8, intent(inout) :: tau_c(alpha)
@@ -366,11 +366,11 @@
 !-----------------------------------------------------------------------
 ! Updates the critical resolved shear stresses/slip resistances
 !-----------------------------------------------------------------------
-      subroutine Kalidindi(alpha,q,h0,tau_s,am,dgamma,tau_c)
+      subroutine Kalidindi(q,h0,tau_s,am,dgamma,tau_c)
 !
       implicit none
 !
-      integer, intent(in) :: alpha
+      integer, parameter :: alpha = 12
       real*8, intent(in) :: q(alpha,alpha),h0,tau_s,am,
      +                      dgamma(alpha)
       real*8, intent(inout) :: tau_c(alpha)

@@ -457,17 +457,17 @@
 !       Updating critical resolved shear stresses
 !-----------------------------------------------------------------------
 #ifdef SCMM_HYPO_VOCE_ONLY
-          call Voce(alpha,q,theta1,tau1,theta2,
+          call Voce(q,theta1,tau1,theta2,
      +              tau2,dgamma,gamma,tau_c)
 #elif defined SCMM_HYPO_KALIDINDI_ONLY
-          call Kalidindi(alpha,q,h0,tau_s,am,dgamma,tau_c)
+          call Kalidindi(q,h0,tau_s,am,dgamma,tau_c)
 #else
           if(hflag.eq.1)then
-            call Voce(alpha,q,theta1,tau1,theta2,
+            call Voce(q,theta1,tau1,theta2,
      +                tau2,dgamma,gamma,tau_c)
 ! hflag=2 (have already checked if hflag is not equal to 1 or 2)
           else 
-            call Kalidindi(alpha,q,h0,tau_s,am,dgamma,tau_c)
+            call Kalidindi(q,h0,tau_s,am,dgamma,tau_c)
           endif
 #endif
 !-----------------------------------------------------------------------
