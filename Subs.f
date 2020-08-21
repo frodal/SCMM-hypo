@@ -494,9 +494,11 @@
       real*8, intent(inout) :: VVF
       real*8, intent(in) :: sigma(6),dgamma(alpha),q1,q2
 !     Local variables
-      real*8 Seq,Sh,deltaGamma,oThree,small,one,zero,half,two,three
+      real*8 Seq,Sh,deltaGamma,oThree,small,one,zero,half,two,three,
+     .       threeFourths,threeOverTwo
       parameter(zero=0.d0,one=1.d0,oThree=1.d0/3.d0,small=1.d-6,
-     +          half=5.d-1,two=2.d0,three=3.d0)
+     +          half=5.d-1,two=2.d0,three=3.d0,threeFourths=0.75d0,
+     +          threeOverTwo=1.5d0)
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
       Seq = sqrt(half*((sigma(1)-sigma(2))**two
@@ -514,7 +516,8 @@
      +             abs(dgamma(7))+abs(dgamma(8))+abs(dgamma(9))+
      +            abs(dgamma(10))+abs(dgamma(11))+abs(dgamma(12))
 !-----------------------------------------------------------------------
-      VVF = VVF + q1*VVF*(one-VVF)*sinh(q2*Sh/Seq)*deltaGamma
+      VVF = VVF + threeFourths*q1*q2*VVF*(one-VVF)*
+     .            sinh(threeOverTwo*q2*Sh/Seq)*deltaGamma
       VVF = max(VVF,zero)
 !-----------------------------------------------------------------------
       return
