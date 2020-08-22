@@ -181,19 +181,22 @@ class AbaqusTest(Test):
             os.system('qsub '+jobabaName)
 
     # Runs the test on the current PC
-    def _RunHere(self):
+    def _RunHere(self,interactiveOff=False):
         # Sets up the test
         self._SetupAbaqusJob()
         # Run the abaqus solver
         with cd(self.testPath):
-            os.system('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu)+' interactive')
+            if interactiveOff:
+                os.system('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu))
+            else:
+                os.system('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu)+' interactive')
     
     # Runs the test
-    def Run(self,onSnurre=False):
+    def Run(self,onSnurre=False,interactiveOff=False):
         if onSnurre:
             self._RunOnSnurre()
         else:
-            self._RunHere()
+            self._RunHere(interactiveOff)
     
     # Post-process the test
     def Process(self,shouldPlot=False):
@@ -265,9 +268,9 @@ def Clean():
 ##----------------------------------------------------------------------
 ## Run tests
 ##----------------------------------------------------------------------
-def RunTests(tests,onSnurre=False):
+def RunTests(tests,onSnurre=False,interactiveOff=False):
     for test in tests:
-        test.Run(onSnurre)
+        test.Run(onSnurre,interactiveOff)
 ##----------------------------------------------------------------------
 ## Post-process tests
 ##----------------------------------------------------------------------
@@ -423,11 +426,11 @@ def CreatePolycrystalTests():
     # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials
     tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Explicit.inp',
                 AbaqusSolver.Explicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                material,6))
+                material,1))
     # Add polycrystal tests using Abaqus/Standard and the Voce hardening materials
     tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Implicit.inp',
                 AbaqusSolver.Implicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                material,6))
+                material,1))
     # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials with RT-damage
     tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Explicit.inp',
                 AbaqusSolver.Explicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
@@ -447,12 +450,15 @@ def main():
                         ' "post": For post-processing the results.')
     parser.add_argument('--snurre',default=False,const=True,action='store_const',
                         help='Add this flag when running the tests on Snurre.')
+    parser.add_argument('--interactive_off',default=False,const=True,action='store_const',
+                        help='Add this flag to turn off interactive mode of the Abaqus analyses.')
     parser.add_argument('--plot',default=False,const=True,action='store_const',
                         help='Add this flag to plot the referance data and the test data during post-processing.')
     args = parser.parse_args()
     onSnurre = args.snurre
     action = args.action
     shouldPlot = args.plot
+    interactiveOff = args.interactive_off
     
     # Creates the tests
     tests = []
@@ -462,7 +468,7 @@ def main():
 
     # Do stuff
     if action=='run':
-        RunTests(tests,onSnurre)
+        RunTests(tests,onSnurre,interactiveOff)
     elif action=='clean':
         Clean()
     elif action=='post':
