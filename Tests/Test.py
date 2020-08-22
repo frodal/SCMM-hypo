@@ -321,7 +321,7 @@ def CreateSimpleShearTests():
             Material(materialName,'Material-1',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      1.,        0.01,          0.6,  1.0,   1.0]))
+                      1.,        0.01,          0.6,  1.5,   1.0]))
     
     # Add different tests to be run
     tests = []
@@ -377,7 +377,7 @@ def CreateUniaxialTensionTests():
             Material(materialName,'AL',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,        0.01,          0.6,  1.0,   1.0]))
+                      2.,        0.01,          0.6,  1.5,   1.0]))
     
     # Add different tests to be run
     tests = []
@@ -416,7 +416,7 @@ def CreatePolycrystalTests():
     materialRT = Material(materialRTName,'AL',density,
         [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
                  0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
-                  2.,        0.01,          0.6,  1.0,   1.0])
+                  2.,        0.01,          0.6,  1.5,   1.0])
     
     # Add different tests to be run
     tests = []
@@ -431,7 +431,7 @@ def CreatePolycrystalTests():
     # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials with RT-damage
     tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Explicit.inp',
                 AbaqusSolver.Explicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                materialRT,6))
+                materialRT,1))
     
     return tests
 ##----------------------------------------------------------------------
