@@ -347,6 +347,10 @@
         call transform(xmat1,RT,R,xmat2)
         call mat2vec(xmat2,sigma)
 !-----------------------------------------------------------------------
+!       Calculating the effective stress sigma_eff=sigma/(1-VVF)
+!-----------------------------------------------------------------------
+        sigma = sigma/(one-VVF)
+!-----------------------------------------------------------------------
 !       Calculating the strain and spin increments from
 !       the deformation gradient in the global coordinate system
 !-----------------------------------------------------------------------
@@ -409,8 +413,7 @@
      +               sigma(5)*(S(a,2,3)+S(a,3,2))+
      +               sigma(6)*(S(a,3,1)+S(a,1,3))
             dgamma(a) = dti*gamma0_dot*
-     +                (abs(tau(a)/((one-VVF)*tau_c(a))))**(one/bm)*
-     +                sign(one,tau(a))
+     +                (abs(tau(a)/tau_c(a)))**(one/bm)*sign(one,tau(a))
 !-----------------------------------------------------------------------
 !       Calculating corotated incremental plastic strain and spin
 !-----------------------------------------------------------------------
@@ -438,21 +441,18 @@
 !-----------------------------------------------------------------------
 !       Updating corotated stress tensor
 !-----------------------------------------------------------------------
-          sigma(1) = sigma(1)+C11*(depsilon(1)-depsilon_p(1))*(one-VVF)
-     +                       +C12*(depsilon(2)-depsilon_p(2))*(one-VVF)
-     +                       +C12*(depsilon(3)-depsilon_p(3))*(one-VVF)
-          sigma(2) = sigma(2)+C12*(depsilon(1)-depsilon_p(1))*(one-VVF)
-     +                       +C11*(depsilon(2)-depsilon_p(2))*(one-VVF)
-     +                       +C12*(depsilon(3)-depsilon_p(3))*(one-VVF)
-          sigma(3) = sigma(3)+C12*(depsilon(1)-depsilon_p(1))*(one-VVF)
-     +                       +C12*(depsilon(2)-depsilon_p(2))*(one-VVF)
-     +                       +C11*(depsilon(3)-depsilon_p(3))*(one-VVF)
-          sigma(4) = sigma(4)+
-     +               two*C44*(depsilon(4)-depsilon_p(4))*(one-VVF)
-          sigma(5) = sigma(5)+
-     +               two*C44*(depsilon(5)-depsilon_p(5))*(one-VVF)
-          sigma(6) = sigma(6)+
-     +               two*C44*(depsilon(6)-depsilon_p(6))*(one-VVF)
+          sigma(1) = sigma(1)+C11*(depsilon(1)-depsilon_p(1))
+     +                       +C12*(depsilon(2)-depsilon_p(2))
+     +                       +C12*(depsilon(3)-depsilon_p(3))
+          sigma(2) = sigma(2)+C12*(depsilon(1)-depsilon_p(1))
+     +                       +C11*(depsilon(2)-depsilon_p(2))
+     +                       +C12*(depsilon(3)-depsilon_p(3))
+          sigma(3) = sigma(3)+C12*(depsilon(1)-depsilon_p(1))
+     +                       +C12*(depsilon(2)-depsilon_p(2))
+     +                       +C11*(depsilon(3)-depsilon_p(3))
+          sigma(4) = sigma(4)+two*C44*(depsilon(4)-depsilon_p(4))
+          sigma(5) = sigma(5)+two*C44*(depsilon(5)-depsilon_p(5))
+          sigma(6) = sigma(6)+two*C44*(depsilon(6)-depsilon_p(6))
 !-----------------------------------------------------------------------
 !       Updating critical resolved shear stresses
 !-----------------------------------------------------------------------
@@ -523,6 +523,10 @@
 !       End sub-stepping
 !-----------------------------------------------------------------------
         enddo! End sub-stepping
+!-----------------------------------------------------------------------
+!       Calculating the Cauchy stress tensor from the effective stress
+!-----------------------------------------------------------------------
+        sigma = sigma*(one-VVF)
 !-----------------------------------------------------------------------
 !       Transform the stress tensor back to the global coordinate system
 !-----------------------------------------------------------------------
