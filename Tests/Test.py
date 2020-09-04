@@ -317,7 +317,7 @@ def CreateSimpleShearTests():
     
     # Add different tests to be run
     tests = []
-    # Add SimpleShear tests using Abaqus/Explicit and the kalidindi materials
+    # Add SimpleShear tests using Abaqus/Explicit and the Kalidindi materials
     for material in kalidindiMaterials:
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
                     AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
@@ -327,7 +327,7 @@ def CreateSimpleShearTests():
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
                     AbaqusSolver.Explicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
                     material,1))
-    # Add SimpleShear tests using Abaqus/Standard and the kalidindi materials
+    # Add SimpleShear tests using Abaqus/Standard and the Kalidindi materials
     for material in kalidindiMaterials:
         tests.append(AbaqusTest('SimpleShear','Abaqus/SimpleShearTest/SimpleShear-Implicit.inp',
                     AbaqusSolver.Implicit,'Abaqus/SimpleShearTest/SimpleShearExtract.py',
@@ -393,7 +393,7 @@ def CreatePolycrystalTests():
     # Add polycrystal tests using Abaqus/Standard and the Voce hardening materials
     tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Implicit.inp',
                 AbaqusSolver.Implicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                material,1))
+                material,8))
     
     return tests
 ##----------------------------------------------------------------------
@@ -412,7 +412,7 @@ def main():
     parser.add_argument('--interactive_off',default=False,const=True,action='store_const',
                         help='Add this flag to turn off interactive mode of the Abaqus analyses.')
     parser.add_argument('--plot',default=False,const=True,action='store_const',
-                        help='Add this flag to plot the referance data and the test data during post-processing.')
+                        help='Add this flag to plot the reference data and the test data during post-processing.')
     args = parser.parse_args()
     onSnurre = args.snurre
     action = args.action
