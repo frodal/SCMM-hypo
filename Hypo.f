@@ -436,7 +436,7 @@
 !-----------------------------------------------------------------------
 !       Approximating the dissipated energy by using tau at n
 !-----------------------------------------------------------------------
-            Dissipation(km) = Dissipation(km)+tau(a)*dgamma(a)
+            Dissipation(km) = Dissipation(km)+(one-VVF)*tau(a)*dgamma(a)
           enddo
 !-----------------------------------------------------------------------
 !       Updating corotated stress tensor
