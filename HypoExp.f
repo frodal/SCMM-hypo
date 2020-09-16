@@ -54,7 +54,7 @@
 !     This material subroutine is only for ... elements
 !-----------------------------------------------------------------------
 #ifdef SCMM_HYPO_3D_ONLY
-      if(ndir+nshr.ne.6)then
+      if((ndir+nshr).ne.6)then
         call XPLB_ABQERR(-3,'This material subroutine is only for'//
      + ' solid elements',,,)
       endif
@@ -64,7 +64,7 @@
      +  stretchNew, defgradNew, stressNew, stateNew, 
      +  enerInternNew, enerInelasNew)
 #elif defined SCMM_HYPO_2D_ONLY
-      if(ndir+nshr.ne.4)then
+      if((ndir+nshr).ne.4)then
         call XPLB_ABQERR(-3,'This material subroutine is only for'//
      + ' plane strain and axisymmetric elements',,,)
       endif
@@ -323,7 +323,8 @@
 !-----------------------------------------------------------------------
 !                         SUBROUTINE HypoExp3D
 !-----------------------------------------------------------------------
-! A user material subroutine for Abaqus/Explicit using solid elements
+! A user material subroutine for Abaqus/Explicit using plane strain and 
+! axisymmetric elements
 !-----------------------------------------------------------------------
       subroutine HypoExp2D(
 !-----------------------------------------------------------------------
