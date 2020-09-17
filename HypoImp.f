@@ -137,8 +137,8 @@
 !-----------------------------------------------------------------------
 !     Rotate the stress tensor to the correct coordinate system
 !-----------------------------------------------------------------------
-      call mtransp(DROT,TDROT)
-      call ROTSIG(STRESS,TDROT,SPRIME,1,3,3)
+      call mtransp(DROT, TDROT)
+      call ROTSIG(STRESS, TDROT, SPRIME, 1, 3, 3)
       STRESS = SPRIME
       stressOld(1,1) = STRESS(1)
       stressOld(1,2) = STRESS(2)
@@ -150,12 +150,12 @@
 !     Call the Hypo Subroutine
 !-----------------------------------------------------------------------
       call Hypo(stressNew, stateNew, defgradNew,
-     +         stressOld, stateOld, defgradOld,dt,props,
-     +         1, NSTATV, nprops,Dissipation)
+     +         stressOld, stateOld, defgradOld, dt, props,
+     +         1, NSTATV, nprops, Dissipation)
 !-----------------------------------------------------------------------
 !     Update Consistent tangent operator
 !-----------------------------------------------------------------------
-      call sinc(DFGRD0,DFGRD1,dt,epsinc,spininc)
+      call sinc(DFGRD0, DFGRD1, dt, epsinc, spininc)
 !-----------------------------------------------------------------------
       flagCTO = nint(props(17))
       if(flagCTO.eq.1)then
@@ -265,9 +265,9 @@
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
-         call Hypo(stressTGTnew,stateTGTnew,F,
-     +         stressTGTold,stateTGTold,Fold,dt,props,
-     +         12, NSTATV, nprops,DissipationTGT)
+         call Hypo(stressTGTnew, stateTGTnew, F,
+     +         stressTGTold, stateTGTold, Fold, dt, props,
+     +         12, NSTATV, nprops, DissipationTGT)
 !-----------------------------------------------------------------------
          kk = 0
          do i=1,12,2
@@ -406,8 +406,8 @@
 !-----------------------------------------------------------------------
 !     Rotate the stress tensor to the correct coordinate system
 !-----------------------------------------------------------------------
-      call mtransp(DROT,TDROT)
-      call ROTSIG(STRESS,TDROT,SPRIME,1,3,1)
+      call mtransp(DROT, TDROT)
+      call ROTSIG(STRESS, TDROT, SPRIME, 1, 3, 1)
       STRESS = SPRIME
       stressOld(1,1) = STRESS(1)
       stressOld(1,2) = STRESS(2)
@@ -419,12 +419,12 @@
 !     Call the Hypo Subroutine
 !-----------------------------------------------------------------------
       call Hypo(stressNew, stateNew, defgradNew,
-     +         stressOld, stateOld, defgradOld,dt,props,
-     +         1, NSTATV, nprops,Dissipation)
+     +         stressOld, stateOld, defgradOld, dt, props,
+     +         1, NSTATV, nprops, Dissipation)
 !-----------------------------------------------------------------------
 !     Update Consistent tangent operator
 !-----------------------------------------------------------------------
-      call sinc(DFGRD0,DFGRD1,dt,epsinc,spininc)
+      call sinc(DFGRD0, DFGRD1, dt, epsinc, spininc)
 !-----------------------------------------------------------------------
       flagCTO = nint(props(17))
       if(flagCTO.eq.1)then
@@ -532,9 +532,9 @@
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
-         call Hypo(stressTGTnew,stateTGTnew,F,
-     +         stressTGTold,stateTGTold,Fold,dt,props,
-     +         12, NSTATV, nprops,DissipationTGT)
+         call Hypo(stressTGTnew, stateTGTnew, F,
+     +         stressTGTold, stateTGTold, Fold, dt, props,
+     +         12, NSTATV, nprops, DissipationTGT)
 !-----------------------------------------------------------------------
          kk = 0
          do i=1,12,2
