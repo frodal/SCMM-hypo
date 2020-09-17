@@ -376,6 +376,14 @@
       parameter(pert=1e-6,o2pert=1.0/(2.0*pert),zero=0.d0,one=1.d0,
      .          two=2.d0,half=5.d-1)
 !-----------------------------------------------------------------------
+!     Initial step
+!-----------------------------------------------------------------------
+      if(time(1).eq.zero.and.time(2).eq.zero)then
+        call STDB_ABQERR(-1,'This material subroutine is only for'//
+     + ' plane strain and axisymmetric elements.'//
+     + ' Do not use it with plane stress elements!',,,)
+      endif
+!-----------------------------------------------------------------------
 !     Packaging Deformation gradient
 !-----------------------------------------------------------------------
       defgradOld(1,1) = DFGRD0(1,1)
