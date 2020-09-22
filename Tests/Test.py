@@ -433,6 +433,42 @@ def CreatePlaneStrainTests():
     
     return tests
 ##----------------------------------------------------------------------
+## Creates the axisymmetric tests
+##----------------------------------------------------------------------
+def CreateAxisymmetricTests():
+    # Material density
+    density = 2.7e-9
+    # Euler angles to be used
+    eulerAngles = [EulerAngles(  0.0,  0.0,  0.0),
+                   EulerAngles( 45.0,  0.0,  0.0),
+                   EulerAngles(  0.0, 45.0,  0.0),
+                   EulerAngles( 35.0, 45.0,  0.0)]
+    
+    # Creates Voce hardening materials
+    MaterialNames = ['000-Voce','4500-Voce','0450-Voce','35450-Voce']
+    Materials = []
+    for materialName,eAngles in zip(MaterialNames,eulerAngles):
+        Materials.append(
+            Material(materialName,'CP',density,
+            [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+            eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
+                      2.]))
+    
+    # Add different tests to be run
+    tests = []
+    # Add axisymmetric tests using Abaqus/Explicit and the Voce hardening materials
+    for material in Materials:
+        tests.append(AbaqusTest('Axisymmetric','Abaqus/AxisymmetricTest/Axisymmetric-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/AxisymmetricTest/AxisymmetricExtract.py',
+                    material,1))
+    # Add axisymmetric tests using Abaqus/Standard and the Voce hardening materials
+    for material in Materials:
+        tests.append(AbaqusTest('Axisymmetric','Abaqus/AxisymmetricTest/Axisymmetric-Implicit.inp',
+                    AbaqusSolver.Implicit,'Abaqus/AxisymmetricTest/AxisymmetricExtract.py',
+                    material,1))
+    
+    return tests
+##----------------------------------------------------------------------
 ## Main
 ##----------------------------------------------------------------------
 def main():
@@ -460,6 +496,7 @@ def main():
     tests += CreateSimpleShearTests()
     tests += CreateUniaxialTensionTests()
     tests += CreatePlaneStrainTests()
+    tests += CreateAxisymmetricTests()
     tests += CreatePolycrystalTests()
 
     # Do stuff
