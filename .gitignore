@@ -9,6 +9,8 @@
 *.dat
 *.mdl
 *.msg
+*.msg*
+*.rec
 *.pac
 *.prt
 *.res
