@@ -362,16 +362,15 @@
       real*8 stressOld(1,6),stressNew(1,6)
       real*8 C11,C12,C44
       real*8 Dissipation(1)! The change in dissipated inelastic specific energy (sigma_ij*D^p_ij*dt=sum(tau(alpha)*dgamma(alpha)))
-      real*8 DissipationTGT(12)
+      real*8 DissipationTGT(8)
       real*8 SPRIME(4), TDROT(3,3)
-      real*8 d(12,6),epsinc(6),spininc(3)
-      real*8 L11(12),L12(12),L13(12)
-      real*8 L21(12),L22(12),L23(12)
-      real*8 L31(12),L32(12),L33(12)
-      real*8 F(12,9),Fold(12,9)
-      real*8 stateTGTold(12,NSTATV),stateTGTnew(12,NSTATV)
-      real*8 stressTGTold(12,NSTATV),stressTGTnew(12,NSTATV)
-      real*8 CTO(6,6),CTO2(6,6)
+      real*8 d(8,4),epsinc(6),spininc(3)
+      real*8 L11(8),L12(8)
+      real*8 L21(8),L22(8)
+      real*8 L33(8)
+      real*8 F(8,9),Fold(8,9)
+      real*8 stateTGTold(8,NSTATV),stateTGTnew(8,NSTATV)
+      real*8 stressTGTold(8,NSTATV),stressTGTnew(8,NSTATV)
       real*8 pert,o2pert,zero,one,two,half
       parameter(pert=1e-6,o2pert=1.0/(2.0*pert),zero=0.d0,one=1.d0,
      .          two=2.d0,half=5.d-1)
@@ -462,74 +461,61 @@
 !-----------------------------------------------------------------------
 !     Consistent tangent operator
 !-----------------------------------------------------------------------
-         do i=1,6
-            do k=1,12
+         do i=1,4
+            do k=1,8
                d(k,i) = epsinc(i)
             enddo
          enddo
 !-----------------------------------------------------------------------
          kk = 1
-         do i=1,6
+         do i=1,4
             do k=1,2
                d(kk,i) = epsinc(i)+pert*(-one)**real(k)
                kk      = kk+1
             enddo
          enddo
 !-----------------------------------------------------------------------
-         do k=1,12
+         do k=1,8
             L11(k) = d(k,1)
             L12(k) = d(k,4)-spininc(3)
-            L13(k) = d(k,6)+spininc(2)
             L21(k) = d(k,4)+spininc(3)
             L22(k) = d(k,2)
-            L23(k) = d(k,5)-spininc(1)
-            L31(k) = d(k,6)-spininc(2)
-            L32(k) = d(k,5)+spininc(1)
             L33(k) = d(k,3)
          enddo
 !-----------------------------------------------------------------------
 !     Update Consistent tangent operator
 !-----------------------------------------------------------------------
-         do k=1,12
+         do k=1,8
             F(k,1) = DFGRD0(1,1)*(L11(k)+one)+DFGRD0(2,1)*L12(k)
-     +           +DFGRD0(3,1)*L13(k)
             F(k,4) = DFGRD0(1,2)*(L11(k)+one)+DFGRD0(2,2)*L12(k)
-     +           +DFGRD0(3,2)*L13(k)
-            F(k,9) = DFGRD0(1,3)*(L11(k)+one)+DFGRD0(2,3)*L12(k)
-     +           +DFGRD0(3,3)*L13(k)
+            F(k,9) = zero
             F(k,7) = DFGRD0(2,1)*(L22(k)+one)+DFGRD0(1,1)*L21(k)
-     +           +DFGRD0(3,1)*L23(k)
             F(k,2) = DFGRD0(2,2)*(L22(k)+one)+DFGRD0(1,2)*L21(k)
-     +           +DFGRD0(3,2)*L23(k)
-            F(k,5) = DFGRD0(2,3)*(L22(k)+one)+DFGRD0(1,3)*L21(k)
-     +           +DFGRD0(3,3)*L23(k)
-            F(k,6) = DFGRD0(3,1)*(L33(k)+one)+DFGRD0(1,1)*L31(k)
-     +           +DFGRD0(2,1)*L32(k)
-            F(k,8) = DFGRD0(3,2)*(L33(k)+one)+DFGRD0(1,2)*L31(k)
-     +           +DFGRD0(2,2)*L32(k)
-            F(k,3) = DFGRD0(3,3)*(L33(k)+one)+DFGRD0(1,3)*L31(k)
-     +           +DFGRD0(2,3)*L32(k)
+            F(k,5) = zero
+            F(k,6) = zero
+            F(k,8) = zero
+            F(k,3) = DFGRD0(3,3)*(L33(k)+one)
          enddo
 !-----------------------------------------------------------------------
-         do k=1,12
+         do k=1,8
             Fold(k,1) = DFGRD0(1,1)
             Fold(k,2) = DFGRD0(2,2)
             Fold(k,3) = DFGRD0(3,3)
             Fold(k,4) = DFGRD0(1,2)
-            Fold(k,5) = DFGRD0(2,3)
-            Fold(k,6) = DFGRD0(3,1)
+            Fold(k,5) = zero
+            Fold(k,6) = zero
             Fold(k,7) = DFGRD0(2,1)
-            Fold(k,8) = DFGRD0(3,2)
-            Fold(k,9) = DFGRD0(1,3)
+            Fold(k,8) = zero
+            Fold(k,9) = zero
          enddo
 !-----------------------------------------------------------------------
          do i=1,NSTATV
-            do k=1,12
+            do k=1,8
                stateTGTold(k,i) = STATEV(i)
             enddo
          enddo
 !-----------------------------------------------------------------------
-         do k=1,12
+         do k=1,8
             stressTGTold(k,1) = STRESS(1)
             stressTGTold(k,2) = STRESS(2)
             stressTGTold(k,3) = STRESS(3)
@@ -542,26 +528,14 @@
 !-----------------------------------------------------------------------
          call Hypo(stressTGTnew, stateTGTnew, F,
      +         stressTGTold, stateTGTold, Fold, dt, props,
-     +         12, NSTATV, nprops, DissipationTGT)
+     +         8, NSTATV, nprops, DissipationTGT)
 !-----------------------------------------------------------------------
          kk = 0
-         do i=1,12,2
+         do i=1,8,2
             kk = kk+1
-            do j=1,6
-               CTO(kk,j) = (stressTGTnew(i+1,j)-stressTGTnew(i,j))
+            do j=1,4
+                DDSDDE(j,kk) = (stressTGTnew(i+1,j)-stressTGTnew(i,j))
      .                     *o2pert
-            enddo
-         enddo
-!-----------------------------------------------------------------------
-         do i=1,6
-            do j=1,6
-               CTO2(j,i) = CTO(i,j)
-            enddo
-         enddo
-!-----------------------------------------------------------------------
-         do j=1,4
-            do i=1,4
-               DDSDDE(i,j) = CTO2(i,j)
             enddo
          enddo
       endif
