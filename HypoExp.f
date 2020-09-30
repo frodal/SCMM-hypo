@@ -135,8 +135,7 @@
 !-----------------------------------------------------------------------
 !     Internal vumat variables
 !-----------------------------------------------------------------------
-      real*8 Fold(3,3)! Old Deformation gradient F=RU
-      real*8 Fnew(3,3)! New Deformation gradient F=RU
+      real*8 F(3,3)! Deformation gradient F=RU
       real*8 rr(3,3)! Rotation tensor R in polar decomposition F=RU
       real*8 rrt(3,3)! Transpose of rr
       real*8 uu(3,3)! Stretch tensor U in polar decomposition F=RU
@@ -189,15 +188,15 @@
 !-----------------------------------------------------------------------
 !       Old deformation gradient, F
 !-----------------------------------------------------------------------
-        Fold(1,1)   = defgradOld(km,1)
-        Fold(2,2)   = defgradOld(km,2)
-        Fold(3,3)   = defgradOld(km,3)
-        Fold(1,2)   = defgradOld(km,4)
-        Fold(2,3)   = defgradOld(km,5)
-        Fold(3,1)   = defgradOld(km,6)
-        Fold(2,1)   = defgradOld(km,7)
-        Fold(3,2)   = defgradOld(km,8)
-        Fold(1,3)   = defgradOld(km,9)
+        F(1,1)   = defgradOld(km,1)
+        F(2,2)   = defgradOld(km,2)
+        F(3,3)   = defgradOld(km,3)
+        F(1,2)   = defgradOld(km,4)
+        F(2,3)   = defgradOld(km,5)
+        F(3,1)   = defgradOld(km,6)
+        F(2,1)   = defgradOld(km,7)
+        F(3,2)   = defgradOld(km,8)
+        F(1,3)   = defgradOld(km,9)
 !-----------------------------------------------------------------------
 !       Old stretch tensor, U
 !-----------------------------------------------------------------------
@@ -226,7 +225,7 @@
 !       Transforming to Global coordinate system
 !-----------------------------------------------------------------------
         call minv(uu,uui)
-        call mmult(Fold,uui,rr)
+        call mmult(F,uui,rr)
         call mtransp(rr,rrt)
         call transform(xmat1,rr,rrt,xmat2)
         sigsOld(km,1) = xmat2(1,1)
@@ -249,15 +248,15 @@
 !-----------------------------------------------------------------------
 !       New deformation gradient, F
 !-----------------------------------------------------------------------
-        Fnew(1,1)   = defgradNew(km,1)
-        Fnew(2,2)   = defgradNew(km,2)
-        Fnew(3,3)   = defgradNew(km,3)
-        Fnew(1,2)   = defgradNew(km,4)
-        Fnew(2,3)   = defgradNew(km,5)
-        Fnew(3,1)   = defgradNew(km,6)
-        Fnew(2,1)   = defgradNew(km,7)
-        Fnew(3,2)   = defgradNew(km,8)
-        Fnew(1,3)   = defgradNew(km,9)
+        F(1,1)   = defgradNew(km,1)
+        F(2,2)   = defgradNew(km,2)
+        F(3,3)   = defgradNew(km,3)
+        F(1,2)   = defgradNew(km,4)
+        F(2,3)   = defgradNew(km,5)
+        F(3,1)   = defgradNew(km,6)
+        F(2,1)   = defgradNew(km,7)
+        F(3,2)   = defgradNew(km,8)
+        F(1,3)   = defgradNew(km,9)
 !-----------------------------------------------------------------------
 !       New stretch tensor, U
 !-----------------------------------------------------------------------
@@ -286,7 +285,7 @@
 !       Transforming to rotated coordinate system used by Abaqus/Explicit
 !-----------------------------------------------------------------------
         call minv(uu,uui)
-        call mmult(Fnew,uui,rr)
+        call mmult(F,uui,rr)
         call mtransp(rr,rrt)
         call transform(xmat1,rrt,rr,xmat2)
         stressNew(km,1) = xmat2(1,1)
@@ -359,10 +358,9 @@
 !-----------------------------------------------------------------------
 !     Internal vumat variables
 !-----------------------------------------------------------------------
-      real*8 Fold(3,3)! Old Deformation gradient F=RU
-      real*8 Fnew(3,3)! New Deformation gradient F=RU
-      real*8 FoldPS(nblock,9)! Old Deformation gradient F=RU
-      real*8 FnewPS(nblock,9)! New Deformation gradient F=RU
+      real*8 F(3,3)! Deformation gradient F=RU
+      real*8 Fold(nblock,9)! Old Deformation gradient F=RU
+      real*8 Fnew(nblock,9)! New Deformation gradient F=RU
       real*8 rr(3,3)! Rotation tensor R in polar decomposition F=RU
       real*8 rrt(3,3)! Transpose of rr
       real*8 uu(3,3)! Stretch tensor U in polar decomposition F=RU
@@ -412,26 +410,39 @@
 !     Package deformation gradients to 3D
 !-----------------------------------------------------------------------
       do km=1,nblock
-        FnewPS(km,1)   = defgradNew(km,1)
-        FnewPS(km,2)   = defgradNew(km,2)
-        FnewPS(km,3)   = defgradNew(km,3)
-        FnewPS(km,4)   = defgradNew(km,4)
-        FnewPS(km,5)   = zero
-        FnewPS(km,6)   = zero
-        FnewPS(km,7)   = defgradNew(km,5)
-        FnewPS(km,8)   = zero
-        FnewPS(km,9)   = zero
+        Fnew(km,1)   = defgradNew(km,1)
+        Fnew(km,2)   = defgradNew(km,2)
+        Fnew(km,3)   = defgradNew(km,3)
+        Fnew(km,4)   = defgradNew(km,4)
+        Fnew(km,5)   = zero
+        Fnew(km,6)   = zero
+        Fnew(km,7)   = defgradNew(km,5)
+        Fnew(km,8)   = zero
+        Fnew(km,9)   = zero
 !-----------------------------------------------------------------------
-        FoldPS(km,1)   = defgradOld(km,1)
-        FoldPS(km,2)   = defgradOld(km,2)
-        FoldPS(km,3)   = defgradOld(km,3)
-        FoldPS(km,4)   = defgradOld(km,4)
-        FoldPS(km,5)   = zero
-        FoldPS(km,6)   = zero
-        FoldPS(km,7)   = defgradOld(km,5)
-        FoldPS(km,8)   = zero
-        FoldPS(km,9)   = zero
+        Fold(km,1)   = defgradOld(km,1)
+        Fold(km,2)   = defgradOld(km,2)
+        Fold(km,3)   = defgradOld(km,3)
+        Fold(km,4)   = defgradOld(km,4)
+        Fold(km,5)   = zero
+        Fold(km,6)   = zero
+        Fold(km,7)   = defgradOld(km,5)
+        Fold(km,8)   = zero
+        Fold(km,9)   = zero
       enddo
+!-----------------------------------------------------------------------
+      F(2,3)      = zero
+      F(3,1)      = zero
+      F(3,2)      = zero
+      F(1,3)      = zero
+      uu(2,3)     = zero
+      uu(3,1)     = zero
+      uu(3,2)     = zero
+      uu(1,3)     = zero
+      xmat1(2,3)  = zero
+      xmat1(3,1)  = zero
+      xmat1(3,2)  = zero
+      xmat1(1,3)  = zero
 !-----------------------------------------------------------------------
 !       Rotating the stress tensor to the Global coordinate frame
 !       from rotated coordinate system used by Abaqus/Explicit
@@ -440,15 +451,11 @@
 !-----------------------------------------------------------------------
 !       Old deformation gradient, F
 !-----------------------------------------------------------------------
-        Fold(1,1)   = defgradOld(km,1)
-        Fold(2,2)   = defgradOld(km,2)
-        Fold(3,3)   = defgradOld(km,3)
-        Fold(1,2)   = defgradOld(km,4)
-        Fold(2,3)   = zero
-        Fold(3,1)   = zero
-        Fold(2,1)   = defgradOld(km,5)
-        Fold(3,2)   = zero
-        Fold(1,3)   = zero
+        F(1,1)   = defgradOld(km,1)
+        F(2,2)   = defgradOld(km,2)
+        F(3,3)   = defgradOld(km,3)
+        F(1,2)   = defgradOld(km,4)
+        F(2,1)   = defgradOld(km,5)
 !-----------------------------------------------------------------------
 !       Old stretch tensor, U
 !-----------------------------------------------------------------------
@@ -456,11 +463,7 @@
         uu(2,2)     = stretchOld(km,2)
         uu(3,3)     = stretchOld(km,3)
         uu(1,2)     = stretchOld(km,4)
-        uu(2,3)     = zero
-        uu(3,1)     = zero
         uu(2,1)     = stretchOld(km,4)
-        uu(3,2)     = zero
-        uu(1,3)     = zero
 !-----------------------------------------------------------------------
 !       Old Stress tensor in Rotated coordinate system used by Abaqus/Explicit
 !-----------------------------------------------------------------------
@@ -468,16 +471,12 @@
         xmat1(2,2)  = stressOld(km,2)
         xmat1(3,3)  = stressOld(km,3)
         xmat1(1,2)  = stressOld(km,4)
-        xmat1(2,3)  = zero
-        xmat1(3,1)  = zero
         xmat1(2,1)  = stressOld(km,4)
-        xmat1(3,2)  = zero
-        xmat1(1,3)  = zero
 !-----------------------------------------------------------------------
 !       Transforming to Global coordinate system
 !-----------------------------------------------------------------------
         call minv(uu,uui)
-        call mmult(Fold,uui,rr)
+        call mmult(F,uui,rr)
         call mtransp(rr,rrt)
         call transform(xmat1,rr,rrt,xmat2)
         sigsOld(km,1) = xmat2(1,1)
@@ -490,8 +489,8 @@
 !-----------------------------------------------------------------------
 !     Call the subroutine Hypo
 !-----------------------------------------------------------------------
-      call Hypo(sigsNew,stateNew,FnewPS,
-     +          sigsOld,stateOld,FoldPS,dt,props,
+      call Hypo(sigsNew,stateNew,Fnew,
+     +          sigsOld,stateOld,Fold,dt,props,
      +          nblock,nstatev,nprops,Dissipation)
 !-----------------------------------------------------------------------
 !     Transforming the stress tensor from the global system to the Rotated coordinate system used in Abaqus/Explicit
@@ -500,15 +499,11 @@
 !-----------------------------------------------------------------------
 !       New deformation gradient, F
 !-----------------------------------------------------------------------
-        Fnew(1,1)   = defgradNew(km,1)
-        Fnew(2,2)   = defgradNew(km,2)
-        Fnew(3,3)   = defgradNew(km,3)
-        Fnew(1,2)   = defgradNew(km,4)
-        Fnew(2,3)   = zero
-        Fnew(3,1)   = zero
-        Fnew(2,1)   = defgradNew(km,5)
-        Fnew(3,2)   = zero
-        Fnew(1,3)   = zero
+        F(1,1)   = defgradNew(km,1)
+        F(2,2)   = defgradNew(km,2)
+        F(3,3)   = defgradNew(km,3)
+        F(1,2)   = defgradNew(km,4)
+        F(2,1)   = defgradNew(km,5)
 !-----------------------------------------------------------------------
 !       New stretch tensor, U
 !-----------------------------------------------------------------------
@@ -516,11 +511,7 @@
         uu(2,2)     = stretchNew(km,2)
         uu(3,3)     = stretchNew(km,3)
         uu(1,2)     = stretchNew(km,4)
-        uu(2,3)     = zero
-        uu(3,1)     = zero
         uu(2,1)     = stretchNew(km,4)
-        uu(3,2)     = zero
-        uu(1,3)     = zero
 !-----------------------------------------------------------------------
 !       New Stress tensor in Global coordinate system
 !-----------------------------------------------------------------------
@@ -537,7 +528,7 @@
 !       Transforming to rotated coordinate system used by Abaqus/Explicit
 !-----------------------------------------------------------------------
         call minv(uu,uui)
-        call mmult(Fnew,uui,rr)
+        call mmult(F,uui,rr)
         call mtransp(rr,rrt)
         call transform(xmat1,rrt,rr,xmat2)
         stressNew(km,1) = xmat2(1,1)
