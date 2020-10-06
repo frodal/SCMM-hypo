@@ -164,21 +164,21 @@ class AbaqusTest(Test):
         shutil.copy(self.abaqusPath.joinpath('abaqus_v6.env'),
                     self.testPath.joinpath('abaqus_v6.env'))
 
-    # Runs the test on Snurre. Note that the script should be run from Snurre
-    def _RunOnSnurre(self):
+    # Runs the test on the CASA cluster. Note that the script should be run from the cluster
+    def _RunOnCasa(self):
         # Sets up the test
         self._SetupAbaqusJob()
         # Reads the template jobaba file and writes a jobaba file to the test working directory
         jobabaName = 'jobaba'
-        jobabaTemplateFile = self.abaqusPath.joinpath('Snurre-jobaba')
-        if self.ncpu>12:
-            self.ncpu = 12
+        jobabaTemplateFile = self.abaqusPath.joinpath('CASA-jobaba')
+        if self.ncpu>24:
+            self.ncpu = 24
         jobabaContent = jobabaTemplateFile.read_text().replace('<<jobName>>',self.name).replace('<<ncpu>>',str(self.ncpu))
         jobabaFile = self.testPath.joinpath(jobabaName)
         jobabaFile.write_text(jobabaContent)
-        # Submit the job to the queue on Snurre
+        # Submit the job to the queue on the cluster
         with cd(self.testPath):
-            os.system('qsub '+jobabaName)
+            os.system('sbatch '+jobabaName)
 
     # Runs the test on the current PC
     def _RunHere(self,interactiveOff=False):
@@ -192,9 +192,9 @@ class AbaqusTest(Test):
                 os.system('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu)+' interactive')
     
     # Runs the test
-    def Run(self,onSnurre=False,interactiveOff=False):
-        if onSnurre:
-            self._RunOnSnurre()
+    def Run(self,onCluster=False,interactiveOff=False):
+        if onCluster:
+            self._RunOnCasa()
         else:
             self._RunHere(interactiveOff)
     
@@ -268,9 +268,9 @@ def Clean():
 ##----------------------------------------------------------------------
 ## Run tests
 ##----------------------------------------------------------------------
-def RunTests(tests,onSnurre=False,interactiveOff=False):
+def RunTests(tests,onCluster=False,interactiveOff=False):
     for test in tests:
-        test.Run(onSnurre,interactiveOff)
+        test.Run(onCluster,interactiveOff)
 ##----------------------------------------------------------------------
 ## Post-process tests
 ##----------------------------------------------------------------------
@@ -438,6 +438,78 @@ def CreatePolycrystalTests():
     
     return tests
 ##----------------------------------------------------------------------
+## Creates the plane strain tests
+##----------------------------------------------------------------------
+def CreatePlaneStrainTests():
+    # Material density
+    density = 2.7e-9
+    # Euler angles to be used
+    eulerAngles = [EulerAngles(  0.0,  0.0,  0.0),
+                   EulerAngles( 45.0,  0.0,  0.0),
+                   EulerAngles(  0.0, 45.0,  0.0),
+                   EulerAngles( 35.0, 45.0,  0.0)]
+    
+    # Creates Voce hardening materials
+    MaterialNames = ['000-Voce','4500-Voce','0450-Voce','35450-Voce']
+    Materials = []
+    for materialName,eAngles in zip(MaterialNames,eulerAngles):
+        Materials.append(
+            Material(materialName,'CP',density,
+            [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+            eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
+                      2.]))
+    
+    # Add different tests to be run
+    tests = []
+    # Add plane strain tests using Abaqus/Explicit and the Voce hardening materials
+    for material in Materials:
+        tests.append(AbaqusTest('PlaneStrain','Abaqus/PlaneStrainTest/PlaneStrain-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/PlaneStrainTest/PlaneStrainExtract.py',
+                    material,1))
+    # Add plane strain tests using Abaqus/Standard and the Voce hardening materials
+    for material in Materials:
+        tests.append(AbaqusTest('PlaneStrain','Abaqus/PlaneStrainTest/PlaneStrain-Implicit.inp',
+                    AbaqusSolver.Implicit,'Abaqus/PlaneStrainTest/PlaneStrainExtract.py',
+                    material,1))
+    
+    return tests
+##----------------------------------------------------------------------
+## Creates the axisymmetric tests
+##----------------------------------------------------------------------
+def CreateAxisymmetricTests():
+    # Material density
+    density = 2.7e-9
+    # Euler angles to be used
+    eulerAngles = [EulerAngles(  0.0,  0.0,  0.0),
+                   EulerAngles( 45.0,  0.0,  0.0),
+                   EulerAngles(  0.0, 45.0,  0.0),
+                   EulerAngles( 35.0, 45.0,  0.0)]
+    
+    # Creates Voce hardening materials
+    MaterialNames = ['000-Voce','4500-Voce','0450-Voce','35450-Voce']
+    Materials = []
+    for materialName,eAngles in zip(MaterialNames,eulerAngles):
+        Materials.append(
+            Material(materialName,'CP',density,
+            [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+            eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
+                      2.]))
+    
+    # Add different tests to be run
+    tests = []
+    # Add axisymmetric tests using Abaqus/Explicit and the Voce hardening materials
+    for material in Materials:
+        tests.append(AbaqusTest('Axisymmetric','Abaqus/AxisymmetricTest/Axisymmetric-Explicit.inp',
+                    AbaqusSolver.Explicit,'Abaqus/AxisymmetricTest/AxisymmetricExtract.py',
+                    material,1))
+    # Add axisymmetric tests using Abaqus/Standard and the Voce hardening materials
+    for material in Materials:
+        tests.append(AbaqusTest('Axisymmetric','Abaqus/AxisymmetricTest/Axisymmetric-Implicit.inp',
+                    AbaqusSolver.Implicit,'Abaqus/AxisymmetricTest/AxisymmetricExtract.py',
+                    material,1))
+    
+    return tests
+##----------------------------------------------------------------------
 ## Main
 ##----------------------------------------------------------------------
 def main():
@@ -448,14 +520,14 @@ def main():
                         ' "run": For running the tests.'+
                         ' "clean": For cleaning the test working directories.'+
                         ' "post": For post-processing the results.')
-    parser.add_argument('--snurre',default=False,const=True,action='store_const',
-                        help='Add this flag when running the tests on Snurre.')
+    parser.add_argument('--casa',default=False,const=True,action='store_const',
+                        help='Add this flag when running the tests on the CASA cluster.')
     parser.add_argument('--interactive_off',default=False,const=True,action='store_const',
                         help='Add this flag to turn off interactive mode of the Abaqus analyses.')
     parser.add_argument('--plot',default=False,const=True,action='store_const',
                         help='Add this flag to plot the reference data and the test data during post-processing.')
     args = parser.parse_args()
-    onSnurre = args.snurre
+    onCluster = args.casa
     action = args.action
     shouldPlot = args.plot
     interactiveOff = args.interactive_off
@@ -464,11 +536,13 @@ def main():
     tests = []
     tests += CreateSimpleShearTests()
     tests += CreateUniaxialTensionTests()
+    tests += CreatePlaneStrainTests()
+    tests += CreateAxisymmetricTests()
     tests += CreatePolycrystalTests()
 
     # Do stuff
     if action=='run':
-        RunTests(tests,onSnurre,interactiveOff)
+        RunTests(tests,onCluster,interactiveOff)
     elif action=='clean':
         Clean()
     elif action=='post':
