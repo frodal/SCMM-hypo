@@ -15,7 +15,7 @@
 !-----------------------------------------------------------------------
 ! Subroutines should be inlined by the compiler
 !-----------------------------------------------------------------------
-!DIR$ATTRIBUTES FORCEINLINE  :: transform, minv, mmult, mtransp,
+!DIR$ ATTRIBUTES FORCEINLINE :: transform, minv, mmult, mtransp,
 !DIR$& mat2vec, vec2mat, determ2, sinc, updateR, Voce, unpackVoce,
 !DIR$& Kalidindi, unpackKalidindi, euler
 !-----------------------------------------------------------------------

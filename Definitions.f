@@ -12,12 +12,17 @@
 !   otherwise the hardening model is determined at runtime
 !   based on hflag
 !-----------------------------------------------------------------------
+! #define SCMM_HYPO_3D_ONLY
+! #define SCMM_HYPO_2D_ONLY
 ! #define SCMM_HYPO_VOCE_ONLY
 ! #define SCMM_HYPO_KALIDINDI_ONLY
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !   Do not edit the lines below!
 !-----------------------------------------------------------------------
+#ifdef SCMM_HYPO_3D_ONLY
+#undef SCMM_HYPO_2D_ONLY
+#endif
 #ifdef SCMM_HYPO_VOCE_ONLY
 #undef SCMM_HYPO_KALIDINDI_ONLY
 #endif
