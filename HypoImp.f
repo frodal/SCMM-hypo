@@ -80,6 +80,7 @@
 !-----------------------------------------------------------------------
 ! A user material subroutine for Abaqus/Standard using solid elements
 !-----------------------------------------------------------------------
+#ifndef SCMM_HYPO_2D_ONLY
       subroutine HypoImp3D(STRESS, STATEV, DDSDDE, SSE, SPD,
      +                TIME, dt, NSTATV, PROPS, NPROPS,
      +                DROT, DFGRD0, DFGRD1)
@@ -342,6 +343,7 @@
 !-----------------------------------------------------------------------
       return
       end subroutine HypoImp3D
+#endif
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !                         SUBROUTINE HypoImp2D
@@ -349,6 +351,7 @@
 ! A user material subroutine for Abaqus/Standard using plane strain and 
 ! axisymmetric elements
 !-----------------------------------------------------------------------
+#ifndef SCMM_HYPO_3D_ONLY
       subroutine HypoImp2D(STRESS, STATEV, DDSDDE, SSE, SPD,
      +                TIME, dt, NSTATV, PROPS, NPROPS,
      +                DROT, DFGRD0, DFGRD1)
@@ -577,6 +580,7 @@
 !-----------------------------------------------------------------------
       return
       end subroutine HypoImp2D
+#endif
 !-----------------------------------------------------------------------
 ! End preprocessor definitions
 !-----------------------------------------------------------------------
