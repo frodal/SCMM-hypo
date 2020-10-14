@@ -36,15 +36,16 @@ the Kalidindi et al. (1992) hardening model is used with Abaqus Standard.
 
 ## Subroutine output
 
-| Variable number | Solution dependent variable                                      |
-|:---------------:|:---------------------------------------------------------------- |
-|             1-3 | Euler angles, *ϕ*<sub>1</sub>, Φ, *ϕ*<sub>2</sub>                |
-|            4-12 | Components of the rotation tensor ***R***                        |
-|           13-24 | Critical resolved shear stresses *τ*<sub>*c*</sub><sup>(α)</sup> |
-|              25 | Accumulated plastic shear strain *Γ*                             |
-|              26 | Equivalent von Mises stress *σ*<sub>eq</sub>                     |
-|              27 | Equivalent von Mises plastic strain *ε*<sup>p</sup><sub>eq</sub> |
-|              28 | Number of sub-steps in the current time step n<sub>sub</sub>     |
+| Variable number | Solution dependent variable                                         |
+|:---------------:|:------------------------------------------------------------------- |
+|             1-3 | Euler angles, *ϕ*<sub>1</sub>, Φ, *ϕ*<sub>2</sub>                   |
+|            4-12 | Components of the rotation tensor ***R***                           |
+|           13-24 | Critical resolved shear stresses *τ*<sub>*c*</sub><sup>(α)</sup>    |
+|              25 | Accumulated plastic shear strain *Γ*                                |
+|              26 | Equivalent von Mises stress *σ*<sub>eq</sub>                        |
+|              27 | Equivalent von Mises plastic strain *ε*<sup>p</sup><sub>eq</sub>    |
+|              28 | Number of sub-steps in the current time step n<sub>sub</sub>        |
+|           29-34 | Components of the stress tensor ***&sigma;*** in the lattice frame  |
 
 ## Prerequisites
 
