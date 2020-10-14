@@ -290,7 +290,7 @@
         enddo
         do km=1,nblock
 !-----------------------------------------------------------------------
-!       Co-rotating the stress tensor, strain increments
+!       Co-rotating the stress tensor
 !-----------------------------------------------------------------------
           sigs(1) = stressOld(km,1)
           sigs(2) = stressOld(km,2)
@@ -298,8 +298,6 @@
           sigs(4) = stressOld(km,4)
           sigs(5) = stressOld(km,5)
           sigs(6) = stressOld(km,6)
-!-----------------------------------------------------------------------
-!       Calculating the transpose of the rotation tensor
 !-----------------------------------------------------------------------
           a = 4
           do j=1,3
@@ -309,8 +307,6 @@
             enddo
           enddo
           call mtransp(R,RT)
-!-----------------------------------------------------------------------
-!       Stress components, sigma_hat=R**T sigma R
 !-----------------------------------------------------------------------
           call vec2mat(sigs,xmat1)
           call transform(xmat1,RT,R,xmat2)
@@ -341,7 +337,7 @@
         gamma = STATEOLD(km,25)
         PEQ   = STATEOLD(km,27)
 !-----------------------------------------------------------------------
-!       Stress components, sigma_hat=R**T sigma R
+!       Stress components in the lattice frame, sigma_hat=R**T sigma R
 !-----------------------------------------------------------------------
         sigma(1) = stateOld(km,29)
         sigma(2) = stateOld(km,30)
