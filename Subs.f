@@ -286,6 +286,7 @@
 !-----------------------------------------------------------------------
 ! Update the critical resolved shear stresses/slip resistances
 !-----------------------------------------------------------------------
+#ifndef SCMM_HYPO_KALIDINDI_ONLY
       subroutine Voce(q,theta1,tau1,theta2,
      +                tau2,dgamma,gamma,tau_c)
 !
@@ -312,12 +313,14 @@
 !
       return
       end subroutine Voce
+#endif
 !
 !-----------------------------------------------------------------------
 !                         SUBROUTINE unpackVoce
 !-----------------------------------------------------------------------
 ! Unpack parameters involved in the Voce hardening
 !-----------------------------------------------------------------------
+#ifndef SCMM_HYPO_KALIDINDI_ONLY
       subroutine unpackVoce(nprops,props,theta1,tau1,theta2,tau2,q)
 !
       implicit none
@@ -360,12 +363,14 @@
 !
       return
       end subroutine unpackVoce
+#endif
 !
 !-----------------------------------------------------------------------
 !                         SUBROUTINE Kalidindi
 !-----------------------------------------------------------------------
 ! Updates the critical resolved shear stresses/slip resistances
 !-----------------------------------------------------------------------
+#ifndef SCMM_HYPO_VOCE_ONLY
       subroutine Kalidindi(q,h0,tau_s,am,dgamma,tau_c)
 !
       implicit none
@@ -410,12 +415,14 @@
 !
       return
       end subroutine Kalidindi
+#endif
 !
 !-----------------------------------------------------------------------
 !                         SUBROUTINE unpackVoce
 !-----------------------------------------------------------------------
 ! Unpack parameters involved in the Kalidindi hardening
 !-----------------------------------------------------------------------
+#ifndef SCMM_HYPO_VOCE_ONLY
       subroutine unpackKalidindi(nprops,props,h0,tau_s,am,q)
 !
       implicit none
@@ -441,6 +448,7 @@
 !
       return
       end subroutine unpackKalidindi
+#endif
 !
 !-----------------------------------------------------------------------
 !                         SUBROUTINE EULER

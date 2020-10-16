@@ -80,6 +80,7 @@
 !-----------------------------------------------------------------------
 ! A user material subroutine for Abaqus/Standard using solid elements
 !-----------------------------------------------------------------------
+#ifndef SCMM_HYPO_2D_ONLY
       subroutine HypoImp3D(STRESS, STATEV, DDSDDE, SSE, SPD,
      +                TIME, dt, NSTATV, PROPS, NPROPS,
      +                DROT, DFGRD0, DFGRD1)
@@ -258,14 +259,16 @@
             enddo
          enddo
 !-----------------------------------------------------------------------
-         do k=1,12
-            stressTGTold(k,1) = STRESS(1)
-            stressTGTold(k,2) = STRESS(2)
-            stressTGTold(k,3) = STRESS(3)
-            stressTGTold(k,4) = STRESS(4)
-            stressTGTold(k,5) = STRESS(6)
-            stressTGTold(k,6) = STRESS(5)
-         enddo
+         if(STATEV(13).lt.pert)then
+            do k=1,12
+                stressTGTold(k,1) = STRESS(1)
+                stressTGTold(k,2) = STRESS(2)
+                stressTGTold(k,3) = STRESS(3)
+                stressTGTold(k,4) = STRESS(4)
+                stressTGTold(k,5) = STRESS(6)
+                stressTGTold(k,6) = STRESS(5)
+            enddo
+         endif
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
@@ -342,6 +345,7 @@
 !-----------------------------------------------------------------------
       return
       end subroutine HypoImp3D
+#endif
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !                         SUBROUTINE HypoImp2D
@@ -349,6 +353,7 @@
 ! A user material subroutine for Abaqus/Standard using plane strain and 
 ! axisymmetric elements
 !-----------------------------------------------------------------------
+#ifndef SCMM_HYPO_3D_ONLY
       subroutine HypoImp2D(STRESS, STATEV, DDSDDE, SSE, SPD,
      +                TIME, dt, NSTATV, PROPS, NPROPS,
      +                DROT, DFGRD0, DFGRD1)
@@ -519,14 +524,16 @@
             enddo
          enddo
 !-----------------------------------------------------------------------
-         do k=1,8
-            stressTGTold(k,1) = STRESS(1)
-            stressTGTold(k,2) = STRESS(2)
-            stressTGTold(k,3) = STRESS(3)
-            stressTGTold(k,4) = STRESS(4)
-            stressTGTold(k,5) = zero
-            stressTGTold(k,6) = zero
-         enddo
+         if(STATEV(13).lt.pert)then
+            do k=1,8
+                stressTGTold(k,1) = STRESS(1)
+                stressTGTold(k,2) = STRESS(2)
+                stressTGTold(k,3) = STRESS(3)
+                stressTGTold(k,4) = STRESS(4)
+                stressTGTold(k,5) = zero
+                stressTGTold(k,6) = zero
+            enddo
+         endif
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
@@ -577,6 +584,7 @@
 !-----------------------------------------------------------------------
       return
       end subroutine HypoImp2D
+#endif
 !-----------------------------------------------------------------------
 ! End preprocessor definitions
 !-----------------------------------------------------------------------
