@@ -66,7 +66,7 @@ class EulerAngles:
 class Material:
     # static class members
     nProps = 17
-    nStatev = 28
+    nStatev = 34
 
     # Constructor
     def __init__(self,name,abaqusMaterialName,density,props):

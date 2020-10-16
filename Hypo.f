@@ -288,6 +288,36 @@
           STATEOLD(km,25)    = zero
           STATEOLD(km,27)    = zero
         enddo
+        do km=1,nblock
+!-----------------------------------------------------------------------
+!       Co-rotating the stress tensor
+!-----------------------------------------------------------------------
+          sigs(1) = stressOld(km,1)
+          sigs(2) = stressOld(km,2)
+          sigs(3) = stressOld(km,3)
+          sigs(4) = stressOld(km,4)
+          sigs(5) = stressOld(km,5)
+          sigs(6) = stressOld(km,6)
+!-----------------------------------------------------------------------
+          a = 4
+          do j=1,3
+            do i=1,3
+              R(i,j) = stateOld(km,a)
+              a      = a+1
+            enddo
+          enddo
+          call mtransp(R,RT)
+!-----------------------------------------------------------------------
+          call vec2mat(sigs,xmat1)
+          call transform(xmat1,RT,R,xmat2)
+          call mat2vec(xmat2,sigma)
+          stateOld(km,29) = sigma(1)
+          stateOld(km,30) = sigma(2)
+          stateOld(km,31) = sigma(3)
+          stateOld(km,32) = sigma(4)
+          stateOld(km,33) = sigma(5)
+          stateOld(km,34) = sigma(6)
+        enddo
       endif
 !-----------------------------------------------------------------------
 !     Loop over nblock integration points
@@ -307,24 +337,18 @@
         gamma = STATEOLD(km,25)
         PEQ   = STATEOLD(km,27)
 !-----------------------------------------------------------------------
-!       Co-rotating the stress tensor, strain increments
+!       Stress components in the lattice frame, sigma_hat=R**T sigma R
 !-----------------------------------------------------------------------
-        sigs(1) = stressOld(km,1)
-        sigs(2) = stressOld(km,2)
-        sigs(3) = stressOld(km,3)
-        sigs(4) = stressOld(km,4)
-        sigs(5) = stressOld(km,5)
-        sigs(6) = stressOld(km,6)
+        sigma(1) = stateOld(km,29)
+        sigma(2) = stateOld(km,30)
+        sigma(3) = stateOld(km,31)
+        sigma(4) = stateOld(km,32)
+        sigma(5) = stateOld(km,33)
+        sigma(6) = stateOld(km,34)
 !-----------------------------------------------------------------------
 !       Calculating the transpose of the rotation tensor
 !-----------------------------------------------------------------------
         call mtransp(R,RT)
-!-----------------------------------------------------------------------
-!       Stress components, sigma_hat=R**T sigma R
-!-----------------------------------------------------------------------
-        call vec2mat(sigs,xmat1)
-        call transform(xmat1,RT,R,xmat2)
-        call mat2vec(xmat2,sigma)
 !-----------------------------------------------------------------------
 !       Calculating the strain and spin increments from
 !       the deformation gradient in the global coordinate system
@@ -522,6 +546,12 @@
      +                      +three*sigma(6)**two)
         STATENEW(km,27) = PEQ! Equivalent von mises plastic strain
         STATENEW(km,28) = nsub! Number of sub steps
+        stateNew(km,29) = sigma(1)
+        stateNew(km,30) = sigma(2)
+        stateNew(km,31) = sigma(3)
+        stateNew(km,32) = sigma(4)
+        stateNew(km,33) = sigma(5)
+        stateNew(km,34) = sigma(6)
 !-----------------------------------------------------------------------
         call euler(R,ang)
 !-----------------------------------------------------------------------
