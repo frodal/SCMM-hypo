@@ -9,42 +9,6 @@
 !-----------------------------------------------------------------------
 !DIR$ ATTRIBUTES FORCEINLINE :: Hypo
 !-----------------------------------------------------------------------
-!-----------------------------------------------------------------------
-!       Initial Material parameters
-!-----------------------------------------------------------------------
-! Props(1)  = C_{11} (Elastic coefficient)
-! Props(2)  = C_{12} (Elastic coefficient)
-! Props(3)  = C_{44} (Elastic coefficient)
-! Props(4)  = \dot{\gamma_0} (Reference slip rate)
-! Props(5)  = m (Instantaneous strain rate sensitivity)
-! Props(6)  = \tau_{c0} (Initial critical resolved shear stress)
-! Props(7)  = q (Latent hardening coefficient)
-! Props(8)  = Txflag (Texture flag 1=Euler angle from material card, 
-!                                  2=Euler angle from history card)
-! Props(9)  = \phi_1 (Initial Euler angle)
-! Props(10) = \Phi (Initial Euler angle)
-! Props(11) = \phi_2 (Initial Euler angle)
-! Props(12) = hflag (Hardening flag 1=Voce, 2=Kalidindi)
-! Props(13) = \theta_1 or h_0 (Hardening parameter depending on hflag)
-! Props(14) = \tau_1 or \tau_s (Hardening parameter depending on hflag)
-! Props(15) = \theta_2 or a (Hardening parameter depending on hflag)
-! Props(16) = \tau_2 or not used (Hardening parameter used when hflag=1)
-! Props(17) = CTOflag (Consistent tangent operator flag used for the 
-! implicit version 1=elastic tangent operator, 
-!                  2=Consistent tangent operator)
-!-----------------------------------------------------------------------
-!       Solution Dependent state Variables
-!-----------------------------------------------------------------------
-! State(1)      = Euler angle (\phi_1)
-! State(2)      = Euler angle (\Phi)
-! State(3)      = Euler angle (\phi_2)
-! State(4:12)   = Rotation tensor components (R)
-! State(13:24)  = Critical resolved shear stresses (\tau_c^{(\alpha)})
-! State(25)     = Accumulated plastic shear strain (\Gamma)
-! State(26)     = Equivalent von Mises stress (\sigma_{eq})
-! State(27)     = Equivalent von Mises plastic strain (\varepsilon_{eq})
-! State(28)     = Number of sub-steps for the current time step(n_{sub})
-!-----------------------------------------------------------------------
 ! Preprocessor definitions
 !-----------------------------------------------------------------------
 #ifndef SCMM_HYPO_HYPO
