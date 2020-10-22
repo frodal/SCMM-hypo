@@ -399,7 +399,8 @@
 !       calculation of the initial elastic wave speeds
 !-----------------------------------------------------------------------
         call XPLB_ABQERR(-1,'This material subroutine is only for'//
-     + ' plane strain and axisymmetric elements.'//
+     + ' plane strain and axisymmetric elements with'//
+     + ' certain crystallographic orientations.'//
      + ' Do not use it with plane stress elements!',,,)
         do km = 1, nblock
             stressNew(km,1) = C11*strainInc(km,1)+

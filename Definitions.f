@@ -16,7 +16,13 @@
 !   elements are supported. Otherwise the subroutines support solid,
 !   plane strain and axisymmetric elements.
 !-----------------------------------------------------------------------
-! #define SCMM_HYPO_3D_ONLY
+!   WARNING! The subroutines and Abaqus only supports plane strain and
+!   axisymmetric elements for certain crystallographic orientations.
+!   This is because Abaqus only supports stress states with 
+!   sigma(1,3)==sigma(3,1)==sigma(2,3)==sigma(3,2)==0 for these 
+!   elements. Use at your own risk!
+!-----------------------------------------------------------------------
+#define SCMM_HYPO_3D_ONLY
 ! #define SCMM_HYPO_2D_ONLY
 ! #define SCMM_HYPO_VOCE_ONLY
 ! #define SCMM_HYPO_KALIDINDI_ONLY

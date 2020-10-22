@@ -485,18 +485,22 @@ def main():
                         help='Add this flag to turn off interactive mode of the Abaqus analyses.')
     parser.add_argument('--plot',default=False,const=True,action='store_const',
                         help='Add this flag to plot the reference data and the test data during post-processing.')
+    parser.add_argument('--all',default=False,const=True,action='store_const',
+                        help='Add this flag during the "run" or "post" command to include plane strain and axisymmetric tests.')
     args = parser.parse_args()
     onCluster = args.casa
     action = args.action
     shouldPlot = args.plot
     interactiveOff = args.interactive_off
+    shouldDoAllTests = args.all
     
     # Creates the tests
     tests = []
     tests += CreateSimpleShearTests()
     tests += CreateUniaxialTensionTests()
-    tests += CreatePlaneStrainTests()
-    tests += CreateAxisymmetricTests()
+    if shouldDoAllTests:
+        tests += CreatePlaneStrainTests()
+        tests += CreateAxisymmetricTests()
     tests += CreatePolycrystalTests()
 
     # Do stuff
