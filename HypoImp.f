@@ -388,7 +388,8 @@
 !-----------------------------------------------------------------------
       if(time(1).eq.zero.and.time(2).eq.zero)then
         call STDB_ABQERR(-1,'This material subroutine is only for'//
-     + ' plane strain and axisymmetric elements.'//
+     + ' plane strain and axisymmetric elements with'//
+     + ' certain crystallographic orientations.'//
      + ' Do not use it with plane stress elements!',,,)
       endif
 !-----------------------------------------------------------------------
