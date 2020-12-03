@@ -314,12 +314,14 @@
 !-----------------------------------------------------------------------
 !       Check if integration point is active
 !-----------------------------------------------------------------------
+#ifdef SCMM_HYPO_EXPLICIT
         if(isActive.eq.0)then
             stressNew(km,1:6) = zero
             STATENEW(km,1:nstatev) = STATEOLD(km,1:nstatev)
             Dissipation(km) = zero
             cycle ! Continue to next loop cycle
         endif
+#endif
 !-----------------------------------------------------------------------
 !       Stress components in the lattice frame, sigma_hat=R**T sigma R
 !-----------------------------------------------------------------------
@@ -497,15 +499,17 @@
 !       Updating damage
 !-----------------------------------------------------------------------
           call UpdateDamage(VVF,sigma,dgamma,q1,q2)
-          if((VVF.ge.VVFC).or.(VVF.ge.one))then
-            sigma = zero
-            isActive = 0
-            exit ! Break out of do-loop
-          endif
 !-----------------------------------------------------------------------
 !       End sub-stepping
 !-----------------------------------------------------------------------
         enddo! End sub-stepping
+!-----------------------------------------------------------------------
+!       Check for failure
+!-----------------------------------------------------------------------
+        if((VVF.ge.VVFC).or.(VVF.ge.one))then
+          VVF = min(VVFC,one)
+          isActive = 0
+        endif
 !-----------------------------------------------------------------------
 !       Updating output variables
 !-----------------------------------------------------------------------
