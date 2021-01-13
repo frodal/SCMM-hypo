@@ -15,6 +15,9 @@
 !   If SCMM_HYPO_2D_ONLY is defined, only plane strain and axisymmetric 
 !   elements are supported. Otherwise the subroutines support solid,
 !   plane strain and axisymmetric elements.
+!   If SCMM_HYPO_TFLAG is 1 then adiabatic heating is on,
+!   If SCMM_HYPO_TFLAG is 0 then adiabatic heating is off
+!   else adiabatic heating is determined at runtime based on Tflag.
 !-----------------------------------------------------------------------
 !   WARNING! The subroutines and Abaqus only supports plane strain and
 !   axisymmetric elements for certain crystallographic orientations.
@@ -26,6 +29,8 @@
 ! #define SCMM_HYPO_2D_ONLY
 ! #define SCMM_HYPO_VOCE_ONLY
 ! #define SCMM_HYPO_KALIDINDI_ONLY
+! #define SCMM_HYPO_TFLAG 0
+! #define SCMM_HYPO_TFLAG 1
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !   Do not edit the lines below!
@@ -35,5 +40,8 @@
 #endif
 #ifdef SCMM_HYPO_VOCE_ONLY
 #undef SCMM_HYPO_KALIDINDI_ONLY
+#endif
+#ifndef SCMM_HYPO_TFLAG
+#define SCMM_HYPO_TFLAG 2
 #endif
 !-----------------------------------------------------------------------

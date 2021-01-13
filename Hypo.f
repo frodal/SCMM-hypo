@@ -95,6 +95,12 @@
       integer nsub,k! Nuber of sub-steps and sub-step loop variable
       real*8 dti! Sub-stepping time step
       real*8 VVF0, VVFC, VVF, q1, q2 ! Damage variables
+#if SCMM_HYPO_TFLAG !=0
+      integer Tflag
+      real*8 rho, CP, xsi, Ti, T0, Tm, Tc, mt ! Adiabatic heating params
+      real*8 temperature, normTemp
+#endif
+      real*8 deltaDisp
       integer isActive ! Is the integration point active (0=deleted, 
 !                                                         1=active)
 !-----------------------------------------------------------------------
@@ -117,6 +123,17 @@
       VVFC       = props(19) ! Critical damage / void volume fraction
       q1         = props(20) ! Damage evolution parameter
       q2         = props(21) ! Damage evolution parameter
+#if SCMM_HYPO_TFLAG !=0
+      Tflag      = nint(props(22)) ! Adiabatic heating (1=on, else=off)
+      rho        = props(23) ! Density used in adiabatic heating
+      CP         = props(24) ! Specific heat capacity
+      xsi        = props(25) ! Taylor-Quinney coefficient
+      Ti         = props(26) ! Initial temperature
+      T0         = props(27) ! Reference temperature
+      Tm         = props(28) ! Melting temperature
+      Tc         = props(29) ! Critical temperature
+      mt         = props(30) ! Exponent for temperature dependency
+#endif
 !-----------------------------------------------------------------------
 !     Determine the hardening law parameters
 !-----------------------------------------------------------------------
@@ -261,6 +278,17 @@
           STATEOLD(km,29)    = VVF0
           STATEOLD(km,30)    = one
         enddo
+#if SCMM_HYPO_TFLAG == 1
+        do km=1,nblock
+          STATEOLD(km,37)  = Ti
+        enddo
+#elif SCMM_HYPO_TFLAG != 0
+        if(Tflag.eq.1)then
+          do km=1,nblock
+            STATEOLD(km,37)  = Ti
+          enddo
+        endif
+#endif
         do km=1,nblock
 !-----------------------------------------------------------------------
 !       Co-rotating the stress tensor
@@ -311,6 +339,13 @@
         PEQ   = STATEOLD(km,27)
         VVF   = STATEOLD(km,29)
         isActive = nint(STATEOLD(km,30))
+#if SCMM_HYPO_TFLAG == 1
+        temperature = STATEOLD(km,37)
+#elif SCMM_HYPO_TFLAG != 0
+        if(Tflag.eq.1)then
+          temperature = STATEOLD(km,37)
+        endif
+#endif
 !-----------------------------------------------------------------------
 !       Check if integration point is active
 !-----------------------------------------------------------------------
@@ -391,14 +426,31 @@
           domega_p   = zero
           dgamma     = zero
           dtau_c     = zero
+          deltaDisp  = zero
+!-----------------------------------------------------------------------
+#if SCMM_HYPO_TFLAG == 1
+          normTemp = ((temperature-T0)/(Tm-T0))**mt
+#elif SCMM_HYPO_TFLAG != 0
+          if(Tflag.eq.1)then
+            normTemp = ((temperature-T0)/(Tm-T0))**mt
+          else
+            normTemp = zero
+          endif
+#endif
 !-----------------------------------------------------------------------
           do a=1,alpha
             tau(a) = sigma(1)*S(a,1,1)+sigma(2)*S(a,2,2)+
      +               sigma(3)*S(a,3,3)+sigma(4)*(S(a,1,2)+S(a,2,1))+
      +               sigma(5)*(S(a,2,3)+S(a,3,2))+
      +               sigma(6)*(S(a,3,1)+S(a,1,3))
+#if SCMM_HYPO_TFLAG == 0
             dgamma(a) = dti*gamma0_dot*
      +                (abs(tau(a)/tau_c(a)))**(one/bm)*sign(one,tau(a))
+#else
+            dgamma(a) = dti*gamma0_dot*
+     +                (abs(tau(a)/(tau_c(a)*(one-normTemp))))
+     +                **(one/bm)*sign(one,tau(a))
+#endif
 !-----------------------------------------------------------------------
 !       Calculating corotated incremental plastic strain and spin
 !-----------------------------------------------------------------------
@@ -421,8 +473,19 @@
 !-----------------------------------------------------------------------
 !       Approximating the dissipated energy by using tau at n
 !-----------------------------------------------------------------------
-            Dissipation(km) = Dissipation(km)+(one-VVF)*tau(a)*dgamma(a)
+            deltaDisp = deltaDisp+(one-VVF)*tau(a)*dgamma(a)
           enddo
+          Dissipation(km) = Dissipation(km)+deltaDisp
+!-----------------------------------------------------------------------
+!       Updating temperature due to adiabatic heating
+!-----------------------------------------------------------------------
+#if SCMM_HYPO_TFLAG == 1
+          temperature = temperature+xsi*deltaDisp/(rho*CP)
+#elif SCMM_HYPO_TFLAG != 0
+          if(Tflag.eq.1)then
+            temperature = temperature+xsi*deltaDisp/(rho*CP)
+          endif
+#endif
 !-----------------------------------------------------------------------
 !       Updating corotated stress tensor
 !-----------------------------------------------------------------------
@@ -510,6 +573,19 @@
           VVF = min(VVFC,one)
           isActive = 0
         endif
+#if SCMM_HYPO_TFLAG == 1
+        if((temperature.ge.Tc).or.(temperature.ge.Tm))then
+          temperature = min(temperature,Tm)
+          isActive = 0
+        endif
+#elif SCMM_HYPO_TFLAG != 0
+        if(Tflag.eq.1)then
+          if((temperature.ge.Tc).or.(temperature.ge.Tm))then
+            temperature = min(temperature,Tm)
+            isActive = 0
+          endif
+        endif
+#endif
 !-----------------------------------------------------------------------
 !       Updating output variables
 !-----------------------------------------------------------------------
@@ -559,6 +635,13 @@
         STATENEW(km,29) = VVF ! Damage / void volume fraction
 ! Is the element active or should it be deleted (Abaqus status variable)
         STATENEW(km,30) = isActive
+#if SCMM_HYPO_TFLAG == 1
+        STATENEW(km,37) = temperature
+#elif SCMM_HYPO_TFLAG != 0
+        if(Tflag.eq.1)then
+          STATENEW(km,37) = temperature
+        endif
+#endif
 !-----------------------------------------------------------------------
         call euler(R,ang)
 !-----------------------------------------------------------------------
