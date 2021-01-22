@@ -6,7 +6,6 @@ import enum
 from pathlib import Path
 import shutil
 import argparse
-import glob
 import pandas as pd
 from scipy import interpolate
 import numpy as np
