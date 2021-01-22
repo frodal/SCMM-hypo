@@ -65,8 +65,8 @@ class EulerAngles:
 ##----------------------------------------------------------------------
 class Material:
     # static class members
-    nProps = 21
-    nStatev = 36
+    nProps = 30
+    nStatev = 37
     nDelete = 30
 
     # Constructor
@@ -304,7 +304,8 @@ def CreateSimpleShearTests():
             Material(materialName,'Material-1',density,
             [    106430.,      60350.,       28210., 0.01,   0.005, 46.7301,     1.4, 1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   2., 411.256, 104.029, 1.35459, 0.,
-                      1.,         0.0,          1.0,  0.0,     0.0]))
+                      1.,         0.0,          1.0,  0.0,     0.0,     0.0,  2.7e-9, 910e6,
+                     0.9,       293.0,        293.0,893.0,   804.0,     1.0]))
     
     # Creates Voce hardening materials
     voceMaterialNames = ['000-Voce','4500-Voce','inverted-Voce','other-Voce']
@@ -314,7 +315,8 @@ def CreateSimpleShearTests():
             Material(materialName,'Material-1',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      1.,         0.0,          1.0,  0.0,   0.0]))
+                      1.,         0.0,          1.0,  0.0,   0.0,     0.0,2.7e-9, 910e6,
+                     0.9,       293.0,        293.0,893.0, 804.0,     1.0]))
     
     # Creates Voce hardening materials with RT-damage
     voceRTMaterialNames = ['000-Voce-RT','4500-Voce-RT','inverted-Voce-RT','other-Voce-RT']
@@ -324,7 +326,8 @@ def CreateSimpleShearTests():
             Material(materialName,'Material-1',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      1.,        0.01,          0.6,  1.5,   1.0]))
+                      1.,        0.01,          0.6,  1.5,   1.0,     0.0,2.7e-9, 910e6,
+                     0.9,       293.0,        293.0,893.0, 804.0,     1.0]))
     
     # Add different tests to be run
     tests = []
@@ -370,7 +373,8 @@ def CreateUniaxialTensionTests():
             Material(materialName,'AL',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,         0.0,          1.0,  0.0,   0.0]))
+                      2.,         0.0,          1.0,  0.0,   0.0,     0.0,2.7e-9, 910e6,
+                     0.9,       293.0,        293.0,893.0, 804.0,     1.0]))
     
     # Creates Voce hardening materials
     rtMaterialNames = ['000-Voce-RT','4500-Voce-RT','0450-Voce-RT','35450-Voce-RT']
@@ -380,7 +384,8 @@ def CreateUniaxialTensionTests():
             Material(materialName,'AL',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,        0.01,          0.6,  1.5,   1.0]))
+                      2.,        0.01,          0.6,  1.5,   1.0,     0.0,2.7e-9, 910e6,
+                     0.9,       293.0,        293.0,893.0, 804.0,     1.0]))
     
     # Add different tests to be run
     tests = []
@@ -413,13 +418,15 @@ def CreatePolycrystalTests():
     material = Material(materialName,'AL',density,
         [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
                  0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
-                  2.,         0.0,          1.0,  0.0,   0.0])
+                  2.,         0.0,          1.0,  0.0,   0.0,     0.0,2.7e-9, 910e6,
+                 0.9,       293.0,        293.0,893.0, 804.0,     1.0])
     
     materialRTName = 'Voce-RT'
     materialRT = Material(materialRTName,'AL',density,
         [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
                  0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
-                  2.,        0.01,          0.6,  1.5,   1.0])
+                  2.,        0.01,          0.6,  1.5,   1.0,     0.0,2.7e-9, 910e6,
+                 0.9,       293.0,        293.0,893.0, 804.0,     1.0])
     
     # Add different tests to be run
     tests = []
@@ -457,7 +464,8 @@ def CreatePlaneStrainTests():
             Material(materialName,'CP',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,         0.0,          1.0,  0.0,   0.0]))
+                      2.,         0.0,          1.0,  0.0,   0.0,     0.0,2.7e-9, 910e6,
+                     0.9,       293.0,        293.0,893.0, 804.0,     1.0]))
     
     # Add different tests to be run
     tests = []
@@ -493,7 +501,8 @@ def CreateAxisymmetricTests():
             Material(materialName,'CP',density,
             [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
             eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,         0.0,          1.0,  0.0,   0.0]))
+                      2.,         0.0,          1.0,  0.0,   0.0,     0.0,2.7e-9, 910e6,
+                     0.9,       293.0,        293.0,893.0, 804.0,     1.0]))
     
     # Add different tests to be run
     tests = []

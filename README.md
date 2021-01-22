@@ -27,6 +27,15 @@ User defined material model for Abaqus/Standard and Abaqus/Explicit
 |              19 | Critical damage, *f*<sub>*c*</sub>                                                 |
 |              20 | Damage evolution parameter, *q*<sub>1</sub>                                        |
 |              21 | Damage evolution parameter, *q*<sub>2</sub>                                        |
+|              22 | Adiabatic heating flag (1=Adiabatic heating is on, 0=Adiabatic heating is off)     |
+|              23 | Density used in the adiabatic heating calculations, *&rho;*                        |
+|              24 | Specific heat capacity, *c<sub>p</sub>*                                            |
+|              25 | Taylor-Quinney coefficient, *&chi;*                                                |
+|              26 | Initial temperature, *T<sub>i</sub>*                                               |
+|              27 | Reference temperature, *T<sub>0</sub>*                                             |
+|              28 | Melting temperature, *T<sub>m</sub>*                                               |
+|              29 | Critical temperature, *T<sub>c</sub>*                                              |
+|              30 | Exponent for temperature dependency, *m<sub>T</sub>*                               |
 
 ***Warning: Do not use a local coordinate system (CSYS) or a material orientation with this subroutine in Abaqus Standard. This will break the co-rotational formulation.***
 
@@ -52,6 +61,7 @@ the Kalidindi et al. (1992) hardening model is used with Abaqus Standard.
 |              29 | Damage variable, *f*                                                |
 |              30 | Status variable used for element deletion in Abaqus/Explicit        |
 |           31-36 | Components of the stress tensor ***&sigma;*** in the lattice frame  |
+|              37 | Temperature, *T*                                                    |
 
 ## Prerequisites
 
