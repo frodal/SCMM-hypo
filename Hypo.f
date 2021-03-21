@@ -261,36 +261,6 @@
           STATEOLD(km,29)    = VVF0
           STATEOLD(km,30)    = one
         enddo
-        do km=1,nblock
-!-----------------------------------------------------------------------
-!       Co-rotating the stress tensor
-!-----------------------------------------------------------------------
-          sigs(1) = stressOld(km,1)
-          sigs(2) = stressOld(km,2)
-          sigs(3) = stressOld(km,3)
-          sigs(4) = stressOld(km,4)
-          sigs(5) = stressOld(km,5)
-          sigs(6) = stressOld(km,6)
-!-----------------------------------------------------------------------
-          a = 4
-          do j=1,3
-            do i=1,3
-              R(i,j) = stateOld(km,a)
-              a      = a+1
-            enddo
-          enddo
-          call mtransp(R,RT)
-!-----------------------------------------------------------------------
-          call vec2mat(sigs,xmat1)
-          call transform(xmat1,RT,R,xmat2)
-          call mat2vec(xmat2,sigma)
-          stateOld(km,31) = sigma(1)/(one-VVF0)
-          stateOld(km,32) = sigma(2)/(one-VVF0)
-          stateOld(km,33) = sigma(3)/(one-VVF0)
-          stateOld(km,34) = sigma(4)/(one-VVF0)
-          stateOld(km,35) = sigma(5)/(one-VVF0)
-          stateOld(km,36) = sigma(6)/(one-VVF0)
-        enddo
       endif
 !-----------------------------------------------------------------------
 !     Loop over nblock integration points
@@ -323,18 +293,28 @@
         endif
 #endif
 !-----------------------------------------------------------------------
-!       Stress components in the lattice frame, sigma_hat=R**T sigma R
+!       Co-rotating the stress tensor
 !-----------------------------------------------------------------------
-        sigma(1) = stateOld(km,31)
-        sigma(2) = stateOld(km,32)
-        sigma(3) = stateOld(km,33)
-        sigma(4) = stateOld(km,34)
-        sigma(5) = stateOld(km,35)
-        sigma(6) = stateOld(km,36)
+        sigs(1) = stressOld(km,1)
+        sigs(2) = stressOld(km,2)
+        sigs(3) = stressOld(km,3)
+        sigs(4) = stressOld(km,4)
+        sigs(5) = stressOld(km,5)
+        sigs(6) = stressOld(km,6)
 !-----------------------------------------------------------------------
 !       Calculating the transpose of the rotation tensor
 !-----------------------------------------------------------------------
         call mtransp(R,RT)
+!-----------------------------------------------------------------------
+!       Stress components, sigma_hat=R**T sigma R
+!-----------------------------------------------------------------------
+        call vec2mat(sigs,xmat1)
+        call transform(xmat1,RT,R,xmat2)
+        call mat2vec(xmat2,sigma)
+!-----------------------------------------------------------------------
+!       Calculating the effective stress sigma_eff=sigma/(1-VVF)
+!-----------------------------------------------------------------------
+        sigma = sigma/(one-VVF)
 !-----------------------------------------------------------------------
 !       Calculating the strain and spin increments from
 !       the deformation gradient in the global coordinate system
@@ -510,15 +490,6 @@
           VVF = min(VVFC,one)
           isActive = 0
         endif
-!-----------------------------------------------------------------------
-!       Updating output variables
-!-----------------------------------------------------------------------
-        stateNew(km,31) = sigma(1)
-        stateNew(km,32) = sigma(2)
-        stateNew(km,33) = sigma(3)
-        stateNew(km,34) = sigma(4)
-        stateNew(km,35) = sigma(5)
-        stateNew(km,36) = sigma(6)
 !-----------------------------------------------------------------------
 !       Calculating the Cauchy stress tensor from the effective stress
 !-----------------------------------------------------------------------

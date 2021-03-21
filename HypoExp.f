@@ -189,59 +189,57 @@
 !       Rotating the stress tensor to the Global coordinate frame
 !       from rotated coordinate system used by Abaqus/Explicit
 !-----------------------------------------------------------------------
-      if(stateold(1,13).lt.small)then ! First step
-        do km=1,nblock
+      do km=1,nblock
 !-----------------------------------------------------------------------
-!         Old deformation gradient, F
+!       Old deformation gradient, F
 !-----------------------------------------------------------------------
-          F(1,1) = defgradOld(km,1)
-          F(2,2) = defgradOld(km,2)
-          F(3,3) = defgradOld(km,3)
-          F(1,2) = defgradOld(km,4)
-          F(2,3) = defgradOld(km,5)
-          F(3,1) = defgradOld(km,6)
-          F(2,1) = defgradOld(km,7)
-          F(3,2) = defgradOld(km,8)
-          F(1,3) = defgradOld(km,9)
+        F(1,1) = defgradOld(km,1)
+        F(2,2) = defgradOld(km,2)
+        F(3,3) = defgradOld(km,3)
+        F(1,2) = defgradOld(km,4)
+        F(2,3) = defgradOld(km,5)
+        F(3,1) = defgradOld(km,6)
+        F(2,1) = defgradOld(km,7)
+        F(3,2) = defgradOld(km,8)
+        F(1,3) = defgradOld(km,9)
 !-----------------------------------------------------------------------
-!         Old stretch tensor, U
+!       Old stretch tensor, U
 !-----------------------------------------------------------------------
-          uu(1,1) = stretchOld(km,1)
-          uu(2,2) = stretchOld(km,2)
-          uu(3,3) = stretchOld(km,3)
-          uu(1,2) = stretchOld(km,4)
-          uu(2,3) = stretchOld(km,5)
-          uu(3,1) = stretchOld(km,6)
-          uu(2,1) = stretchOld(km,4)
-          uu(3,2) = stretchOld(km,5)
-          uu(1,3) = stretchOld(km,6)
+        uu(1,1) = stretchOld(km,1)
+        uu(2,2) = stretchOld(km,2)
+        uu(3,3) = stretchOld(km,3)
+        uu(1,2) = stretchOld(km,4)
+        uu(2,3) = stretchOld(km,5)
+        uu(3,1) = stretchOld(km,6)
+        uu(2,1) = stretchOld(km,4)
+        uu(3,2) = stretchOld(km,5)
+        uu(1,3) = stretchOld(km,6)
 !-----------------------------------------------------------------------
-!         Old Stress tensor in Rotated coordinate system used by Abaqus/Explicit
+!       Old Stress tensor in Rotated coordinate system used by Abaqus/Explicit
 !-----------------------------------------------------------------------
-          xmat1(1,1) = stressOld(km,1)
-          xmat1(2,2) = stressOld(km,2)
-          xmat1(3,3) = stressOld(km,3)
-          xmat1(1,2) = stressOld(km,4)
-          xmat1(2,3) = stressOld(km,5)
-          xmat1(3,1) = stressOld(km,6)
-          xmat1(2,1) = stressOld(km,4)
-          xmat1(3,2) = stressOld(km,5)
-          xmat1(1,3) = stressOld(km,6)
+        xmat1(1,1) = stressOld(km,1)
+        xmat1(2,2) = stressOld(km,2)
+        xmat1(3,3) = stressOld(km,3)
+        xmat1(1,2) = stressOld(km,4)
+        xmat1(2,3) = stressOld(km,5)
+        xmat1(3,1) = stressOld(km,6)
+        xmat1(2,1) = stressOld(km,4)
+        xmat1(3,2) = stressOld(km,5)
+        xmat1(1,3) = stressOld(km,6)
 !-----------------------------------------------------------------------
-!         Transforming to Global coordinate system
+!       Transforming to Global coordinate system
 !-----------------------------------------------------------------------
-          call minv(uu,uui)
-          call mmult(F,uui,rr)
-          call mtransp(rr,rrt)
-          call transform(xmat1,rr,rrt,xmat2)
-          sigsOld(km,1) = xmat2(1,1)
-          sigsOld(km,2) = xmat2(2,2)
-          sigsOld(km,3) = xmat2(3,3)
-          sigsOld(km,4) = xmat2(1,2)
-          sigsOld(km,5) = xmat2(2,3)
-          sigsOld(km,6) = xmat2(3,1)
-        enddo
-      endif
+        call minv(uu,uui)
+        call mmult(F,uui,rr)
+        call mtransp(rr,rrt)
+        call transform(xmat1,rr,rrt,xmat2)
+        sigsOld(km,1) = xmat2(1,1)
+        sigsOld(km,2) = xmat2(2,2)
+        sigsOld(km,3) = xmat2(3,3)
+        sigsOld(km,4) = xmat2(1,2)
+        sigsOld(km,5) = xmat2(2,3)
+        sigsOld(km,6) = xmat2(3,1)
+      enddo
 !-----------------------------------------------------------------------
 !     Call the subroutine Hypo
 !-----------------------------------------------------------------------
@@ -457,47 +455,45 @@
 !       Rotating the stress tensor to the Global coordinate frame
 !       from rotated coordinate system used by Abaqus/Explicit
 !-----------------------------------------------------------------------
-      if(stateold(1,13).lt.small)then ! First step
-        do km=1,nblock
+      do km=1,nblock
 !-----------------------------------------------------------------------
-!         Old deformation gradient, F
+!       Old deformation gradient, F
 !-----------------------------------------------------------------------
-          F(1,1) = defgradOld(km,1)
-          F(2,2) = defgradOld(km,2)
-          F(3,3) = defgradOld(km,3)
-          F(1,2) = defgradOld(km,4)
-          F(2,1) = defgradOld(km,5)
+        F(1,1) = defgradOld(km,1)
+        F(2,2) = defgradOld(km,2)
+        F(3,3) = defgradOld(km,3)
+        F(1,2) = defgradOld(km,4)
+        F(2,1) = defgradOld(km,5)
 !-----------------------------------------------------------------------
-!         Old stretch tensor, U
+!       Old stretch tensor, U
 !-----------------------------------------------------------------------
-          uu(1,1) = stretchOld(km,1)
-          uu(2,2) = stretchOld(km,2)
-          uu(3,3) = stretchOld(km,3)
-          uu(1,2) = stretchOld(km,4)
-          uu(2,1) = stretchOld(km,4)
+        uu(1,1) = stretchOld(km,1)
+        uu(2,2) = stretchOld(km,2)
+        uu(3,3) = stretchOld(km,3)
+        uu(1,2) = stretchOld(km,4)
+        uu(2,1) = stretchOld(km,4)
 !-----------------------------------------------------------------------
-!         Old Stress tensor in Rotated coordinate system used by Abaqus/Explicit
+!       Old Stress tensor in Rotated coordinate system used by Abaqus/Explicit
 !-----------------------------------------------------------------------
-          xmat1(1,1) = stressOld(km,1)
-          xmat1(2,2) = stressOld(km,2)
-          xmat1(3,3) = stressOld(km,3)
-          xmat1(1,2) = stressOld(km,4)
-          xmat1(2,1) = stressOld(km,4)
+        xmat1(1,1) = stressOld(km,1)
+        xmat1(2,2) = stressOld(km,2)
+        xmat1(3,3) = stressOld(km,3)
+        xmat1(1,2) = stressOld(km,4)
+        xmat1(2,1) = stressOld(km,4)
 !-----------------------------------------------------------------------
-!         Transforming to Global coordinate system
+!       Transforming to Global coordinate system
 !-----------------------------------------------------------------------
-          call minv(uu,uui)
-          call mmult(F,uui,rr)
-          call mtransp(rr,rrt)
-          call transform(xmat1,rr,rrt,xmat2)
-          sigsOld(km,1) = xmat2(1,1)
-          sigsOld(km,2) = xmat2(2,2)
-          sigsOld(km,3) = xmat2(3,3)
-          sigsOld(km,4) = xmat2(1,2)
-          sigsOld(km,5) = xmat2(2,3)
-          sigsOld(km,6) = xmat2(3,1)
-        enddo
-      endif
+        call minv(uu,uui)
+        call mmult(F,uui,rr)
+        call mtransp(rr,rrt)
+        call transform(xmat1,rr,rrt,xmat2)
+        sigsOld(km,1) = xmat2(1,1)
+        sigsOld(km,2) = xmat2(2,2)
+        sigsOld(km,3) = xmat2(3,3)
+        sigsOld(km,4) = xmat2(1,2)
+        sigsOld(km,5) = xmat2(2,3)
+        sigsOld(km,6) = xmat2(3,1)
+      enddo
 !-----------------------------------------------------------------------
 !     Call the subroutine Hypo
 !-----------------------------------------------------------------------
