@@ -51,7 +51,6 @@ the Kalidindi et al. (1992) hardening model is used with Abaqus Standard.
 |              28 | Number of sub-steps in the current time step n<sub>sub</sub>        |
 |              29 | Damage variable, *f*                                                |
 |              30 | Status variable used for element deletion in Abaqus/Explicit        |
-|           31-36 | Components of the stress tensor ***&sigma;*** in the lattice frame  |
 
 ## Prerequisites
 
