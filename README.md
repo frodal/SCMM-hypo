@@ -2,6 +2,35 @@
 
 User defined material model for Abaqus/Standard and Abaqus/Explicit
 
+## Cite
+
+Please cite the articles listed below if you use this model
+
+```bibtex
+@article{Frodal.et.al.2019,
+title = {Modelling and simulation of ductile failure in textured aluminium alloys subjected to compression-tension loading},
+journal = {International Journal of Plasticity},
+volume = {118},
+pages = {36-69},
+year = {2019},
+issn = {0749-6419},
+doi = {https://doi.org/10.1016/j.ijplas.2019.01.008},
+url = {https://www.sciencedirect.com/science/article/pii/S0749641918305904},
+author = {Bjørn Håkon Frodal and Lars Edvard Blystad Dæhli and Tore Børvik and Odd Sture Hopperstad}
+}
+
+@article{Frodal.et.al.2021,
+title = {On the coupling of damage and single crystal plasticity for ductile polycrystalline materials},
+journal = {International Journal of Plasticity},
+pages = {102996},
+year = {2021},
+issn = {0749-6419},
+doi = {https://doi.org/10.1016/j.ijplas.2021.102996},
+url = {https://www.sciencedirect.com/science/article/pii/S0749641921000711},
+author = {Bjørn Håkon Frodal and Susanne Thomesen and Tore Børvik and Odd Sture Hopperstad}
+}
+```
+
 ## Subroutine input
 
 | Property number | Material input                                                                     |
