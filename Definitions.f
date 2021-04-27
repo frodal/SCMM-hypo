@@ -15,6 +15,9 @@
 !   If SCMM_HYPO_2D_ONLY is defined, only plane strain and axisymmetric 
 !   elements are supported. Otherwise the subroutines support solid,
 !   plane strain and axisymmetric elements.
+!   If SCMM_HYPO_DFLAG is 1 then the RT damage model is used,
+!   If SCMM_HYPO_DFLAG is 0 then damage and fracture is turned off.
+!   By default (unless SCMM_HYPO_DFLAG is 0) the RT damage model is used.
 !   If SCMM_HYPO_TFLAG is 1 then adiabatic heating is on,
 !   If SCMM_HYPO_TFLAG is 0 then adiabatic heating is off
 !   else adiabatic heating is determined at runtime based on Tflag.
@@ -29,6 +32,8 @@
 ! #define SCMM_HYPO_2D_ONLY
 ! #define SCMM_HYPO_VOCE_ONLY
 ! #define SCMM_HYPO_KALIDINDI_ONLY
+! #define SCMM_HYPO_DFLAG 0
+#define SCMM_HYPO_DFLAG 1
 ! #define SCMM_HYPO_TFLAG 0
 ! #define SCMM_HYPO_TFLAG 1
 !-----------------------------------------------------------------------
@@ -40,6 +45,9 @@
 #endif
 #ifdef SCMM_HYPO_VOCE_ONLY
 #undef SCMM_HYPO_KALIDINDI_ONLY
+#endif
+#ifndef SCMM_HYPO_DFLAG
+#define SCMM_HYPO_DFLAG 1
 #endif
 #ifndef SCMM_HYPO_TFLAG
 #define SCMM_HYPO_TFLAG 2

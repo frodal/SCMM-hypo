@@ -94,15 +94,19 @@
      +          halfCirc=180.d0)! Constants
       integer nsub,k! Nuber of sub-steps and sub-step loop variable
       real*8 dti! Sub-stepping time step
+#if SCMM_HYPO_DFLAG != 0
       real*8 VVF0, VVFC, VVF, q1, q2 ! Damage variables
-#if SCMM_HYPO_TFLAG !=0
+#endif
+#if SCMM_HYPO_DFLAG != 0 || SCMM_HYPO_TFLAG != 0
+      integer isActive ! Is the integration point active (0=deleted, 
+!                                                         1=active)
+#endif
+#if SCMM_HYPO_TFLAG != 0
       integer Tflag
       real*8 rho, CP, xsi, Ti, T0, Tm, Tc, mt ! Adiabatic heating params
       real*8 temperature, normTemp
 #endif
       real*8 deltaDisp
-      integer isActive ! Is the integration point active (0=deleted, 
-!                                                         1=active)
 !-----------------------------------------------------------------------
 !     Read parameters from ABAQUS material card
 !-----------------------------------------------------------------------
@@ -119,10 +123,12 @@
       PHI        = props(10)*Pi/halfCirc! Euler angle PHI in radians
       phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
       hflag      = nint(props(12))! Hardening type (1=Voce,2=Kalidindi)
+#if SCMM_HYPO_DFLAG != 0
       VVF0       = props(18) ! Initial damage / void volume fraction
       VVFC       = props(19) ! Critical damage / void volume fraction
       q1         = props(20) ! Damage evolution parameter
       q2         = props(21) ! Damage evolution parameter
+#endif
 #if SCMM_HYPO_TFLAG !=0
       Tflag      = nint(props(22)) ! Adiabatic heating (1=on, else=off)
       rho        = props(23) ! Density used in adiabatic heating
@@ -275,50 +281,24 @@
           STATEOLD(km,13:24) = tau0_c
           STATEOLD(km,25)    = zero
           STATEOLD(km,27)    = zero
+#if SCMM_HYPO_DFLAG != 0
           STATEOLD(km,29)    = VVF0
+#endif
+#if SCMM_HYPO_DFLAG != 0 || SCMM_HYPO_TFLAG != 0
           STATEOLD(km,30)    = one
+#endif
         enddo
 #if SCMM_HYPO_TFLAG == 1
         do km=1,nblock
-          STATEOLD(km,37)  = Ti
+          STATEOLD(km,31)  = Ti
         enddo
 #elif SCMM_HYPO_TFLAG != 0
         if(Tflag.eq.1)then
           do km=1,nblock
-            STATEOLD(km,37)  = Ti
+            STATEOLD(km,31)  = Ti
           enddo
         endif
 #endif
-        do km=1,nblock
-!-----------------------------------------------------------------------
-!       Co-rotating the stress tensor
-!-----------------------------------------------------------------------
-          sigs(1) = stressOld(km,1)
-          sigs(2) = stressOld(km,2)
-          sigs(3) = stressOld(km,3)
-          sigs(4) = stressOld(km,4)
-          sigs(5) = stressOld(km,5)
-          sigs(6) = stressOld(km,6)
-!-----------------------------------------------------------------------
-          a = 4
-          do j=1,3
-            do i=1,3
-              R(i,j) = stateOld(km,a)
-              a      = a+1
-            enddo
-          enddo
-          call mtransp(R,RT)
-!-----------------------------------------------------------------------
-          call vec2mat(sigs,xmat1)
-          call transform(xmat1,RT,R,xmat2)
-          call mat2vec(xmat2,sigma)
-          stateOld(km,31) = sigma(1)/(one-VVF0)
-          stateOld(km,32) = sigma(2)/(one-VVF0)
-          stateOld(km,33) = sigma(3)/(one-VVF0)
-          stateOld(km,34) = sigma(4)/(one-VVF0)
-          stateOld(km,35) = sigma(5)/(one-VVF0)
-          stateOld(km,36) = sigma(6)/(one-VVF0)
-        enddo
       endif
 !-----------------------------------------------------------------------
 !     Loop over nblock integration points
@@ -337,18 +317,23 @@
         tau_c = STATEOLD(km,13:24)
         gamma = STATEOLD(km,25)
         PEQ   = STATEOLD(km,27)
+#if SCMM_HYPO_DFLAG != 0
         VVF   = STATEOLD(km,29)
+#endif
+#if SCMM_HYPO_DFLAG != 0 || SCMM_HYPO_TFLAG != 0
         isActive = nint(STATEOLD(km,30))
+#endif
 #if SCMM_HYPO_TFLAG == 1
-        temperature = STATEOLD(km,37)
+        temperature = STATEOLD(km,31)
 #elif SCMM_HYPO_TFLAG != 0
         if(Tflag.eq.1)then
-          temperature = STATEOLD(km,37)
+          temperature = STATEOLD(km,31)
         endif
 #endif
 !-----------------------------------------------------------------------
 !       Check if integration point is active
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0 || SCMM_HYPO_TFLAG != 0
 #ifdef SCMM_HYPO_EXPLICIT
         if(isActive.eq.0)then
             stressNew(km,1:6) = zero
@@ -357,19 +342,32 @@
             cycle ! Continue to next loop cycle
         endif
 #endif
+#endif
 !-----------------------------------------------------------------------
-!       Stress components in the lattice frame, sigma_hat=R**T sigma R
+!       Co-rotating the stress tensor
 !-----------------------------------------------------------------------
-        sigma(1) = stateOld(km,31)
-        sigma(2) = stateOld(km,32)
-        sigma(3) = stateOld(km,33)
-        sigma(4) = stateOld(km,34)
-        sigma(5) = stateOld(km,35)
-        sigma(6) = stateOld(km,36)
+        sigs(1) = stressOld(km,1)
+        sigs(2) = stressOld(km,2)
+        sigs(3) = stressOld(km,3)
+        sigs(4) = stressOld(km,4)
+        sigs(5) = stressOld(km,5)
+        sigs(6) = stressOld(km,6)
 !-----------------------------------------------------------------------
 !       Calculating the transpose of the rotation tensor
 !-----------------------------------------------------------------------
         call mtransp(R,RT)
+!-----------------------------------------------------------------------
+!       Stress components, sigma_hat=R**T sigma R
+!-----------------------------------------------------------------------
+        call vec2mat(sigs,xmat1)
+        call transform(xmat1,RT,R,xmat2)
+        call mat2vec(xmat2,sigma)
+!-----------------------------------------------------------------------
+!       Calculating the effective stress sigma_eff=sigma/(1-VVF)
+!-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
+        sigma = sigma/(one-VVF)
+#endif
 !-----------------------------------------------------------------------
 !       Calculating the strain and spin increments from
 !       the deformation gradient in the global coordinate system
@@ -473,7 +471,11 @@
 !-----------------------------------------------------------------------
 !       Approximating the dissipated energy by using tau at n
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
             deltaDisp = deltaDisp+(one-VVF)*tau(a)*dgamma(a)
+#else
+            deltaDisp = deltaDisp+tau(a)*dgamma(a)
+#endif
           enddo
           Dissipation(km) = Dissipation(km)+deltaDisp
 !-----------------------------------------------------------------------
@@ -561,7 +563,9 @@
 !-----------------------------------------------------------------------
 !       Updating damage
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
           call UpdateDamage(VVF,sigma,dgamma,q1,q2)
+#endif
 !-----------------------------------------------------------------------
 !       End sub-stepping
 !-----------------------------------------------------------------------
@@ -569,10 +573,12 @@
 !-----------------------------------------------------------------------
 !       Check for failure
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
         if((VVF.ge.VVFC).or.(VVF.ge.one))then
           VVF = min(VVFC,one)
           isActive = 0
         endif
+#endif
 #if SCMM_HYPO_TFLAG == 1
         if((temperature.ge.Tc).or.(temperature.ge.Tm))then
           temperature = min(temperature,Tm)
@@ -587,18 +593,11 @@
         endif
 #endif
 !-----------------------------------------------------------------------
-!       Updating output variables
-!-----------------------------------------------------------------------
-        stateNew(km,31) = sigma(1)
-        stateNew(km,32) = sigma(2)
-        stateNew(km,33) = sigma(3)
-        stateNew(km,34) = sigma(4)
-        stateNew(km,35) = sigma(5)
-        stateNew(km,36) = sigma(6)
-!-----------------------------------------------------------------------
 !       Calculating the Cauchy stress tensor from the effective stress
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
         sigma = sigma*(one-VVF)
+#endif
 !-----------------------------------------------------------------------
 !       Transform the stress tensor back to the global coordinate system
 !-----------------------------------------------------------------------
@@ -632,14 +631,18 @@
      +                      +three*sigma(6)**two)
         STATENEW(km,27) = PEQ! Equivalent von mises plastic strain
         STATENEW(km,28) = nsub! Number of sub steps
+#if SCMM_HYPO_DFLAG != 0
         STATENEW(km,29) = VVF ! Damage / void volume fraction
+#endif
 ! Is the element active or should it be deleted (Abaqus status variable)
+#if SCMM_HYPO_DFLAG != 0 || SCMM_HYPO_TFLAG != 0
         STATENEW(km,30) = isActive
+#endif
 #if SCMM_HYPO_TFLAG == 1
-        STATENEW(km,37) = temperature
+        STATENEW(km,31) = temperature
 #elif SCMM_HYPO_TFLAG != 0
         if(Tflag.eq.1)then
-          STATENEW(km,37) = temperature
+          STATENEW(km,31) = temperature
         endif
 #endif
 !-----------------------------------------------------------------------
