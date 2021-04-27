@@ -494,6 +494,7 @@
 !-----------------------------------------------------------------------
 ! Updates the damage variable / void volume fraction
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
       subroutine UpdateDamage(VVF,sigma,dgamma,q1,q2)
 !
       implicit none
@@ -530,6 +531,7 @@
 !-----------------------------------------------------------------------
       return
       end subroutine UpdateDamage
+#endif
 !
 !-----------------------------------------------------------------------
 ! End preprocessor definitions

@@ -94,9 +94,11 @@
      +          halfCirc=180.d0)! Constants
       integer nsub,k! Nuber of sub-steps and sub-step loop variable
       real*8 dti! Sub-stepping time step
+#if SCMM_HYPO_DFLAG != 0
       real*8 VVF0, VVFC, VVF, q1, q2 ! Damage variables
       integer isActive ! Is the integration point active (0=deleted, 
 !                                                         1=active)
+#endif
 !-----------------------------------------------------------------------
 !     Read parameters from ABAQUS material card
 !-----------------------------------------------------------------------
@@ -113,10 +115,12 @@
       PHI        = props(10)*Pi/halfCirc! Euler angle PHI in radians
       phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
       hflag      = nint(props(12))! Hardening type (1=Voce,2=Kalidindi)
+#if SCMM_HYPO_DFLAG != 0
       VVF0       = props(18) ! Initial damage / void volume fraction
       VVFC       = props(19) ! Critical damage / void volume fraction
       q1         = props(20) ! Damage evolution parameter
       q2         = props(21) ! Damage evolution parameter
+#endif
 !-----------------------------------------------------------------------
 !     Determine the hardening law parameters
 !-----------------------------------------------------------------------
@@ -258,8 +262,10 @@
           STATEOLD(km,13:24) = tau0_c
           STATEOLD(km,25)    = zero
           STATEOLD(km,27)    = zero
+#if SCMM_HYPO_DFLAG != 0
           STATEOLD(km,29)    = VVF0
           STATEOLD(km,30)    = one
+#endif
         enddo
       endif
 !-----------------------------------------------------------------------
@@ -279,6 +285,7 @@
         tau_c = STATEOLD(km,13:24)
         gamma = STATEOLD(km,25)
         PEQ   = STATEOLD(km,27)
+#if SCMM_HYPO_DFLAG != 0
         VVF   = STATEOLD(km,29)
         isActive = nint(STATEOLD(km,30))
 !-----------------------------------------------------------------------
@@ -291,6 +298,7 @@
             Dissipation(km) = zero
             cycle ! Continue to next loop cycle
         endif
+#endif
 #endif
 !-----------------------------------------------------------------------
 !       Co-rotating the stress tensor
@@ -314,7 +322,9 @@
 !-----------------------------------------------------------------------
 !       Calculating the effective stress sigma_eff=sigma/(1-VVF)
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
         sigma = sigma/(one-VVF)
+#endif
 !-----------------------------------------------------------------------
 !       Calculating the strain and spin increments from
 !       the deformation gradient in the global coordinate system
@@ -401,7 +411,11 @@
 !-----------------------------------------------------------------------
 !       Approximating the dissipated energy by using tau at n
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
             Dissipation(km) = Dissipation(km)+(one-VVF)*tau(a)*dgamma(a)
+#else
+            Dissipation(km) = Dissipation(km)+tau(a)*dgamma(a)
+#endif
           enddo
 !-----------------------------------------------------------------------
 !       Updating corotated stress tensor
@@ -478,7 +492,9 @@
 !-----------------------------------------------------------------------
 !       Updating damage
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
           call UpdateDamage(VVF,sigma,dgamma,q1,q2)
+#endif
 !-----------------------------------------------------------------------
 !       End sub-stepping
 !-----------------------------------------------------------------------
@@ -486,6 +502,7 @@
 !-----------------------------------------------------------------------
 !       Check for failure
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
         if((VVF.ge.VVFC).or.(VVF.ge.one))then
           VVF = min(VVFC,one)
           isActive = 0
@@ -494,6 +511,7 @@
 !       Calculating the Cauchy stress tensor from the effective stress
 !-----------------------------------------------------------------------
         sigma = sigma*(one-VVF)
+#endif
 !-----------------------------------------------------------------------
 !       Transform the stress tensor back to the global coordinate system
 !-----------------------------------------------------------------------
@@ -527,9 +545,11 @@
      +                      +three*sigma(6)**two)
         STATENEW(km,27) = PEQ! Equivalent von mises plastic strain
         STATENEW(km,28) = nsub! Number of sub steps
+#if SCMM_HYPO_DFLAG != 0
         STATENEW(km,29) = VVF ! Damage / void volume fraction
 ! Is the element active or should it be deleted (Abaqus status variable)
         STATENEW(km,30) = isActive
+#endif
 !-----------------------------------------------------------------------
         call euler(R,ang)
 !-----------------------------------------------------------------------
