@@ -259,16 +259,14 @@
             enddo
          enddo
 !-----------------------------------------------------------------------
-         if(STATEV(13).lt.pert)then
-            do k=1,12
-                stressTGTold(k,1) = STRESS(1)
-                stressTGTold(k,2) = STRESS(2)
-                stressTGTold(k,3) = STRESS(3)
-                stressTGTold(k,4) = STRESS(4)
-                stressTGTold(k,5) = STRESS(6)
-                stressTGTold(k,6) = STRESS(5)
-            enddo
-         endif
+          do k=1,12
+              stressTGTold(k,1) = STRESS(1)
+              stressTGTold(k,2) = STRESS(2)
+              stressTGTold(k,3) = STRESS(3)
+              stressTGTold(k,4) = STRESS(4)
+              stressTGTold(k,5) = STRESS(6)
+              stressTGTold(k,6) = STRESS(5)
+          enddo
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
@@ -525,16 +523,14 @@
             enddo
          enddo
 !-----------------------------------------------------------------------
-         if(STATEV(13).lt.pert)then
-            do k=1,8
-                stressTGTold(k,1) = STRESS(1)
-                stressTGTold(k,2) = STRESS(2)
-                stressTGTold(k,3) = STRESS(3)
-                stressTGTold(k,4) = STRESS(4)
-                stressTGTold(k,5) = zero
-                stressTGTold(k,6) = zero
-            enddo
-         endif
+          do k=1,8
+              stressTGTold(k,1) = STRESS(1)
+              stressTGTold(k,2) = STRESS(2)
+              stressTGTold(k,3) = STRESS(3)
+              stressTGTold(k,4) = STRESS(4)
+              stressTGTold(k,5) = zero
+              stressTGTold(k,6) = zero
+          enddo
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
