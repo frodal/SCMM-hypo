@@ -412,28 +412,28 @@ def CreatePolycrystalTests():
     material = Material(materialName,'AL',density,
         [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
                  0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
-                  2.,         0.0,          1.0,  0.0,   0.0])
+                  1.,         0.0,          1.0,  0.0,   0.0])
     
     materialRTName = 'Voce-RT'
     materialRT = Material(materialRTName,'AL',density,
         [    106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
                  0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
-                  2.,        0.01,          0.6,  1.5,   1.0])
+                  1.,        0.01,          0.6,  1.5,   1.0])
     
     # Add different tests to be run
     tests = []
     # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials
-    tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Explicit.inp',
+    tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalTension-Explicit.inp',
                 AbaqusSolver.Explicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                material,1))
+                material,4))
     # Add polycrystal tests using Abaqus/Standard and the Voce hardening materials
-    tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Implicit.inp',
+    tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalTension-Implicit.inp',
                 AbaqusSolver.Implicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
                 material,8))
     # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials with RT-damage
-    tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalUniaxialTension-Explicit.inp',
+    tests.append(AbaqusTest('Polycrystal','Abaqus/PolycrystalTest/PolycrystalTension-Explicit.inp',
                 AbaqusSolver.Explicit,'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                materialRT,1))
+                materialRT,4))
     
     return tests
 ##----------------------------------------------------------------------
