@@ -11,15 +11,13 @@ def main():
     # Open ODB-file
     odbName = 'Polycrystal.odb'
     odb = odbAccess.openOdb(path=odbName)
-    step = odb.steps['Step-1']
+    step = odb.steps['Load']
 
     Sets = step.historyRegions.keys()
 
     # Force in y-direction
     RF1 = []
     U1  = []
-    U2  = []
-    U3  = []
 
     # Extract data from ODB
     for set in Sets:
@@ -27,10 +25,6 @@ def main():
             RF1.append(step.historyRegions[set].historyOutputs['RF1'].data)
         if ('Node' in set) and ('U1' in step.historyRegions[set].historyOutputs.keys()):
             U1 = step.historyRegions[set].historyOutputs['U1'].data
-        if ('Node' in set) and ('U2' in step.historyRegions[set].historyOutputs.keys()):
-            U2 = step.historyRegions[set].historyOutputs['U2'].data
-        if ('Node' in set) and ('U3' in step.historyRegions[set].historyOutputs.keys()):
-            U3 = step.historyRegions[set].historyOutputs['U3'].data
 
     RF = []
     for i in range(len(RF1)):
@@ -46,10 +40,8 @@ def main():
         fil.write('%20s , %20s\n' % ('log. strain', 'true stress'))
         for i in range(len(U1)):
             u = U1[i][1]
-            u_w = U2[i][1]
-            u_t = U3[i][1]
-            epsilon = log(1.0 + u)
-            sigma = -F[i]/((1.0+u_t)*(1.0+u_w))
+            epsilon = log(1.0 + u/0.5)
+            sigma = -F[i]*4.0*exp(epsilon)
             fil.write('%20.8f , %20.8f\n' % (epsilon, sigma))
     # Close odb
     odb.close()
