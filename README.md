@@ -2,6 +2,35 @@
 
 User defined material model for Abaqus/Standard and Abaqus/Explicit
 
+## Cite
+
+Please cite the articles listed below if you use this model
+
+```bibtex
+@article{Frodal.et.al.2019,
+title = {Modelling and simulation of ductile failure in textured aluminium alloys subjected to compression-tension loading},
+journal = {International Journal of Plasticity},
+volume = {118},
+pages = {36-69},
+year = {2019},
+issn = {0749-6419},
+doi = {https://doi.org/10.1016/j.ijplas.2019.01.008},
+url = {https://www.sciencedirect.com/science/article/pii/S0749641918305904},
+author = {Bjørn Håkon Frodal and Lars Edvard Blystad Dæhli and Tore Børvik and Odd Sture Hopperstad}
+}
+
+@article{Frodal.et.al.2021,
+title = {On the coupling of damage and single crystal plasticity for ductile polycrystalline materials},
+journal = {International Journal of Plasticity},
+pages = {102996},
+year = {2021},
+issn = {0749-6419},
+doi = {https://doi.org/10.1016/j.ijplas.2021.102996},
+url = {https://www.sciencedirect.com/science/article/pii/S0749641921000711},
+author = {Bjørn Håkon Frodal and Susanne Thomesen and Tore Børvik and Odd Sture Hopperstad}
+}
+```
+
 ## Subroutine input
 
 | Property number | Material input                                                                     |
@@ -23,6 +52,10 @@ User defined material model for Abaqus/Standard and Abaqus/Explicit
 |              15 | Hardening parameter, *a* or *θ*<sub>2</sub> depending on hflag                     |
 |              16 | Hardening parameter, 0.0 or *τ*<sub>2</sub>                                        |
 |              17 | Tangent operator flag (1=Elastic tangent operator, 2=Consistent tangent operator)  |
+|              18 | Initial damage, *f*<sub>0</sub>                                                    |
+|              19 | Critical damage, *f*<sub>*c*</sub>                                                 |
+|              20 | Damage evolution parameter, *q*<sub>1</sub>                                        |
+|              21 | Damage evolution parameter, *q*<sub>2</sub>                                        |
 
 ***Warning: Do not use a local coordinate system (CSYS) or a material orientation with this subroutine in Abaqus Standard. This will break the co-rotational formulation.***
 
@@ -45,7 +78,8 @@ the Kalidindi et al. (1992) hardening model is used with Abaqus Standard.
 |              26 | Equivalent von Mises stress *σ*<sub>eq</sub>                        |
 |              27 | Equivalent von Mises plastic strain *ε*<sup>p</sup><sub>eq</sub>    |
 |              28 | Number of sub-steps in the current time step n<sub>sub</sub>        |
-|           29-34 | Components of the stress tensor ***&sigma;*** in the lattice frame  |
+|              29 | Damage variable, *f*                                                |
+|              30 | Status variable used for element deletion in Abaqus/Explicit        |
 
 ## Prerequisites
 
@@ -76,7 +110,11 @@ Follow point 1 or 2 below to compile
       - If needed, create an environment file, `abaqus_v6.env`, in your home directory and/or the current directory. Settings in the home directory file will be applied to all jobs that you run. Settings in the current directory file will be applied only to jobs run from the current directory
       - Add the entry: `usub_lib_dir='library-dir'`
 
-Note that the subroutines use preprocessor directives to determine if it is compiled for Abaqus/Standard, Abaqus/Explicit or neither. Specific choices can also be done at compile time instead of at runtime, e.g., the choice of which hardening model to use. For further information on the availible preprocessor definitions see the `Definitions.f` file. If the subroutines are to be included in another file, use the preprocessor include directive (e.g., `#include 'HypoImp.f'`) instead of the Fortran include statement (e.g., `include 'HypoImp.f'`).
+### Compiler directives
+
+Note that the subroutines use preprocessor directives to determine if it is compiled for Abaqus/Standard, Abaqus/Explicit or neither. Specific choices can also be made at compile time instead of at runtime, e.g., the choice of which hardening model to use. For further information on the availible preprocessor definitions see the `Definitions.f` file. These preprocessor directives can be used to minimize the computational time by including only necessary model features, and removing unecessary conditional statements.
+
+If the subroutines are to be included in another file, use the preprocessor include directive (e.g., `#include 'HypoImp.f'`) instead of the Fortran include statement (e.g., `include 'HypoImp.f'`).
 
 ## Tests
 

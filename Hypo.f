@@ -94,6 +94,11 @@
      +          halfCirc=180.d0)! Constants
       integer nsub,k! Nuber of sub-steps and sub-step loop variable
       real*8 dti! Sub-stepping time step
+#if SCMM_HYPO_DFLAG != 0
+      real*8 VVF0, VVFC, VVF, q1, q2 ! Damage variables
+      integer isActive ! Is the integration point active (0=deleted, 
+!                                                         1=active)
+#endif
 !-----------------------------------------------------------------------
 !     Read parameters from ABAQUS material card
 !-----------------------------------------------------------------------
@@ -110,6 +115,12 @@
       PHI        = props(10)*Pi/halfCirc! Euler angle PHI in radians
       phi2       = props(11)*Pi/halfCirc! Euler angle phi2 in radians
       hflag      = nint(props(12))! Hardening type (1=Voce,2=Kalidindi)
+#if SCMM_HYPO_DFLAG != 0
+      VVF0       = props(18) ! Initial damage / void volume fraction
+      VVFC       = props(19) ! Critical damage / void volume fraction
+      q1         = props(20) ! Damage evolution parameter
+      q2         = props(21) ! Damage evolution parameter
+#endif
 !-----------------------------------------------------------------------
 !     Determine the hardening law parameters
 !-----------------------------------------------------------------------
@@ -251,36 +262,10 @@
           STATEOLD(km,13:24) = tau0_c
           STATEOLD(km,25)    = zero
           STATEOLD(km,27)    = zero
-        enddo
-        do km=1,nblock
-!-----------------------------------------------------------------------
-!       Co-rotating the stress tensor
-!-----------------------------------------------------------------------
-          sigs(1) = stressOld(km,1)
-          sigs(2) = stressOld(km,2)
-          sigs(3) = stressOld(km,3)
-          sigs(4) = stressOld(km,4)
-          sigs(5) = stressOld(km,5)
-          sigs(6) = stressOld(km,6)
-!-----------------------------------------------------------------------
-          a = 4
-          do j=1,3
-            do i=1,3
-              R(i,j) = stateOld(km,a)
-              a      = a+1
-            enddo
-          enddo
-          call mtransp(R,RT)
-!-----------------------------------------------------------------------
-          call vec2mat(sigs,xmat1)
-          call transform(xmat1,RT,R,xmat2)
-          call mat2vec(xmat2,sigma)
-          stateOld(km,29) = sigma(1)
-          stateOld(km,30) = sigma(2)
-          stateOld(km,31) = sigma(3)
-          stateOld(km,32) = sigma(4)
-          stateOld(km,33) = sigma(5)
-          stateOld(km,34) = sigma(6)
+#if SCMM_HYPO_DFLAG != 0
+          STATEOLD(km,29)    = VVF0
+          STATEOLD(km,30)    = one
+#endif
         enddo
       endif
 !-----------------------------------------------------------------------
@@ -300,19 +285,46 @@
         tau_c = STATEOLD(km,13:24)
         gamma = STATEOLD(km,25)
         PEQ   = STATEOLD(km,27)
+#if SCMM_HYPO_DFLAG != 0
+        VVF   = STATEOLD(km,29)
+        isActive = nint(STATEOLD(km,30))
 !-----------------------------------------------------------------------
-!       Stress components in the lattice frame, sigma_hat=R**T sigma R
+!       Check if integration point is active
 !-----------------------------------------------------------------------
-        sigma(1) = stateOld(km,29)
-        sigma(2) = stateOld(km,30)
-        sigma(3) = stateOld(km,31)
-        sigma(4) = stateOld(km,32)
-        sigma(5) = stateOld(km,33)
-        sigma(6) = stateOld(km,34)
+#ifdef SCMM_HYPO_EXPLICIT
+        if(isActive.eq.0)then
+            stressNew(km,1:6) = zero
+            STATENEW(km,1:nstatev) = STATEOLD(km,1:nstatev)
+            Dissipation(km) = zero
+            cycle ! Continue to next loop cycle
+        endif
+#endif
+#endif
+!-----------------------------------------------------------------------
+!       Co-rotating the stress tensor
+!-----------------------------------------------------------------------
+        sigs(1) = stressOld(km,1)
+        sigs(2) = stressOld(km,2)
+        sigs(3) = stressOld(km,3)
+        sigs(4) = stressOld(km,4)
+        sigs(5) = stressOld(km,5)
+        sigs(6) = stressOld(km,6)
 !-----------------------------------------------------------------------
 !       Calculating the transpose of the rotation tensor
 !-----------------------------------------------------------------------
         call mtransp(R,RT)
+!-----------------------------------------------------------------------
+!       Stress components, sigma_hat=R**T sigma R
+!-----------------------------------------------------------------------
+        call vec2mat(sigs,xmat1)
+        call transform(xmat1,RT,R,xmat2)
+        call mat2vec(xmat2,sigma)
+!-----------------------------------------------------------------------
+!       Calculating the effective stress sigma_eff=sigma/(1-VVF)
+!-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
+        sigma = sigma/(one-VVF)
+#endif
 !-----------------------------------------------------------------------
 !       Calculating the strain and spin increments from
 !       the deformation gradient in the global coordinate system
@@ -399,7 +411,11 @@
 !-----------------------------------------------------------------------
 !       Approximating the dissipated energy by using tau at n
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
+            Dissipation(km) = Dissipation(km)+(one-VVF)*tau(a)*dgamma(a)
+#else
             Dissipation(km) = Dissipation(km)+tau(a)*dgamma(a)
+#endif
           enddo
 !-----------------------------------------------------------------------
 !       Updating corotated stress tensor
@@ -474,9 +490,28 @@
           call updateR(domega_e,R)
           call mtransp(R,RT)
 !-----------------------------------------------------------------------
+!       Updating damage
+!-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
+          call UpdateDamage(VVF,sigma,dgamma,q1,q2)
+#endif
+!-----------------------------------------------------------------------
 !       End sub-stepping
 !-----------------------------------------------------------------------
         enddo! End sub-stepping
+!-----------------------------------------------------------------------
+!       Check for failure
+!-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
+        if((VVF.ge.VVFC).or.(VVF.ge.one))then
+          VVF = min(VVFC,one)
+          isActive = 0
+        endif
+!-----------------------------------------------------------------------
+!       Calculating the Cauchy stress tensor from the effective stress
+!-----------------------------------------------------------------------
+        sigma = sigma*(one-VVF)
+#endif
 !-----------------------------------------------------------------------
 !       Transform the stress tensor back to the global coordinate system
 !-----------------------------------------------------------------------
@@ -510,12 +545,11 @@
      +                      +three*sigma(6)**two)
         STATENEW(km,27) = PEQ! Equivalent von mises plastic strain
         STATENEW(km,28) = nsub! Number of sub steps
-        stateNew(km,29) = sigma(1)
-        stateNew(km,30) = sigma(2)
-        stateNew(km,31) = sigma(3)
-        stateNew(km,32) = sigma(4)
-        stateNew(km,33) = sigma(5)
-        stateNew(km,34) = sigma(6)
+#if SCMM_HYPO_DFLAG != 0
+        STATENEW(km,29) = VVF ! Damage / void volume fraction
+! Is the element active or should it be deleted (Abaqus status variable)
+        STATENEW(km,30) = isActive
+#endif
 !-----------------------------------------------------------------------
         call euler(R,ang)
 !-----------------------------------------------------------------------
