@@ -161,9 +161,9 @@ class AbaqusTest(Test):
         shutil.copy(self.inputfile, self.currentInputFile)
         # Writes a material card to the test working directory
         self.material.WriteMaterailCard(self.testPath)
-        # Copies the Abaqus environment file to the test working directory
-        shutil.copy(self.abaqusPath.joinpath('abaqus_v6.env'),
-                    self.testPath.joinpath('abaqus_v6.env'))
+        # Writes the Abaqus environment file to the test working directory
+        self.testPath.joinpath('abaqus_v6.env').write_text(
+            'usub_lib_dir=r"'+str(Path(__file__).parent.parent.absolute())+'"\nmax_history_requests=0')
 
     # Runs the test on the CASA cluster. Note that the script should be run from the cluster
     def _RunOnCasa(self):
