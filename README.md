@@ -120,7 +120,7 @@ If the subroutines are to be included in another file, use the preprocessor incl
 
 To run the tests:
 
-1. Compile the subroutine using method nr. 2 above, both for Abaqus/Explicit and Abaqus/Standard
+1. Compile the subroutine using method nr. 2 above, for both Abaqus/Explicit and Abaqus/Standard, `library-dir` should point to the `SCMM-hypo` folder
 2. Edit the `abaqus_v6.env` file in the `./Tests/Abaqus/` folder so that it points to the folder where the compiled libraries are located, i.e., edit the entry `usub_lib_dir='library-dir'`
 3. Make sure that you have Abaqus and Python 3 installed with the necessary Python libraries (See `./Tests/Test.py`)
 4. Change the current directory to the `SCMM-hypo` folder
