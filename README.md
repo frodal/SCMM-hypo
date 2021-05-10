@@ -22,6 +22,7 @@ author = {Bjørn Håkon Frodal and Lars Edvard Blystad Dæhli and Tore Børvik a
 @article{Frodal.et.al.2021,
 title = {On the coupling of damage and single crystal plasticity for ductile polycrystalline materials},
 journal = {International Journal of Plasticity},
+volume = {142},
 pages = {102996},
 year = {2021},
 issn = {0749-6419},
