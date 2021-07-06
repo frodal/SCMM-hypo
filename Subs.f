@@ -506,7 +506,7 @@
       real*8 q(nblock,4), R(3,3)
       integer i,j,k,a
 !-----------------------------------------------------------------------
-      call RandomQuaternion(q,nblock)
+      call RandomQuaternions(q,nblock)
       do k=1,nblock
         R(1,1) = q(k,1)**2+q(k,2)**2-q(k,3)**2-q(k,4)**2
         R(1,2) = 2*(q(k,2)*q(k,3)-q(k,1)*q(k,4))
