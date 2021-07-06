@@ -43,7 +43,7 @@ author = {Bjørn Håkon Frodal and Susanne Thomesen and Tore Børvik and Odd Stu
 |               5 | Instantaneous strain rate sensitivity, *m*                                         |
 |               6 | Initial critical resolved shear stress, *τ*<sub>*c*0</sub>                         |
 |               7 | Latent hardening coefficient, *q*                                                  |
-|               8 | Texture flag (1=Euler angles from material card, 2=Euler angles from history card) |
+|               8 | Texture flag (1=Euler angles from material card, 2=Euler angles from history card, 3=Euler angles are generated from a random texture, i.e., a uniform ODF) |
 |               9 | Initial Euler angle, *ϕ*<sub>1</sub> in degree                                     |
 |              10 | Initial Euler angle, Φ in degree                                                   |
 |              11 | Initial Euler angle, *ϕ*<sub>2</sub> in degree                                     |
