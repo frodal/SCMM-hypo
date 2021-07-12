@@ -204,7 +204,9 @@
 !-----------------------------------------------------------------------
 !       Initializing the rotation tensor
 !-----------------------------------------------------------------------
-        if (Txflag.eq.2)then
+        if (Txflag.eq.3)then
+            call RandomTexture(stateOld,nblock,nstatev)
+        elseif (Txflag.eq.2)then
 !-----------------------------------------------------------------------
 !         Load orientations from initial conditions
 !-----------------------------------------------------------------------

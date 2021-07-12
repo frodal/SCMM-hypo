@@ -17,7 +17,8 @@
 !-----------------------------------------------------------------------
 !DIR$ ATTRIBUTES FORCEINLINE :: transform, minv, mmult, mtransp,
 !DIR$& mat2vec, vec2mat, determ2, sinc, updateR, Voce, unpackVoce,
-!DIR$& Kalidindi, unpackKalidindi, euler, UpdateDamage
+!DIR$& Kalidindi, unpackKalidindi, euler, UpdateDamage,
+!DIR$& RandomTexture, RandomQuaternions
 !-----------------------------------------------------------------------
 !
 !-----------------------------------------------------------------------
@@ -489,6 +490,91 @@
 !
       return
       end subroutine euler
+!
+!-----------------------------------------------------------------------
+!                         SUBROUTINE RandomTexture
+!-----------------------------------------------------------------------
+! Generates a random texture and the rotation matrix R
+!-----------------------------------------------------------------------
+      subroutine RandomTexture(state,nblock,nstatev)
+!
+      implicit none
+!
+      integer, intent(in) :: nblock, nstatev
+      real*8, intent(inout) :: state(nblock,nstatev)
+!     Local variables
+      real*8 q(nblock,4), R(3,3)
+      integer i,j,k,a
+!-----------------------------------------------------------------------
+      call RandomQuaternions(q,nblock)
+      do k=1,nblock
+        R(1,1) = q(k,1)**2+q(k,2)**2-q(k,3)**2-q(k,4)**2
+        R(1,2) = 2*(q(k,2)*q(k,3)-q(k,1)*q(k,4))
+        R(1,3) = 2*(q(k,1)*q(k,3)+q(k,2)*q(k,4))
+        R(2,1) = 2*(q(k,2)*q(k,3)+q(k,1)*q(k,4))
+        R(2,2) = q(k,1)**2-q(k,2)**2+q(k,3)**2-q(k,4)**2
+        R(2,3) = 2*(q(k,3)*q(k,4)-q(k,1)*q(k,2))
+        R(3,1) = 2*(q(k,2)*q(k,4)-q(k,1)*q(k,3))
+        R(3,2) = 2*(q(k,1)*q(k,2)+q(k,3)*q(k,4))
+        R(3,3) = q(k,1)**2-q(k,2)**2-q(k,3)**2+q(k,4)**2
+!-----------------------------------------------------------------------
+        a = 4
+        do j=1,3
+          do i=1,3
+            state(k,a) = R(i,j)
+            a          = a+1
+          enddo
+        enddo
+      enddo
+!
+      return
+      end subroutine RandomTexture
+!
+!-----------------------------------------------------------------------
+!                         SUBROUTINE RandomQuaternions
+!-----------------------------------------------------------------------
+! Generates nblock number of uniformly distributed quaternions
+!-----------------------------------------------------------------------
+      subroutine RandomQuaternions(quaternions,nblock)
+!
+      implicit none
+!
+      integer, intent(in) :: nblock
+      real*8, intent(out) :: quaternions(nblock,4)
+!     Local variables
+      real*8 :: x, y, z, u, v, w, s
+      real*8 :: randomNumbers(2)
+      real*8, parameter :: one=1.d0, two=2.d0
+      integer k
+      intrinsic random_number, random_seed
+!-----------------------------------------------------------------------
+      call random_seed()
+!-----------------------------------------------------------------------
+      do k=1,nblock
+        z = two
+        w = two
+        do while(z.gt.one)
+          call random_number(randomNumbers)
+          x = two*randomNumbers(1)-one
+          y = two*randomNumbers(2)-one
+          z = x**2+y**2
+        enddo
+        do while(w.gt.one)
+          call random_number(randomNumbers)
+          u = two*randomNumbers(1)-one
+          v = two*randomNumbers(2)-one
+          w = u**2+v**2
+        enddo
+        s = sqrt((one-z)/w)
+        quaternions(k,1) = x
+        quaternions(k,2) = y
+        quaternions(k,3) = s*u
+        quaternions(k,4) = s*v
+      enddo
+!
+      return
+      end subroutine RandomQuaternions
+!
 !-----------------------------------------------------------------------
 !                         SUBROUTINE UpdateDamage
 !-----------------------------------------------------------------------
