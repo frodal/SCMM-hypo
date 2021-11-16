@@ -17,7 +17,8 @@
 !-----------------------------------------------------------------------
 !DIR$ ATTRIBUTES FORCEINLINE :: transform, minv, mmult, mtransp,
 !DIR$& mat2vec, vec2mat, determ2, sinc, updateR, Voce, unpackVoce,
-!DIR$& Kalidindi, unpackKalidindi, euler, UpdateDamage
+!DIR$& Kalidindi, unpackKalidindi, euler, UpdateDamage,
+!DIR$& RandomTexture, RandomQuaternions
 !-----------------------------------------------------------------------
 !
 !-----------------------------------------------------------------------
@@ -463,17 +464,17 @@
       real*8, intent(in) :: R(3,3)
       real*8, intent(out) :: ang(3)
 !     Local variables
-      real*8 pi, zero, one, circ, small, halfCirc
-      parameter(pi=4.d0*atan(1.d0),zero=0.d0,one=1.d0,circ=360.d0,
-     .          small=1.d-9,halfCirc=180.d0)
+      real*8 zero, one, circ, small, rad2deg
+      parameter(zero=0.d0,one=1.d0,circ=360.d0,
+     .          small=1.d-9,rad2deg=180.d0/(4.d0*atan(1.d0)))
 !-----------------------------------------------------------------------
       if (abs(abs(R(3,3))-one).gt.small) then
-        ang(1) = atan2(R(1,3),-R(2,3))*halfCirc/pi
-        ang(2) = acos(R(3,3))*halfCirc/pi
-        ang(3) = atan2(R(3,1),R(3,2))*halfCirc/pi
+        ang(1) = atan2(R(1,3),-R(2,3))*rad2deg
+        ang(2) = acos(R(3,3))*rad2deg
+        ang(3) = atan2(R(3,1),R(3,2))*rad2deg
       else
-        ang(1) = atan2(R(2,1),R(1,1))*halfCirc/pi
-        ang(2) = acos(R(3,3))*halfCirc/pi
+        ang(1) = atan2(R(2,1),R(1,1))*rad2deg
+        ang(2) = acos(R(3,3))*rad2deg
         ang(3) = zero
       endif
 !-----------------------------------------------------------------------
@@ -489,6 +490,89 @@
 !
       return
       end subroutine euler
+!
+!-----------------------------------------------------------------------
+!                         SUBROUTINE RandomTexture
+!-----------------------------------------------------------------------
+! Generates a random texture and the rotation matrix R
+!-----------------------------------------------------------------------
+      subroutine RandomTexture(state,nblock,nstatev)
+!
+      implicit none
+!
+      integer, intent(in) :: nblock, nstatev
+      real*8, intent(inout) :: state(nblock,nstatev)
+!     Local variables
+      real*8 q(nblock,4), R(3,3)
+      integer i,j,k,a
+!-----------------------------------------------------------------------
+      call RandomQuaternions(q,nblock)
+      do k=1,nblock
+        R(1,1) = q(k,1)**2+q(k,2)**2-q(k,3)**2-q(k,4)**2
+        R(1,2) = 2*(q(k,2)*q(k,3)-q(k,1)*q(k,4))
+        R(1,3) = 2*(q(k,1)*q(k,3)+q(k,2)*q(k,4))
+        R(2,1) = 2*(q(k,2)*q(k,3)+q(k,1)*q(k,4))
+        R(2,2) = q(k,1)**2-q(k,2)**2+q(k,3)**2-q(k,4)**2
+        R(2,3) = 2*(q(k,3)*q(k,4)-q(k,1)*q(k,2))
+        R(3,1) = 2*(q(k,2)*q(k,4)-q(k,1)*q(k,3))
+        R(3,2) = 2*(q(k,1)*q(k,2)+q(k,3)*q(k,4))
+        R(3,3) = q(k,1)**2-q(k,2)**2-q(k,3)**2+q(k,4)**2
+!-----------------------------------------------------------------------
+        a = 4
+        do j=1,3
+          do i=1,3
+            state(k,a) = R(i,j)
+            a          = a+1
+          enddo
+        enddo
+      enddo
+!
+      return
+      end subroutine RandomTexture
+!
+!-----------------------------------------------------------------------
+!                         SUBROUTINE RandomQuaternions
+!-----------------------------------------------------------------------
+! Generates nblock number of uniformly distributed quaternions
+!-----------------------------------------------------------------------
+      subroutine RandomQuaternions(quaternions,nblock)
+!
+      implicit none
+!
+      integer, intent(in) :: nblock
+      real*8, intent(out) :: quaternions(nblock,4)
+!     Local variables
+      real*8 :: x, y, z, u, v, w, s
+      real*8 :: randomNumbers(2)
+      real*8, parameter :: one=1.d0, two=2.d0
+      integer k
+      intrinsic random_number, random_seed
+!-----------------------------------------------------------------------
+      do k=1,nblock
+        z = two
+        w = two
+        do while(z.gt.one)
+          call random_number(randomNumbers)
+          x = two*randomNumbers(1)-one
+          y = two*randomNumbers(2)-one
+          z = x**2+y**2
+        enddo
+        do while(w.gt.one)
+          call random_number(randomNumbers)
+          u = two*randomNumbers(1)-one
+          v = two*randomNumbers(2)-one
+          w = u**2+v**2
+        enddo
+        s = sqrt((one-z)/w)
+        quaternions(k,1) = x
+        quaternions(k,2) = y
+        quaternions(k,3) = s*u
+        quaternions(k,4) = s*v
+      enddo
+!
+      return
+      end subroutine RandomQuaternions
+!
 !-----------------------------------------------------------------------
 !                         SUBROUTINE UpdateDamage
 !-----------------------------------------------------------------------
@@ -510,11 +594,11 @@
      +          threeOverTwo=1.5d0)
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
-      Seq = sqrt(half*((sigma(1)-sigma(2))**two
-     +      +(sigma(2)-sigma(3))**two
-     +      +(sigma(3)-sigma(1))**two)
-     +      +three*sigma(4)**two+three*sigma(5)**two
-     +      +three*sigma(6)**two)! Equivalent von Mises stress
+      Seq = sqrt(half*((sigma(1)-sigma(2))**2
+     +      +(sigma(2)-sigma(3))**2
+     +      +(sigma(3)-sigma(1))**2)
+     +      +three*sigma(4)**2+three*sigma(5)**2
+     +      +three*sigma(6)**2)! Equivalent von Mises stress
 !-----------------------------------------------------------------------
       if(Seq.lt.small) return
 !-----------------------------------------------------------------------
