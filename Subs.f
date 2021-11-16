@@ -464,17 +464,17 @@
       real*8, intent(in) :: R(3,3)
       real*8, intent(out) :: ang(3)
 !     Local variables
-      real*8 pi, zero, one, circ, small, halfCirc
-      parameter(pi=4.d0*atan(1.d0),zero=0.d0,one=1.d0,circ=360.d0,
-     .          small=1.d-9,halfCirc=180.d0)
+      real*8 zero, one, circ, small, rad2deg
+      parameter(zero=0.d0,one=1.d0,circ=360.d0,
+     .          small=1.d-9,rad2deg=180.d0/(4.d0*atan(1.d0)))
 !-----------------------------------------------------------------------
       if (abs(abs(R(3,3))-one).gt.small) then
-        ang(1) = atan2(R(1,3),-R(2,3))*halfCirc/pi
-        ang(2) = acos(R(3,3))*halfCirc/pi
-        ang(3) = atan2(R(3,1),R(3,2))*halfCirc/pi
+        ang(1) = atan2(R(1,3),-R(2,3))*rad2deg
+        ang(2) = acos(R(3,3))*rad2deg
+        ang(3) = atan2(R(3,1),R(3,2))*rad2deg
       else
-        ang(1) = atan2(R(2,1),R(1,1))*halfCirc/pi
-        ang(2) = acos(R(3,3))*halfCirc/pi
+        ang(1) = atan2(R(2,1),R(1,1))*rad2deg
+        ang(2) = acos(R(3,3))*rad2deg
         ang(3) = zero
       endif
 !-----------------------------------------------------------------------
@@ -596,11 +596,11 @@
      +          threeOverTwo=1.5d0)
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
-      Seq = sqrt(half*((sigma(1)-sigma(2))**two
-     +      +(sigma(2)-sigma(3))**two
-     +      +(sigma(3)-sigma(1))**two)
-     +      +three*sigma(4)**two+three*sigma(5)**two
-     +      +three*sigma(6)**two)! Equivalent von Mises stress
+      Seq = sqrt(half*((sigma(1)-sigma(2))**2
+     +      +(sigma(2)-sigma(3))**2
+     +      +(sigma(3)-sigma(1))**2)
+     +      +three*sigma(4)**2+three*sigma(5)**2
+     +      +three*sigma(6)**2)! Equivalent von Mises stress
 !-----------------------------------------------------------------------
       if(Seq.lt.small) return
 !-----------------------------------------------------------------------
