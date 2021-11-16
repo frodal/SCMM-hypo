@@ -1,6 +1,6 @@
 # SIMLab Crystal Mechanics model - Hypoelastic formulation (SCMM-Hypo)
 
-User defined material model for Abaqus/Standard and Abaqus/Explicit
+The rate-dependent crystal plasticity model with coupled damage and ductile failure as described in [Frodal et al. (2021)](https://doi.org/10.1016/j.ijplas.2021.102996) is implemented into a user defined material model for Abaqus/Standard and Abaqus/Explicit (UMAT & VUMAT). Note that the model used is decided at compile time based on [compiler directives](#Compiler-directives), the model can also be compiled without a damage model.
 
 ## Cite
 
@@ -43,7 +43,7 @@ author = {Bjørn Håkon Frodal and Susanne Thomesen and Tore Børvik and Odd Stu
 |               5 | Instantaneous strain rate sensitivity, *m*                                         |
 |               6 | Initial critical resolved shear stress, *τ*<sub>*c*0</sub>                         |
 |               7 | Latent hardening coefficient, *q*                                                  |
-|               8 | Texture flag (1=Euler angles from material card, 2=Euler angles from history card) |
+|               8 | Texture flag (1=Euler angles from material card, 2=Euler angles from history card, 3=Euler angles are generated from a random texture, i.e., a uniform ODF) |
 |               9 | Initial Euler angle, *ϕ*<sub>1</sub> in degree                                     |
 |              10 | Initial Euler angle, Φ in degree                                                   |
 |              11 | Initial Euler angle, *ϕ*<sub>2</sub> in degree                                     |
@@ -59,6 +59,8 @@ author = {Bjørn Håkon Frodal and Susanne Thomesen and Tore Børvik and Odd Stu
 |              21 | Damage evolution parameter, *q*<sub>2</sub>                                        |
 
 ***Warning: Do not use a local coordinate system (CSYS) or a material orientation with this subroutine in Abaqus Standard. This will break the co-rotational formulation.***
+
+***Warning: Texture flag = 3 should only be used for elements with 1 integration point. Otherwise integration points within the same element will have different crystallographic orientations.***
 
 Note that the Tangent operator flag, property number 17, is only used for Abaqus Standard,
 and the Quasi-Newton solution technique should be used when the Elastic tangent operator is
