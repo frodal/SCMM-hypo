@@ -31,6 +31,7 @@
 ! #define SCMM_HYPO_KALIDINDI_ONLY
 ! #define SCMM_HYPO_DFLAG 0
 #define SCMM_HYPO_DFLAG 1
+#define SCMM_HYPO_MODEL 3
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !   Do not edit the lines below!

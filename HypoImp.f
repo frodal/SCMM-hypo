@@ -17,6 +17,7 @@
 !-----------------------------------------------------------------------
 ! Include files
 !-----------------------------------------------------------------------
+#include './Taylor.f'
 #include './Hypo.f'
 #include './Subs.f'
 !-----------------------------------------------------------------------
@@ -152,11 +153,17 @@
       stressOld(1,5) = STRESS(6)
       stressOld(1,6) = STRESS(5)
 !-----------------------------------------------------------------------
-!     Call the Hypo Subroutine
+!     Call the Subroutine
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_MODEL == 3
+      call Taylor(stressNew, stateNew, defgradNew,
+     +         stressOld, stateOld, defgradOld, dt, props,
+     +         1, NSTATV, nprops, Dissipation)
+#else
       call Hypo(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld, dt, props,
      +         1, NSTATV, nprops, Dissipation)
+#endif
 !-----------------------------------------------------------------------
 !     Update Consistent tangent operator
 !-----------------------------------------------------------------------
@@ -270,9 +277,15 @@
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_MODEL == 3
+         call Taylor(stressTGTnew, stateTGTnew, F,
+     +         stressTGTold, stateTGTold, Fold, dt, props,
+     +         12, NSTATV, nprops, DissipationTGT)
+#else
          call Hypo(stressTGTnew, stateTGTnew, F,
      +         stressTGTold, stateTGTold, Fold, dt, props,
      +         12, NSTATV, nprops, DissipationTGT)
+#endif
 !-----------------------------------------------------------------------
          kk = 0
          do i=1,12,2
@@ -431,11 +444,17 @@
       stressOld(1,5) = zero
       stressOld(1,6) = zero
 !-----------------------------------------------------------------------
-!     Call the Hypo Subroutine
+!     Call the Subroutine
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_MODEL == 3
+      call Taylor(stressNew, stateNew, defgradNew,
+     +         stressOld, stateOld, defgradOld, dt, props,
+     +         1, NSTATV, nprops, Dissipation)
+#else
       call Hypo(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld, dt, props,
      +         1, NSTATV, nprops, Dissipation)
+#endif
 !-----------------------------------------------------------------------
 !     Update Consistent tangent operator
 !-----------------------------------------------------------------------
@@ -534,9 +553,15 @@
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_MODEL == 3
+         call Taylor(stressTGTnew, stateTGTnew, F,
+     +         stressTGTold, stateTGTold, Fold, dt, props,
+     +         8, NSTATV, nprops, DissipationTGT)
+#else
          call Hypo(stressTGTnew, stateTGTnew, F,
      +         stressTGTold, stateTGTold, Fold, dt, props,
      +         8, NSTATV, nprops, DissipationTGT)
+#endif
 !-----------------------------------------------------------------------
          kk = 0
          do i=1,8,2

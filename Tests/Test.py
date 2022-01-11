@@ -62,7 +62,7 @@ class EulerAngles:
 class Material:
     # static class members
     nProps = 21
-    nStatev = 30
+    nStatev = 288
     nDelete = 30
 
     # Constructor
