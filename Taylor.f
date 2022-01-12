@@ -37,6 +37,7 @@
 !-----------------------------------------------------------------------
       integer i, j, k
       integer, parameter :: Nsdv = SCMM_HYPO_NSTATEV
+      real*8 tempDissipation(nblock,8)
 !-----------------------------------------------------------------------
 !     First step
 !-----------------------------------------------------------------------
@@ -62,7 +63,7 @@
      +          stateOld(:,1+Nsdv+(i-1)*(Nsdv+6):6+Nsdv+(i-1)*(Nsdv+6)),
      +          stateOld(:,1+(i-1)*(Nsdv+6):Nsdv+(i-1)*(Nsdv+6)),
      +          defgradOld,
-     +          dt,props,nblock,Nsdv,nprops,Dissipation)
+     +          dt,props,nblock,Nsdv,nprops,tempDissipation(:,i))
       enddo
 !-----------------------------------------------------------------------
 !     FC-Taylor homogenization
@@ -74,6 +75,12 @@
             stressNew(k,j) = stressNew(k,j) +
      +                       0.125*stateNew(k,j+Nsdv+(i-1)*(Nsdv+6))
           enddo
+        enddo
+      enddo
+      Dissipation = 0.d0
+      do i=1,8
+        do k=1,nblock
+          Dissipation(k) = Dissipation(k) + 0.125*tempDissipation(k,i)
         enddo
       enddo
 !-----------------------------------------------------------------------
