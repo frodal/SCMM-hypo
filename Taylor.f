@@ -38,6 +38,10 @@
       integer i, j, k
       integer, parameter :: Nsdv = SCMM_HYPO_NSTATEV
       real*8 tempDissipation(nblock,8)
+#if SCMM_HYPO_DFLAG != 0
+      integer isActive ! Is the integration point active (0=deleted, 
+!                                                         1=active)
+#endif
 !-----------------------------------------------------------------------
 !     First step
 !-----------------------------------------------------------------------
@@ -83,6 +87,24 @@
           Dissipation(k) = Dissipation(k) + 0.125*tempDissipation(k,i)
         enddo
       enddo
+!-----------------------------------------------------------------------
+!     An element is deleted once the first FC-Taylor grain fails
+!-----------------------------------------------------------------------
+#if SCMM_HYPO_DFLAG != 0
+      do k=1,nblock
+        isActive = nint(min(stateNew(k,30),
+     +                      stateNew(k,30+Nsdv+6),
+     +                      stateNew(k,30+2*(Nsdv+6)),
+     +                      stateNew(k,30+3*(Nsdv+6)),
+     +                      stateNew(k,30+4*(Nsdv+6)),
+     +                      stateNew(k,30+5*(Nsdv+6)),
+     +                      stateNew(k,30+6*(Nsdv+6)),
+     +                      stateNew(k,30+7*(Nsdv+6))))
+        do i=1,8
+          stateNew(k,30+(i-1)*(Nsdv+6)) = isActive
+        enddo
+      enddo
+#endif
 !-----------------------------------------------------------------------
 !     End Subroutine
 !-----------------------------------------------------------------------
