@@ -36,17 +36,18 @@
       real*8 Dissipation(nblock)! The change in dissipated inelastic 
 !-----------------------------------------------------------------------
       integer i, j, k
-      integer, parameter :: Nsdv = SCMM_HYPO_NSTATEV
-      real*8 tempDissipation(nblock,8)
+      integer, parameter :: Nsdv = SCMM_HYPO_NSTATEV, Ngrain = 8
+      real*8, parameter :: fraction = 1.d0/Ngrain
+      real*8 tempDissipation(nblock,Ngrain)
 #if SCMM_HYPO_DFLAG != 0
-      integer isActive ! Is the integration point active (0=deleted, 
+      real*8 isActive ! Is the integration point active (0=deleted, 
 !                                                         1=active)
 #endif
 !-----------------------------------------------------------------------
 !     First step
 !-----------------------------------------------------------------------
       if(stateold(1,13).lt.1.d-6)then ! First step
-        do i=1,8
+        do i=1,Ngrain
           do j=1,6
             do k=1,nblock
               stateOld(k,j+Nsdv+(i-1)*(Nsdv+6)) = stressOld(k,j)
@@ -55,9 +56,9 @@
         enddo
       endif
 !-----------------------------------------------------------------------
-!     FC-Taylor homogenization for an 8 grain polycrystal
+!     FC-Taylor homogenization for an Ngrain polycrystal
 !-----------------------------------------------------------------------
-      do i=1,8
+      do i=1,Ngrain
 !-----------------------------------------------------------------------
 !       Call the subroutine Hypo
 !-----------------------------------------------------------------------
@@ -73,18 +74,19 @@
 !     FC-Taylor homogenization
 !-----------------------------------------------------------------------
       stressNew = 0.d0
-      do i=1,8
+      do i=1,Ngrain
         do j=1,6
           do k=1,nblock
             stressNew(k,j) = stressNew(k,j) +
-     +                       0.125*stateNew(k,j+Nsdv+(i-1)*(Nsdv+6))
+     +                       fraction*stateNew(k,j+Nsdv+(i-1)*(Nsdv+6))
           enddo
         enddo
       enddo
       Dissipation = 0.d0
-      do i=1,8
+      do i=1,Ngrain
         do k=1,nblock
-          Dissipation(k) = Dissipation(k) + 0.125*tempDissipation(k,i)
+          Dissipation(k) = Dissipation(k) +
+     +                     fraction*tempDissipation(k,i)
         enddo
       enddo
 !-----------------------------------------------------------------------
@@ -92,15 +94,11 @@
 !-----------------------------------------------------------------------
 #if SCMM_HYPO_DFLAG != 0
       do k=1,nblock
-        isActive = nint(min(stateNew(k,30),
-     +                      stateNew(k,30+Nsdv+6),
-     +                      stateNew(k,30+2*(Nsdv+6)),
-     +                      stateNew(k,30+3*(Nsdv+6)),
-     +                      stateNew(k,30+4*(Nsdv+6)),
-     +                      stateNew(k,30+5*(Nsdv+6)),
-     +                      stateNew(k,30+6*(Nsdv+6)),
-     +                      stateNew(k,30+7*(Nsdv+6))))
-        do i=1,8
+        isActive = 1
+        do i=1,Ngrain
+          isActive = min(stateNew(k,30+(i-1)*(Nsdv+6)), isActive)
+        enddo
+        do i=1,Ngrain
           stateNew(k,30+(i-1)*(Nsdv+6)) = isActive
         enddo
       enddo
