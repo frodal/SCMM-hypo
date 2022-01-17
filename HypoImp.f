@@ -155,7 +155,7 @@
 !-----------------------------------------------------------------------
 !     Call the Subroutine
 !-----------------------------------------------------------------------
-#if SCMM_HYPO_MODEL == 3
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
       call Taylor(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld, dt, props,
      +         1, NSTATV, nprops, Dissipation)
@@ -277,7 +277,7 @@
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
-#if SCMM_HYPO_MODEL == 3
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
          call Taylor(stressTGTnew, stateTGTnew, F,
      +         stressTGTold, stateTGTold, Fold, dt, props,
      +         12, NSTATV, nprops, DissipationTGT)
@@ -446,7 +446,7 @@
 !-----------------------------------------------------------------------
 !     Call the Subroutine
 !-----------------------------------------------------------------------
-#if SCMM_HYPO_MODEL == 3
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
       call Taylor(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld, dt, props,
      +         1, NSTATV, nprops, Dissipation)
@@ -553,7 +553,7 @@
 !-----------------------------------------------------------------------
 !        Calculating stress state based on perturbation
 !-----------------------------------------------------------------------
-#if SCMM_HYPO_MODEL == 3
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
          call Taylor(stressTGTnew, stateTGTnew, F,
      +         stressTGTold, stateTGTold, Fold, dt, props,
      +         8, NSTATV, nprops, DissipationTGT)

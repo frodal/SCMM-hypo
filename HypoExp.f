@@ -244,7 +244,7 @@
 !-----------------------------------------------------------------------
 !     Call the subroutine
 !-----------------------------------------------------------------------
-#if SCMM_HYPO_MODEL == 3
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
       call Taylor(sigsNew,stateNew,defgradNew,
      +          sigsOld,stateOld,defgradOld,dt,props,
      +          nblock,nstatev,nprops,Dissipation)
@@ -504,7 +504,7 @@
 !-----------------------------------------------------------------------
 !     Call the subroutine
 !-----------------------------------------------------------------------
-#if SCMM_HYPO_MODEL == 3
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
       call Taylor(sigsNew,stateNew,Fnew,
      +          sigsOld,stateOld,Fold,dt,props,
      +          nblock,nstatev,nprops,Dissipation)

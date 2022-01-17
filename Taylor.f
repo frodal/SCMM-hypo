@@ -62,6 +62,7 @@
 !-----------------------------------------------------------------------
 !       Call the subroutine Hypo
 !-----------------------------------------------------------------------
+! #if SCMM_HYPO_MODEL == 3
       call Hypo(stateNew(:,1+Nsdv+(i-1)*(Nsdv+6):6+Nsdv+(i-1)*(Nsdv+6)),
      +          stateNew(:,1+(i-1)*(Nsdv+6):Nsdv+(i-1)*(Nsdv+6)),
      +          defgradNew,
@@ -69,6 +70,15 @@
      +          stateOld(:,1+(i-1)*(Nsdv+6):Nsdv+(i-1)*(Nsdv+6)),
      +          defgradOld,
      +          dt,props,nblock,Nsdv,nprops,tempDissipation(:,i))
+! #elif SCMM_HYPO_MODEL == 4
+!       call CCCP(stateNew(:,1+Nsdv+(i-1)*(Nsdv+6):6+Nsdv+(i-1)*(Nsdv+6)),
+!      +          stateNew(:,1+(i-1)*(Nsdv+6):Nsdv+(i-1)*(Nsdv+6)),
+!      +          defgradNew,
+!      +          stateOld(:,1+Nsdv+(i-1)*(Nsdv+6):6+Nsdv+(i-1)*(Nsdv+6)),
+!      +          stateOld(:,1+(i-1)*(Nsdv+6):Nsdv+(i-1)*(Nsdv+6)),
+!      +          defgradOld,
+!      +          dt,props,nblock,Nsdv,nprops,tempDissipation(:,i))
+! #endif
       enddo
 !-----------------------------------------------------------------------
 !     FC-Taylor homogenization
