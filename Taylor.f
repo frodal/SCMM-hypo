@@ -13,11 +13,6 @@
 !-----------------------------------------------------------------------
 #ifndef SCMM_HYPO_TAYLOR
 #define SCMM_HYPO_TAYLOR
-#if SCMM_HYPO_DFLAG != 0
-#define SCMM_HYPO_NSTATEV 30
-#else
-#define SCMM_HYPO_NSTATEV 28
-#endif
 !-----------------------------------------------------------------------
 ! Subroutine Taylor
 !-----------------------------------------------------------------------
@@ -47,6 +42,19 @@
 !     First step
 !-----------------------------------------------------------------------
       if(stateold(1,13).lt.1.d-6)then ! First step
+        if(nstatev.lt.((Nsdv+6)*Ngrain))then
+#if defined SCMM_HYPO_STANDARD
+          call STDB_ABQERR(-3,
+     .  'The number of SDVs must be equal to %I',(Nsdv+6)*Ngrain),,)
+#elif defined SCMM_HYPO_EXPLICIT
+          call XPLB_ABQERR(-3,
+     .  'The number of SDVs must be equal to %I',(Nsdv+6)*Ngrain),,)
+#else
+          write(*,*) 'The number of SDVs must be equal to ',
+     .                (Nsdv+6)*Ngrain)
+          error stop 'ERROR: wrong number of SDVs'
+#endif
+        endif
         do i=1,Ngrain
           do j=1,6
             do k=1,nblock

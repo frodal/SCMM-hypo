@@ -55,4 +55,9 @@
 #ifndef SCMM_HYPO_MODEL
 #define SCMM_HYPO_MODEL 1
 #endif
+#if SCMM_HYPO_DFLAG != 0
+#define SCMM_HYPO_NSTATEV 30
+#else
+#define SCMM_HYPO_NSTATEV 28
+#endif
 !-----------------------------------------------------------------------
