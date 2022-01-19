@@ -62,7 +62,7 @@ class EulerAngles:
 class Material:
     # static class members
     nProps = 21
-    nStatev = 288
+    nStatev = 288 # This should depend on the SCMM_HYPO_MODEL flag
     nDelete = 30
 
     # Constructor
