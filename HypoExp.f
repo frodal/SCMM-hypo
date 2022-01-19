@@ -17,10 +17,29 @@
 !-----------------------------------------------------------------------
 ! Include files
 !-----------------------------------------------------------------------
-#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
-#include './Taylor.f'
+#if SCMM_HYPO_MODEL == 2
+#include './CCCP.f'
+#include './CCCPHardening.f'
+#if SCMM_HYPO_DFLAG == 2
+#include './CCCPSubsPorous.f'
+#else
+#include './CCCPSubs.f'
 #endif
+#elif SCMM_HYPO_MODEL == 3
+#include './Taylor.f'
 #include './Hypo.f'
+#elif SCMM_HYPO_MODEL == 4
+#include './Taylor.f'
+#include './CCCP.f'
+#include './CCCPHardening.f'
+#if SCMM_HYPO_DFLAG == 2
+#include './CCCPSubsPorous.f'
+#else
+#include './CCCPSubs.f'
+#endif
+#else
+#include './Hypo.f'
+#endif
 #include './Subs.f'
 !-----------------------------------------------------------------------
       subroutine vumat(
@@ -248,6 +267,10 @@
 !-----------------------------------------------------------------------
 #if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
       call Taylor(sigsNew,stateNew,defgradNew,
+     +          sigsOld,stateOld,defgradOld,dt,props,
+     +          nblock,nstatev,nprops,Dissipation)
+#elif SCMM_HYPO_MODEL == 2
+      call CCCP(sigsNew,stateNew,defgradNew,
      +          sigsOld,stateOld,defgradOld,dt,props,
      +          nblock,nstatev,nprops,Dissipation)
 #else
@@ -508,6 +531,10 @@
 !-----------------------------------------------------------------------
 #if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
       call Taylor(sigsNew,stateNew,Fnew,
+     +          sigsOld,stateOld,Fold,dt,props,
+     +          nblock,nstatev,nprops,Dissipation)
+#elif SCMM_HYPO_MODEL == 2
+      call CCCP(sigsNew,stateNew,Fnew,
      +          sigsOld,stateOld,Fold,dt,props,
      +          nblock,nstatev,nprops,Dissipation)
 #else
