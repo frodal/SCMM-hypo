@@ -61,9 +61,9 @@ class EulerAngles:
 
 class Material:
     # static class members
-    nProps = 21
-    nStatev = 288 # This should depend on the SCMM_HYPO_MODEL flag
-    nDelete = 30
+    nProps: int = 22
+    nStatev: int = 288  # This should depend on the SCMM_HYPO_MODEL flag
+    nDelete: int = 30
 
     # Constructor
     def __init__(self, name: str, abaqusMaterialName: str, density: float, props: list[float]):
@@ -115,7 +115,7 @@ class Test:
 
 class AbaqusTest(Test):
     # Constructor
-    def __init__(self, name: str, inputfile: Union[str, Path], solver: AbaqusSolver, postScript: Union[str, Path], material: Material, ncpu: int):
+    def __init__(self, name: str, inputfile: Union[str, Path], solver: AbaqusSolver, postScript: Union[str, Path], material: Material, ncpu: int, usingCCCP: bool):
         # Calls the base (super) class's constructor
         super().__init__(name)
         # Current directory
@@ -144,8 +144,10 @@ class AbaqusTest(Test):
         self.abaqusPath = pythonPath.joinpath('Abaqus')
         self.testPath = self.abaqusPath.joinpath('WorkingDirectory').joinpath(self.name).joinpath(
             self.solver.name).joinpath(self.material.name)
-        self.referencePath = pythonPath.joinpath('ReferenceData').joinpath(
-            self.name).joinpath(self.solver.name).joinpath(self.material.name)
+        if usingCCCP:
+            self.referencePath = pythonPath.joinpath('ReferenceData').joinpath('CCCP').joinpath(self.name).joinpath(self.solver.name).joinpath(self.material.name)
+        else:
+            self.referencePath = pythonPath.joinpath('ReferenceData').joinpath('RDCP').joinpath(self.name).joinpath(self.solver.name).joinpath(self.material.name)
         # Current input file path
         self.currentInputFile = self.testPath.joinpath(self.name+'.inp')
         # Initialize
@@ -183,23 +185,23 @@ class AbaqusTest(Test):
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     # Runs the test on the current PC
-    def _RunHere(self, interactiveOff: bool = False):
+    def _RunHere(self, interactive: bool = False):
         # Sets up the test
         self._SetupAbaqusJob()
         # Run the abaqus solver
-        if interactiveOff:
-            subprocess.run('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu)+' interactive',
-                           shell=True, cwd=self.testPath, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
+        if interactive:
             subprocess.run('abaqus double job='+str(self.name)+' cpus=' +
                            str(self.ncpu)+' interactive', shell=True, cwd=self.testPath)
+        else:
+            subprocess.run('abaqus double job='+str(self.name)+' cpus='+str(self.ncpu)+' interactive',
+                           shell=True, cwd=self.testPath, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     # Runs the test
-    def Run(self, onCluster: bool = False, interactiveOff: bool = False):
+    def Run(self, onCluster: bool = False, interactive: bool = False):
         if onCluster:
             self._RunOnCasa()
         else:
-            self._RunHere(interactiveOff)
+            self._RunHere(interactive)
 
     # Post-process the test
     def Process(self, shouldPlot: bool = False):
@@ -282,10 +284,10 @@ def Clean():
 ##----------------------------------------------------------------------
 
 
-def RunTests(tests: list[AbaqusTest], onCluster: bool = False, interactiveOff: bool = False):
-    if onCluster or not interactiveOff:
+def RunTests(tests: list[AbaqusTest], onCluster: bool = False, interactive: bool = False):
+    if onCluster or interactive:
         for test in tests:
-            test.Run(onCluster, interactiveOff)
+            test.Run(onCluster, interactive)
     else:
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(tests)) as executor:
             executor.map(RunTest, tests)
@@ -294,7 +296,7 @@ def RunTests(tests: list[AbaqusTest], onCluster: bool = False, interactiveOff: b
 
 
 def RunTest(test: AbaqusTest):
-    test.Run(interactiveOff=True)
+    test.Run(interactive=False)
 ##----------------------------------------------------------------------
 ## Post-process tests
 ##----------------------------------------------------------------------
@@ -317,7 +319,7 @@ def PostProcess(tests: list[AbaqusTest], shouldPlot: bool = False):
 ##----------------------------------------------------------------------
 
 
-def CreateSimpleShearTests() -> list[AbaqusTest]:
+def CreateSimpleShearTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -332,9 +334,9 @@ def CreateSimpleShearTests() -> list[AbaqusTest]:
     for materialName, eAngles in zip(kalidindiMaterialNames, eulerAngles):
         kalidindiMaterials.append(
             Material(materialName, 'Material-1', density,
-                     [106430.,      60350.,       28210., 0.01,   0.005, 46.7301,     1.4, 1.,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,     1.4, 1.,
                       eAngles.phi1, eAngles.PHI, eAngles.phi2,   2., 411.256, 104.029, 1.35459, 0.,
-                      1.,         0.0,          1.0,  0.0,     0.0]))
+                      1.,         0.0,          1.0,  0.0,     0.0,     0.0]))
 
     # Creates Voce hardening materials
     voceMaterialNames = ['000-Voce', '4500-Voce',
@@ -343,9 +345,9 @@ def CreateSimpleShearTests() -> list[AbaqusTest]:
     for materialName, eAngles in zip(voceMaterialNames, eulerAngles):
         voceMaterials.append(
             Material(materialName, 'Material-1', density,
-                     [106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    1.,
                       eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      1.,         0.0,          1.0,  0.0,   0.0]))
+                      1.,         0.0,          1.0,  0.0,   0.0,     0.0]))
 
     # Creates Voce hardening materials with RT-damage
     voceRTMaterialNames = ['000-Voce-RT', '4500-Voce-RT',
@@ -354,9 +356,20 @@ def CreateSimpleShearTests() -> list[AbaqusTest]:
     for materialName, eAngles in zip(voceRTMaterialNames, eulerAngles):
         voceRTMaterials.append(
             Material(materialName, 'Material-1', density,
-                     [106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    1.,
                       eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      1.,        0.01,          0.6,  1.5,   1.0]))
+                      1.,        0.01,          0.6,  1.5,   1.0,     0.0]))
+
+    # Creates Voce hardening materials with Han-damage
+    voceHanMaterialNames = ['000-Voce-Han', '4500-Voce-Han',
+                            'inverted-Voce-Han', 'other-Voce-Han']
+    voceHanMaterials = []
+    for materialName, eAngles in zip(voceHanMaterialNames, eulerAngles):
+        voceHanMaterials.append(
+            Material(materialName, 'Material-1', density,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    1.,
+                      eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
+                      1.,        0.01,          0.6,  1.5,   1.3,     6.5]))
 
     # Add different tests to be run
     tests = []
@@ -364,22 +377,28 @@ def CreateSimpleShearTests() -> list[AbaqusTest]:
     for material in kalidindiMaterials:
         tests.append(AbaqusTest('SimpleShear', 'Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
                                 AbaqusSolver.Explicit, 'Abaqus/SimpleShearTest/SimpleShearExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
     # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials
     for material in voceMaterials:
         tests.append(AbaqusTest('SimpleShear', 'Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
                                 AbaqusSolver.Explicit, 'Abaqus/SimpleShearTest/SimpleShearExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
     # Add SimpleShear tests using Abaqus/Standard and the Kalidindi materials
     for material in kalidindiMaterials:
         tests.append(AbaqusTest('SimpleShear', 'Abaqus/SimpleShearTest/SimpleShear-Implicit.inp',
                                 AbaqusSolver.Implicit, 'Abaqus/SimpleShearTest/SimpleShearExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
     # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials with RT-damage
     for material in voceRTMaterials:
         tests.append(AbaqusTest('SimpleShear', 'Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
                                 AbaqusSolver.Explicit, 'Abaqus/SimpleShearTest/SimpleShearExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
+    # Add SimpleShear tests using Abaqus/Explicit and the Voce hardening materials with Han-damage
+    if usingCCCP:
+        for material in voceHanMaterials:
+            tests.append(AbaqusTest('SimpleShear', 'Abaqus/SimpleShearTest/SimpleShear-Explicit.inp',
+                                AbaqusSolver.Explicit, 'Abaqus/SimpleShearTest/SimpleShearExtract.py',
+                                material, 1, usingCCCP))
 
     return tests
 ##----------------------------------------------------------------------
@@ -387,7 +406,7 @@ def CreateSimpleShearTests() -> list[AbaqusTest]:
 ##----------------------------------------------------------------------
 
 
-def CreateUniaxialTensionTests() -> list[AbaqusTest]:
+def CreateUniaxialTensionTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -402,20 +421,31 @@ def CreateUniaxialTensionTests() -> list[AbaqusTest]:
     for materialName, eAngles in zip(MaterialNames, eulerAngles):
         Materials.append(
             Material(materialName, 'AL', density,
-                     [106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    1.,
                       eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,         0.0,          1.0,  0.0,   0.0]))
+                      2.,         0.0,          1.0,  0.0,   0.0,     0.0]))
 
-    # Creates Voce hardening materials
+    # Creates Voce hardening materials with RT-damage
     rtMaterialNames = ['000-Voce-RT', '4500-Voce-RT',
                        '0450-Voce-RT', '35450-Voce-RT']
     rtMaterials = []
     for materialName, eAngles in zip(rtMaterialNames, eulerAngles):
         rtMaterials.append(
             Material(materialName, 'AL', density,
-                     [106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    1.,
                       eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,        0.01,          0.6,  1.5,   1.0]))
+                      2.,        0.01,          0.6,  1.5,   1.0,     0.0]))
+
+    # Creates Voce hardening materials with Han-damage
+    hanMaterialNames = ['000-Voce-Han', '4500-Voce-Han',
+                        '0450-Voce-Han', '35450-Voce-Han']
+    hanMaterials = []
+    for materialName, eAngles in zip(hanMaterialNames, eulerAngles):
+        hanMaterials.append(
+            Material(materialName, 'AL', density,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    1.,
+                      eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
+                      2.,        0.01,          0.6,  1.5,   1.3,     6.5]))
 
     # Add different tests to be run
     tests = []
@@ -423,17 +453,23 @@ def CreateUniaxialTensionTests() -> list[AbaqusTest]:
     for material in Materials:
         tests.append(AbaqusTest('UniaxialTension', 'Abaqus/UniaxialTensionTest/UniaxialTension-Explicit.inp',
                                 AbaqusSolver.Explicit, 'Abaqus/UniaxialTensionTest/UniaxialTensionExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
     # Add Uniaxial tension tests using Abaqus/Standard and the Voce hardening materials
     for material in Materials:
         tests.append(AbaqusTest('UniaxialTension', 'Abaqus/UniaxialTensionTest/UniaxialTension-Implicit.inp',
                                 AbaqusSolver.Implicit, 'Abaqus/UniaxialTensionTest/UniaxialTensionExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
     # Add Uniaxial tension tests using Abaqus/Explicit and the Voce hardening materials with RT-damage
     for material in rtMaterials:
         tests.append(AbaqusTest('UniaxialTension', 'Abaqus/UniaxialTensionTest/UniaxialTension-Explicit.inp',
                                 AbaqusSolver.Explicit, 'Abaqus/UniaxialTensionTest/UniaxialTensionExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
+    # Add Uniaxial tension tests using Abaqus/Explicit and the Voce hardening materials with Han-damage
+    if usingCCCP:
+        for material in hanMaterials:
+            tests.append(AbaqusTest('UniaxialTension', 'Abaqus/UniaxialTensionTest/UniaxialTension-Explicit.inp',
+                                AbaqusSolver.Explicit, 'Abaqus/UniaxialTensionTest/UniaxialTensionExtract.py',
+                                material, 1, usingCCCP))
 
     return tests
 ##----------------------------------------------------------------------
@@ -441,37 +477,48 @@ def CreateUniaxialTensionTests() -> list[AbaqusTest]:
 ##----------------------------------------------------------------------
 
 
-def CreatePolycrystalTests() -> list[AbaqusTest]:
+def CreatePolycrystalTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
     # Material density
     density = 2.7e-9
 
     # Creates Voce hardening materials
     materialName = 'Voce'
     material = Material(materialName, 'AL', density,
-                        [106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
+                        [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    2.,
                          0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
-                         1.,         0.0,          1.0,  0.0,   0.0])
+                         1.,         0.0,          1.0,  0.0,   0.0,     0.0])
 
     materialRTName = 'Voce-RT'
     materialRT = Material(materialRTName, 'AL', density,
-                          [106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    2.,
+                          [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    2.,
                            0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
-                           1.,        0.01,          0.6,  1.5,   1.0])
+                           1.,        0.01,          0.6,  1.5,   1.0,     0.0])
+
+    materialHanName = 'Voce-Han'
+    materialHan = Material(materialHanName, 'AL', density,
+                           [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    2.,
+                            0.0,         0.0,          0.0,   1., 20.48,   18.07, 157.3, 39.11,
+                            1.,        0.01,          0.6,  1.5,   1.3,     6.5])
 
     # Add different tests to be run
     tests = []
     # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials
     tests.append(AbaqusTest('Polycrystal', 'Abaqus/PolycrystalTest/PolycrystalTension-Explicit.inp',
                             AbaqusSolver.Explicit, 'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                            material, 4))
+                            material, 4, usingCCCP))
     # Add polycrystal tests using Abaqus/Standard and the Voce hardening materials
     tests.append(AbaqusTest('Polycrystal', 'Abaqus/PolycrystalTest/PolycrystalTension-Implicit.inp',
                             AbaqusSolver.Implicit, 'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                            material, 8))
+                            material, 8, usingCCCP))
     # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials with RT-damage
     tests.append(AbaqusTest('Polycrystal', 'Abaqus/PolycrystalTest/PolycrystalTension-Explicit.inp',
                             AbaqusSolver.Explicit, 'Abaqus/PolycrystalTest/PolycrystalExtract.py',
-                            materialRT, 4))
+                            materialRT, 4, usingCCCP))
+    # Add polycrystal tests using Abaqus/Explicit and the Voce hardening materials with Han-damage
+    if usingCCCP:
+        tests.append(AbaqusTest('Polycrystal', 'Abaqus/PolycrystalTest/PolycrystalTension-Explicit.inp',
+                            AbaqusSolver.Explicit, 'Abaqus/PolycrystalTest/PolycrystalExtract.py',
+                            materialHan, 4, usingCCCP))
 
     return tests
 ##----------------------------------------------------------------------
@@ -479,7 +526,7 @@ def CreatePolycrystalTests() -> list[AbaqusTest]:
 ##----------------------------------------------------------------------
 
 
-def CreatePlaneStrainTests() -> list[AbaqusTest]:
+def CreatePlaneStrainTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -494,9 +541,9 @@ def CreatePlaneStrainTests() -> list[AbaqusTest]:
     for materialName, eAngles in zip(MaterialNames, eulerAngles):
         Materials.append(
             Material(materialName, 'CP', density,
-                     [106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    1.,
                       eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,         0.0,          1.0,  0.0,   0.0]))
+                      2.,         0.0,          1.0,  0.0,   0.0,     0.0]))
 
     # Add different tests to be run
     tests = []
@@ -504,12 +551,12 @@ def CreatePlaneStrainTests() -> list[AbaqusTest]:
     for material in Materials:
         tests.append(AbaqusTest('PlaneStrain', 'Abaqus/PlaneStrainTest/PlaneStrain-Explicit.inp',
                                 AbaqusSolver.Explicit, 'Abaqus/PlaneStrainTest/PlaneStrainExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
     # Add plane strain tests using Abaqus/Standard and the Voce hardening materials
     for material in Materials:
         tests.append(AbaqusTest('PlaneStrain', 'Abaqus/PlaneStrainTest/PlaneStrain-Implicit.inp',
                                 AbaqusSolver.Implicit, 'Abaqus/PlaneStrainTest/PlaneStrainExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
 
     return tests
 ##----------------------------------------------------------------------
@@ -517,7 +564,7 @@ def CreatePlaneStrainTests() -> list[AbaqusTest]:
 ##----------------------------------------------------------------------
 
 
-def CreateAxisymmetricTests() -> list[AbaqusTest]:
+def CreateAxisymmetricTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -532,9 +579,9 @@ def CreateAxisymmetricTests() -> list[AbaqusTest]:
     for materialName, eAngles in zip(MaterialNames, eulerAngles):
         Materials.append(
             Material(materialName, 'CP', density,
-                     [106430.,      60350.,       28210., 0.01, 0.005, 46.7301,   1.4,    1.,
+                     [106430.,      60350.,       28210., temp[0], temp[1], 46.7301,   1.4,    1.,
                       eAngles.phi1, eAngles.PHI, eAngles.phi2,   1., 20.48,   18.07, 157.3, 39.11,
-                      2.,         0.0,          1.0,  0.0,   0.0]))
+                      2.,         0.0,          1.0,  0.0,   0.0,     0.0]))
 
     # Add different tests to be run
     tests = []
@@ -542,12 +589,12 @@ def CreateAxisymmetricTests() -> list[AbaqusTest]:
     for material in Materials:
         tests.append(AbaqusTest('Axisymmetric', 'Abaqus/AxisymmetricTest/Axisymmetric-Explicit.inp',
                                 AbaqusSolver.Explicit, 'Abaqus/AxisymmetricTest/AxisymmetricExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
     # Add axisymmetric tests using Abaqus/Standard and the Voce hardening materials
     for material in Materials:
         tests.append(AbaqusTest('Axisymmetric', 'Abaqus/AxisymmetricTest/Axisymmetric-Implicit.inp',
                                 AbaqusSolver.Implicit, 'Abaqus/AxisymmetricTest/AxisymmetricExtract.py',
-                                material, 1))
+                                material, 1, usingCCCP))
 
     return tests
 ##----------------------------------------------------------------------
@@ -564,33 +611,40 @@ def main():
                         ' "run": For running the tests.' +
                         ' "clean": For cleaning the test working directories.' +
                         ' "post": For post-processing the results.')
+    parser.add_argument('--cccp', default=False, const=True, action='store_const',
+                        help='Add this flag during the "run" and "post" command when running the tests for the CCCP model.')
     parser.add_argument('--casa', default=False, const=True, action='store_const',
                         help='Add this flag when running the tests on the CASA cluster.')
-    parser.add_argument('--interactive_off', default=False, const=True, action='store_const',
-                        help='Add this flag to turn off interactive mode of the Abaqus analyses.')
+    parser.add_argument('--interactive', default=False, const=True, action='store_const',
+                        help='Add this flag to turn on interactive mode of the Abaqus analyses.')
     parser.add_argument('--plot', default=False, const=True, action='store_const',
                         help='Add this flag to plot the reference data and the test data during post-processing.')
     parser.add_argument('--all', default=False, const=True, action='store_const',
                         help='Add this flag during the "run" or "post" command to include plane strain and axisymmetric tests.')
     args = parser.parse_args()
+    usingCCCP: bool = args.cccp
     onCluster: bool = args.casa
     action: str = args.action
     shouldPlot: bool = args.plot
-    interactiveOff: bool = args.interactive_off
+    interactive: bool = args.interactive
     shouldDoAllTests: bool = args.all
+
+    temp: list[float] = [0.01, 0.005]
+    if usingCCCP:
+        temp = [1., 250.]
 
     # Creates the tests
     tests: list[AbaqusTest] = []
-    tests += CreateSimpleShearTests()
-    tests += CreateUniaxialTensionTests()
+    tests += CreateSimpleShearTests(usingCCCP,temp)
+    tests += CreateUniaxialTensionTests(usingCCCP,temp)
     if shouldDoAllTests:
-        tests += CreatePlaneStrainTests()
-        tests += CreateAxisymmetricTests()
-    tests += CreatePolycrystalTests()
+        tests += CreatePlaneStrainTests(temp)
+        tests += CreateAxisymmetricTests(temp)
+    tests += CreatePolycrystalTests(usingCCCP,temp)
 
     # Do stuff
     if action == 'run':
-        RunTests(tests, onCluster, interactiveOff)
+        RunTests(tests, onCluster, interactive)
     elif action == 'clean':
         Clean()
     elif action == 'post':

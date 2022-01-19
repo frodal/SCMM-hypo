@@ -1,6 +1,6 @@
 # SIMLab Crystal Mechanics model - Hypoelastic formulation (SCMM-Hypo)
 
-The rate-dependent crystal plasticity model with coupled damage and ductile failure as described in [Frodal et al. (2021)](https://doi.org/10.1016/j.ijplas.2021.102996) is implemented into a user defined material model for Abaqus/Standard and Abaqus/Explicit (UMAT & VUMAT). Note that the model used is decided at compile time based on [compiler directives](#Compiler-directives), the model can also be compiled without a damage model.
+These crystal plasticity subroutines uses either a rate-dependent formulation or a Combined Constraints Crystal Plasticity (CCCP) framework. The rate-dependent crystal plasticity model with coupled damage and ductile failure as described in [Frodal et al. (2021)](https://doi.org/10.1016/j.ijplas.2021.102996) is implemented into a user defined material model for Abaqus/Standard and Abaqus/Explicit (UMAT & VUMAT). The Combined Constraints Crystal Plasticity (CCCP) framework by [Zamiri & Pourboghrat (2010)](https://doi.org/10.1016/j.ijplas.2009.10.004) is used toghether either with coupled damage and ductile failure as described in [Frodal et al. (2021)](https://doi.org/10.1016/j.ijplas.2021.102996) or with the Crystal Porous Plasticity (CP<sup>2</sup>) model by [Han et al. (2013)](https://doi.org/10.1016/j.ijsolstr.2013.02.005), implemented using the numerical framework of [Khadyko et al. (2021)](https://doi.org/10.1007/s10704-020-00503-w) into a user defined material model for Abaqus/Standard and Abaqus/Explicit (UMAT & VUMAT). Note that the model used is decided at compile time based on [compiler directives](#Compiler-directives), the models can also be compiled without a damage model.
 
 ## Cite
 
@@ -30,6 +30,16 @@ doi = {https://doi.org/10.1016/j.ijplas.2021.102996},
 url = {https://www.sciencedirect.com/science/article/pii/S0749641921000711},
 author = {Bjørn Håkon Frodal and Susanne Thomesen and Tore Børvik and Odd Sture Hopperstad}
 }
+
+@article{Khadyko.et.al.2021,
+title = {Finite element simulation of ductile fracture in polycrystalline materials using a regularized porous crystal plasticity model},
+journal = {International Journal of Fracture},
+volume = {228},
+pages = {15-31},
+year = {2021},
+doi = {https://doi.org/10.1007/s10704-020-00503-w},
+author = {Mikhail Khadyko and Bjørn Håkon Frodal and Odd Sture Hopperstad}
+}
 ```
 
 ## Subroutine input
@@ -39,8 +49,8 @@ author = {Bjørn Håkon Frodal and Susanne Thomesen and Tore Børvik and Odd Stu
 |               1 | Elastic constant *c*<sub>11</sub>                                                  |
 |               2 | Elastic constant *c*<sub>12</sub>                                                  |
 |               3 | Elastic constant *c*<sub>44</sub>                                                  |
-|               4 | Reference slip rate, *γ*<sub>0</sub>                                               |
-|               5 | Instantaneous strain rate sensitivity, *m*                                         |
+|               4 | Reference slip rate, *γ*<sub>0</sub> or Regularization parameter, *m*              |
+|               5 | Instantaneous strain rate sensitivity, *m* or Regularization parameter, *ρ*        |
 |               6 | Initial critical resolved shear stress, *τ*<sub>*c*0</sub>                         |
 |               7 | Latent hardening coefficient, *q*                                                  |
 |               8 | Texture flag (1=Euler angles from material card, 2=Euler angles from history card, 3=Euler angles are generated from a random texture, i.e., a uniform ODF) |
@@ -55,8 +65,9 @@ author = {Bjørn Håkon Frodal and Susanne Thomesen and Tore Børvik and Odd Stu
 |              17 | Tangent operator flag (1=Elastic tangent operator, 2=Consistent tangent operator)  |
 |              18 | Initial damage, *f*<sub>0</sub>                                                    |
 |              19 | Critical damage, *f*<sub>*c*</sub>                                                 |
-|              20 | Damage evolution parameter, *q*<sub>1</sub>                                        |
-|              21 | Damage evolution parameter, *q*<sub>2</sub>                                        |
+|              20 | Damage/yield surface evolution parameter, *q*<sub>1</sub>                          |
+|              21 | Damage/yield surface evolution parameter, *q*<sub>2</sub>                          |
+|              22 | Damage/yield surface evolution parameter, *a*                                      |
 
 ***Warning: Do not use a local coordinate system (CSYS) or a material orientation with this subroutine in Abaqus Standard. This will break the co-rotational formulation.***
 
@@ -98,7 +109,7 @@ Before compiling the user material subroutine for the FEM code, install and chec
 Follow point 1 or 2 below to compile
 
 1. First case, run a simulation with a local compiled library (the compilation will be done each time a simulation is run)
-    - Clone the repository: `SCMM-hypo` from the SIMLab project on www.code.sintef.no or from github.com
+    - Clone the repository: `SCMM-hypo` from Github :basecamp:
     - Change the current directory to the `SCMM-hypo` folder
     - Copy the simulation input (e.g. `MySim.inp`) to the current directory
     - Run the simulation using the command: `abaqus double job=MySim user=HypoImp int`
@@ -106,7 +117,7 @@ Follow point 1 or 2 below to compile
     - Use the option `user=HypoExp` for the explicit solver (Abaqus/Explicit)
 2. Second case, compile a library:
     - If needed, make a directory where to place the Abaqus library (e.g. library-dir = `/home/username/bin/abaqus` for Linux or `C:\\Users\\username\\abaqus` for Windows)
-    - Clone the repository: `SCMM-hypo` from the SIMLab project on www.code.sintef.no or from github.com
+    - Clone the repository: `SCMM-hypo` from Github :basecamp:
     - Change the current directory to the `SCMM-hypo` folder
     - Run the command: `abaqus make library=HypoImp directory=library-dir`
     - Use the option `library=HypoImp` for the implicit solver (Abaqus/Standard)
@@ -117,7 +128,7 @@ Follow point 1 or 2 below to compile
 
 ### Compiler directives
 
-Note that the subroutines use preprocessor directives to determine if it is compiled for Abaqus/Standard, Abaqus/Explicit or neither. Specific choices can also be made at compile time instead of at runtime, e.g., the choice of which hardening model to use. For further information on the availible preprocessor definitions see the `Definitions.f` file. These preprocessor directives can be used to minimize the computational time by including only necessary model features, and removing unecessary conditional statements.
+Note that the subroutines use preprocessor directives to determine if it is compiled for Abaqus/Standard, Abaqus/Explicit or neither. Specific choices can also be made at compile time instead of at runtime, e.g., the choice of which hardening model to use. For further information on the available preprocessor definitions see the `Definitions.f` file. These preprocessor directives can be used to minimize the computational time by including only necessary model features, and removing unecessary conditional statements.
 
 If the subroutines are to be included in another file, use the preprocessor include directive (e.g., `#include 'HypoImp.f'`) instead of the Fortran include statement (e.g., `include 'HypoImp.f'`).
 
@@ -126,12 +137,11 @@ If the subroutines are to be included in another file, use the preprocessor incl
 To run the tests:
 
 1. Compile the subroutine using method nr. 2 above, for both Abaqus/Explicit and Abaqus/Standard, `library-dir` should point to the `SCMM-hypo` folder
-2. Edit the `abaqus_v6.env` file in the `./Tests/Abaqus/` folder so that it points to the folder where the compiled libraries are located, i.e., edit the entry `usub_lib_dir='library-dir'`
-3. Make sure that you have Abaqus and Python 3 installed with the necessary Python libraries (See `./Tests/Test.py`)
-4. Change the current directory to the `SCMM-hypo` folder
-5. Run the command: `python ./Tests/Test.py run` to run the tests (The flag `--interactive_off` can be appended this command to run all the Abaqus tests simultaneously)
-6. When the Abaqus jobs have finished, run the command: `python ./Tests/Test.py post` to post-process the tests (The flag `--plot` can be appended this command to plot the results)
-7. To clean the test directory, run the command: `python ./Tests/Test.py clean`
+2. Make sure that you have Abaqus and Python 3 installed with the necessary Python libraries (See `./Tests/Test.py`)
+3. Change the current directory to the `SCMM-hypo` folder
+4. Run the command: `python ./Tests/Test.py run` to run the tests (If the subroutine has been compiled with the CCCP model append the flag `--cccp`. The flag `--interactive` can be appended this command to run all the Abaqus tests with the same flag)
+5. When the Abaqus jobs have finished, run the command: `python ./Tests/Test.py post` to post-process the tests (If the tests has been run with the CCCP model append the flag `--cccp`. The flag `--plot` can be appended this command to plot the results)
+6. To clean the test directory, run the command: `python ./Tests/Test.py clean`
 
 ## Contributing
 

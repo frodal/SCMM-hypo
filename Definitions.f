@@ -15,9 +15,10 @@
 !   If SCMM_HYPO_2D_ONLY is defined, only plane strain and axisymmetric 
 !   elements are supported. Otherwise the subroutines support solid,
 !   plane strain and axisymmetric elements.
+!   If SCMM_HYPO_DFLAG is 2 then the Han/Khadyko et al model is used,
 !   If SCMM_HYPO_DFLAG is 1 then the RT damage model is used,
 !   If SCMM_HYPO_DFLAG is 0 then damage and fracture is turned off.
-!   By default (unless SCMM_HYPO_DFLAG is 0) the RT damage model is used.
+!   By default (unless SCMM_HYPO_DFLAG is 0 or 2) the RT damage model is used.
 !   If SCMM_HYPO_MODEL is 1 then the rate-dependent model is used,
 !   If SCMM_HYPO_MODEL is 2 then the CCCP model is used,
 !   If SCMM_HYPO_MODEL is 3 then the FC-Taylor homogenization approach
@@ -38,7 +39,11 @@
 ! #define SCMM_HYPO_KALIDINDI_ONLY
 ! #define SCMM_HYPO_DFLAG 0
 #define SCMM_HYPO_DFLAG 1
+! #define SCMM_HYPO_DFLAG 2
 #define SCMM_HYPO_MODEL 1
+! #define SCMM_HYPO_MODEL 2
+! #define SCMM_HYPO_MODEL 3
+! #define SCMM_HYPO_MODEL 4
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !   Do not edit the lines below!
@@ -54,6 +59,16 @@
 #endif
 #ifndef SCMM_HYPO_MODEL
 #define SCMM_HYPO_MODEL 1
+#endif
+#if (SCMM_HYPO_MODEL == 1 || SCMM_HYPO_MODEL == 3)  && SCMM_HYPO_DFLAG == 2
+#define SCMM_HYPO_DFLAG 1
+#warning "SCMM_HYPO_DFLAG == 2 is not supported with this SCMM_HYPO_MODEL"
+#warning "Using SCMM_HYPO_DFLAG == 1 instead"
+#endif
+#if SCMM_HYPO_DFLAG != 0 && SCMM_HYPO_DFLAG != 1  && SCMM_HYPO_DFLAG != 2
+#define SCMM_HYPO_DFLAG 1
+#warning "The SCMM_HYPO_DFLAG used is not supported"
+#warning "Using SCMM_HYPO_DFLAG == 1 instead"
 #endif
 #if SCMM_HYPO_DFLAG != 0
 #define SCMM_HYPO_NSTATEV 30

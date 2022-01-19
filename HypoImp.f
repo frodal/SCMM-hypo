@@ -17,10 +17,29 @@
 !-----------------------------------------------------------------------
 ! Include files
 !-----------------------------------------------------------------------
-#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
-#include './Taylor.f'
+#if SCMM_HYPO_MODEL == 2
+#include './CCCP.f'
+#include './CCCPHardening.f'
+#if SCMM_HYPO_DFLAG == 2
+#include './CCCPSubsPorous.f'
+#else
+#include './CCCPSubs.f'
 #endif
+#elif SCMM_HYPO_MODEL == 3
+#include './Taylor.f'
 #include './Hypo.f'
+#elif SCMM_HYPO_MODEL == 4
+#include './Taylor.f'
+#include './CCCP.f'
+#include './CCCPHardening.f'
+#if SCMM_HYPO_DFLAG == 2
+#include './CCCPSubsPorous.f'
+#else
+#include './CCCPSubs.f'
+#endif
+#else
+#include './Hypo.f'
+#endif
 #include './Subs.f'
 !-----------------------------------------------------------------------
       subroutine UMAT(STRESS,STATEV,DDSDDE,SSE,SPD,SCD,
@@ -161,6 +180,10 @@
       call Taylor(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld, dt, props,
      +         1, NSTATV, nprops, Dissipation)
+#elif SCMM_HYPO_MODEL == 2
+      call CCCP(stressNew, stateNew, defgradNew,
+     +         stressOld, stateOld, defgradOld, dt, props,
+     +         1, NSTATV, nprops, Dissipation)
 #else
       call Hypo(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld, dt, props,
@@ -281,6 +304,10 @@
 !-----------------------------------------------------------------------
 #if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
          call Taylor(stressTGTnew, stateTGTnew, F,
+     +         stressTGTold, stateTGTold, Fold, dt, props,
+     +         12, NSTATV, nprops, DissipationTGT)
+#elif SCMM_HYPO_MODEL == 2
+         call CCCP(stressTGTnew, stateTGTnew, F,
      +         stressTGTold, stateTGTold, Fold, dt, props,
      +         12, NSTATV, nprops, DissipationTGT)
 #else
@@ -452,6 +479,10 @@
       call Taylor(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld, dt, props,
      +         1, NSTATV, nprops, Dissipation)
+#elif SCMM_HYPO_MODEL == 2
+      call CCCP(stressNew, stateNew, defgradNew,
+     +         stressOld, stateOld, defgradOld, dt, props,
+     +         1, NSTATV, nprops, Dissipation)
 #else
       call Hypo(stressNew, stateNew, defgradNew,
      +         stressOld, stateOld, defgradOld, dt, props,
@@ -557,6 +588,10 @@
 !-----------------------------------------------------------------------
 #if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
          call Taylor(stressTGTnew, stateTGTnew, F,
+     +         stressTGTold, stateTGTold, Fold, dt, props,
+     +         8, NSTATV, nprops, DissipationTGT)
+#elif SCMM_HYPO_MODEL == 2
+         call CCCP(stressTGTnew, stateTGTnew, F,
      +         stressTGTold, stateTGTold, Fold, dt, props,
      +         8, NSTATV, nprops, DissipationTGT)
 #else
