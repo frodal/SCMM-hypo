@@ -18,6 +18,13 @@
 !   If SCMM_HYPO_DFLAG is 1 then the RT damage model is used,
 !   If SCMM_HYPO_DFLAG is 0 then damage and fracture is turned off.
 !   By default (unless SCMM_HYPO_DFLAG is 0) the RT damage model is used.
+!   If SCMM_HYPO_MODEL is 1 then the rate-dependent model is used,
+!   If SCMM_HYPO_MODEL is 2 then the CCCP model is used,
+!   If SCMM_HYPO_MODEL is 3 then the FC-Taylor homogenization approach
+!   is used with the rate-dependent model, and
+!   If SCMM_HYPO_MODEL is 4 then the FC-Taylor homogenization approach
+!   is used with the CCCP model.
+!   By default the rate-dependent model is used.
 !-----------------------------------------------------------------------
 !   WARNING! The subroutines and Abaqus only supports plane strain and
 !   axisymmetric elements for certain crystallographic orientations.
@@ -31,6 +38,7 @@
 ! #define SCMM_HYPO_KALIDINDI_ONLY
 ! #define SCMM_HYPO_DFLAG 0
 #define SCMM_HYPO_DFLAG 1
+#define SCMM_HYPO_MODEL 1
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !   Do not edit the lines below!
@@ -43,5 +51,13 @@
 #endif
 #ifndef SCMM_HYPO_DFLAG
 #define SCMM_HYPO_DFLAG 1
+#endif
+#ifndef SCMM_HYPO_MODEL
+#define SCMM_HYPO_MODEL 1
+#endif
+#if SCMM_HYPO_DFLAG != 0
+#define SCMM_HYPO_NSTATEV 30
+#else
+#define SCMM_HYPO_NSTATEV 28
 #endif
 !-----------------------------------------------------------------------
