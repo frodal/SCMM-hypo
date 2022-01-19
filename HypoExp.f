@@ -17,6 +17,9 @@
 !-----------------------------------------------------------------------
 ! Include files
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
+#include './Taylor.f'
+#endif
 #include './Hypo.f'
 #include './Subs.f'
 !-----------------------------------------------------------------------
@@ -241,11 +244,17 @@
         sigsOld(km,6) = xmat2(3,1)
       enddo
 !-----------------------------------------------------------------------
-!     Call the subroutine Hypo
+!     Call the subroutine
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
+      call Taylor(sigsNew,stateNew,defgradNew,
+     +          sigsOld,stateOld,defgradOld,dt,props,
+     +          nblock,nstatev,nprops,Dissipation)
+#else
       call Hypo(sigsNew,stateNew,defgradNew,
      +          sigsOld,stateOld,defgradOld,dt,props,
      +          nblock,nstatev,nprops,Dissipation)
+#endif
 !-----------------------------------------------------------------------
 !     Transforming the stress tensor from the global system to the Rotated coordinate system used in Abaqus/Explicit
 !-----------------------------------------------------------------------
@@ -495,11 +504,17 @@
         sigsOld(km,6) = xmat2(3,1)
       enddo
 !-----------------------------------------------------------------------
-!     Call the subroutine Hypo
+!     Call the subroutine
 !-----------------------------------------------------------------------
+#if SCMM_HYPO_MODEL == 3 || SCMM_HYPO_MODEL == 4
+      call Taylor(sigsNew,stateNew,Fnew,
+     +          sigsOld,stateOld,Fold,dt,props,
+     +          nblock,nstatev,nprops,Dissipation)
+#else
       call Hypo(sigsNew,stateNew,Fnew,
      +          sigsOld,stateOld,Fold,dt,props,
      +          nblock,nstatev,nprops,Dissipation)
+#endif
 !-----------------------------------------------------------------------
 !     Transforming the stress tensor from the global system to the Rotated coordinate system used in Abaqus/Explicit
 !-----------------------------------------------------------------------

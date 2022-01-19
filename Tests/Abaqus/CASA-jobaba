@@ -4,11 +4,12 @@
 #SBATCH -B 2:24:1
 #SBATCH -o abaqus.%j.out
 #SBATCH -n <<ncpu>>
+#SBATCH -N 1
 
-source /opt/ohpc/pub/apps/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
+source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
 
 hostname
 echo $SLURM_NTASKS
 
 unset SLURM_GTIDS
-/opt/ohpc/pub/apps/abaqus/Commands/abq2019 job=<<jobName>> cpus=$SLURM_NTASKS double inter 
+/opt/abaqus/Commands/abq2019hf13 job=<<jobName>> cpus=$SLURM_NTASKS double inter 
