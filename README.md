@@ -94,7 +94,7 @@ the Kalidindi et al. (1992) hardening model is used with Abaqus Standard.
 |              30 | Status variable used for element deletion in Abaqus/Explicit        |
 |              31 | Temperature, *T*                                                    |
 
-If the FC-Taylor homogenization approach is used in the subroutine, see [compiler directives](#Compiler-directives), then the 6 independent stress components are also stored in the solution dependent variables after the above given values (SDV's 31-36 if damage is included). The solution dependent variables are then repeated Ngrain number of times (By default Ngrain is 8, resulting in 36*8 = 288 solution dependent variables if damage is included).
+If the FC-Taylor homogenization approach is used in the subroutine, see [compiler directives](#Compiler-directives), then the 6 independent stress components are also stored in the solution dependent variables after the above given values (SDV's 32-37 if adiabatic heating is included). The solution dependent variables are then repeated Ngrain number of times (By default Ngrain is 8, resulting in 37*8 = 296 solution dependent variables if adiabatic heating is included).
 
 ## Prerequisites
 
