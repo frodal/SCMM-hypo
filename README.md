@@ -116,7 +116,7 @@ Follow point 1 or 2 below to compile
     - Use the option `user=HypoImp` for the implicit solver (Abaqus/Standard)
     - Use the option `user=HypoExp` for the explicit solver (Abaqus/Explicit)
 2. Second case, compile a library:
-    - If needed, make a directory where to place the Abaqus library (e.g. library-dir = `/home/username/bin/abaqus` for Linux or `C:\\Users\\username\\abaqus` for Windows)
+    - If needed, make a directory where to place the Abaqus library (e.g. library-dir = `/home/username/abaqus-library` for Linux or `C:\\Users\\username\\abaqus-library` for Windows)
     - Clone the repository: `SCMM-hypo` from Github :basecamp:
     - Change the current directory to the `SCMM-hypo` folder
     - Run the command: `abaqus make library=HypoImp directory=library-dir`
