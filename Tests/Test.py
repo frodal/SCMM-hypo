@@ -11,7 +11,7 @@ from scipy import interpolate
 import numpy as np
 import matplotlib.pyplot as plt
 import concurrent.futures
-from typing import Union
+from typing import Union, List
 ##----------------------------------------------------------------------
 ## Print colored text class
 ##----------------------------------------------------------------------
@@ -66,7 +66,7 @@ class Material:
     nDelete: int = 30
 
     # Constructor
-    def __init__(self, name: str, abaqusMaterialName: str, density: float, props: list[float]):
+    def __init__(self, name: str, abaqusMaterialName: str, density: float, props: List[float]):
         self.name = name
         self.abaqusMaterialName = abaqusMaterialName
         self.density = density
@@ -284,7 +284,7 @@ def Clean():
 ##----------------------------------------------------------------------
 
 
-def RunTests(tests: list[AbaqusTest], onCluster: bool = False, interactive: bool = False):
+def RunTests(tests: List[AbaqusTest], onCluster: bool = False, interactive: bool = False):
     if onCluster or interactive:
         for test in tests:
             test.Run(onCluster, interactive)
@@ -302,7 +302,7 @@ def RunTest(test: AbaqusTest):
 ##----------------------------------------------------------------------
 
 
-def PostProcess(tests: list[AbaqusTest], shouldPlot: bool = False):
+def PostProcess(tests: List[AbaqusTest], shouldPlot: bool = False):
     for test in tests:
         test.Process(shouldPlot)
         name = test.name+'-'+test.solver.name+'-'+test.material.name
@@ -319,7 +319,7 @@ def PostProcess(tests: list[AbaqusTest], shouldPlot: bool = False):
 ##----------------------------------------------------------------------
 
 
-def CreateSimpleShearTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
+def CreateSimpleShearTests(usingCCCP: bool, temp: List[float]) -> List[AbaqusTest]:
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -406,7 +406,7 @@ def CreateSimpleShearTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTes
 ##----------------------------------------------------------------------
 
 
-def CreateUniaxialTensionTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
+def CreateUniaxialTensionTests(usingCCCP: bool, temp: List[float]) -> List[AbaqusTest]:
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -477,7 +477,7 @@ def CreateUniaxialTensionTests(usingCCCP: bool, temp: list[float]) -> list[Abaqu
 ##----------------------------------------------------------------------
 
 
-def CreatePolycrystalTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
+def CreatePolycrystalTests(usingCCCP: bool, temp: List[float]) -> List[AbaqusTest]:
     # Material density
     density = 2.7e-9
 
@@ -526,7 +526,7 @@ def CreatePolycrystalTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTes
 ##----------------------------------------------------------------------
 
 
-def CreatePlaneStrainTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
+def CreatePlaneStrainTests(usingCCCP: bool, temp: List[float]) -> List[AbaqusTest]:
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -564,7 +564,7 @@ def CreatePlaneStrainTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTes
 ##----------------------------------------------------------------------
 
 
-def CreateAxisymmetricTests(usingCCCP: bool, temp: list[float]) -> list[AbaqusTest]:
+def CreateAxisymmetricTests(usingCCCP: bool, temp: List[float]) -> List[AbaqusTest]:
     # Material density
     density = 2.7e-9
     # Euler angles to be used
@@ -629,12 +629,12 @@ def main():
     interactive: bool = args.interactive
     shouldDoAllTests: bool = args.all
 
-    temp: list[float] = [0.01, 0.005]
+    temp: List[float] = [0.01, 0.005]
     if usingCCCP:
         temp = [1., 250.]
 
     # Creates the tests
-    tests: list[AbaqusTest] = []
+    tests: List[AbaqusTest] = []
     tests += CreateSimpleShearTests(usingCCCP,temp)
     tests += CreateUniaxialTensionTests(usingCCCP,temp)
     if shouldDoAllTests:
