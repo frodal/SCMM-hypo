@@ -394,255 +394,255 @@
 **------------------------------------------------------------------------------ 
 ** Element sets 
 **------------------------------------------------------------------------------ 
-*Elset, elset=Grain-Set-1-1, instance=PART-1-1
+*Elset, elset=Grain-Set-1-1, instance=cube-1
  1
-*Elset, elset=Grain-Set-1-2, instance=PART-1-1
+*Elset, elset=Grain-Set-1-2, instance=cube-1
  2
-*Elset, elset=Grain-Set-1-3, instance=PART-1-1
+*Elset, elset=Grain-Set-1-3, instance=cube-1
  3
-*Elset, elset=Grain-Set-1-4, instance=PART-1-1
+*Elset, elset=Grain-Set-1-4, instance=cube-1
  4
-*Elset, elset=Grain-Set-1-5, instance=PART-1-1
+*Elset, elset=Grain-Set-1-5, instance=cube-1
  5
-*Elset, elset=Grain-Set-1-6, instance=PART-1-1
+*Elset, elset=Grain-Set-1-6, instance=cube-1
  6
-*Elset, elset=Grain-Set-1-7, instance=PART-1-1
+*Elset, elset=Grain-Set-1-7, instance=cube-1
  7
-*Elset, elset=Grain-Set-1-8, instance=PART-1-1
+*Elset, elset=Grain-Set-1-8, instance=cube-1
  8
-*Elset, elset=Grain-Set-1-9, instance=PART-1-1
+*Elset, elset=Grain-Set-1-9, instance=cube-1
  9
-*Elset, elset=Grain-Set-1-10, instance=PART-1-1
+*Elset, elset=Grain-Set-1-10, instance=cube-1
  10
-*Elset, elset=Grain-Set-1-11, instance=PART-1-1
+*Elset, elset=Grain-Set-1-11, instance=cube-1
  11
-*Elset, elset=Grain-Set-1-12, instance=PART-1-1
+*Elset, elset=Grain-Set-1-12, instance=cube-1
  12
-*Elset, elset=Grain-Set-1-13, instance=PART-1-1
+*Elset, elset=Grain-Set-1-13, instance=cube-1
  13
-*Elset, elset=Grain-Set-1-14, instance=PART-1-1
+*Elset, elset=Grain-Set-1-14, instance=cube-1
  14
-*Elset, elset=Grain-Set-1-15, instance=PART-1-1
+*Elset, elset=Grain-Set-1-15, instance=cube-1
  15
-*Elset, elset=Grain-Set-1-16, instance=PART-1-1
+*Elset, elset=Grain-Set-1-16, instance=cube-1
  16
-*Elset, elset=Grain-Set-1-17, instance=PART-1-1
+*Elset, elset=Grain-Set-1-17, instance=cube-1
  17
-*Elset, elset=Grain-Set-1-18, instance=PART-1-1
+*Elset, elset=Grain-Set-1-18, instance=cube-1
  18
-*Elset, elset=Grain-Set-1-19, instance=PART-1-1
+*Elset, elset=Grain-Set-1-19, instance=cube-1
  19
-*Elset, elset=Grain-Set-1-20, instance=PART-1-1
+*Elset, elset=Grain-Set-1-20, instance=cube-1
  20
-*Elset, elset=Grain-Set-1-21, instance=PART-1-1
+*Elset, elset=Grain-Set-1-21, instance=cube-1
  21
-*Elset, elset=Grain-Set-1-22, instance=PART-1-1
+*Elset, elset=Grain-Set-1-22, instance=cube-1
  22
-*Elset, elset=Grain-Set-1-23, instance=PART-1-1
+*Elset, elset=Grain-Set-1-23, instance=cube-1
  23
-*Elset, elset=Grain-Set-1-24, instance=PART-1-1
+*Elset, elset=Grain-Set-1-24, instance=cube-1
  24
-*Elset, elset=Grain-Set-1-25, instance=PART-1-1
+*Elset, elset=Grain-Set-1-25, instance=cube-1
  25
-*Elset, elset=Grain-Set-1-26, instance=PART-1-1
+*Elset, elset=Grain-Set-1-26, instance=cube-1
  26
-*Elset, elset=Grain-Set-1-27, instance=PART-1-1
+*Elset, elset=Grain-Set-1-27, instance=cube-1
  27
-*Elset, elset=Grain-Set-1-28, instance=PART-1-1
+*Elset, elset=Grain-Set-1-28, instance=cube-1
  28
-*Elset, elset=Grain-Set-1-29, instance=PART-1-1
+*Elset, elset=Grain-Set-1-29, instance=cube-1
  29
-*Elset, elset=Grain-Set-1-30, instance=PART-1-1
+*Elset, elset=Grain-Set-1-30, instance=cube-1
  30
-*Elset, elset=Grain-Set-1-31, instance=PART-1-1
+*Elset, elset=Grain-Set-1-31, instance=cube-1
  31
-*Elset, elset=Grain-Set-1-32, instance=PART-1-1
+*Elset, elset=Grain-Set-1-32, instance=cube-1
  32
-*Elset, elset=Grain-Set-1-33, instance=PART-1-1
+*Elset, elset=Grain-Set-1-33, instance=cube-1
  33
-*Elset, elset=Grain-Set-1-34, instance=PART-1-1
+*Elset, elset=Grain-Set-1-34, instance=cube-1
  34
-*Elset, elset=Grain-Set-1-35, instance=PART-1-1
+*Elset, elset=Grain-Set-1-35, instance=cube-1
  35
-*Elset, elset=Grain-Set-1-36, instance=PART-1-1
+*Elset, elset=Grain-Set-1-36, instance=cube-1
  36
-*Elset, elset=Grain-Set-1-37, instance=PART-1-1
+*Elset, elset=Grain-Set-1-37, instance=cube-1
  37
-*Elset, elset=Grain-Set-1-38, instance=PART-1-1
+*Elset, elset=Grain-Set-1-38, instance=cube-1
  38
-*Elset, elset=Grain-Set-1-39, instance=PART-1-1
+*Elset, elset=Grain-Set-1-39, instance=cube-1
  39
-*Elset, elset=Grain-Set-1-40, instance=PART-1-1
+*Elset, elset=Grain-Set-1-40, instance=cube-1
  40
-*Elset, elset=Grain-Set-1-41, instance=PART-1-1
+*Elset, elset=Grain-Set-1-41, instance=cube-1
  41
-*Elset, elset=Grain-Set-1-42, instance=PART-1-1
+*Elset, elset=Grain-Set-1-42, instance=cube-1
  42
-*Elset, elset=Grain-Set-1-43, instance=PART-1-1
+*Elset, elset=Grain-Set-1-43, instance=cube-1
  43
-*Elset, elset=Grain-Set-1-44, instance=PART-1-1
+*Elset, elset=Grain-Set-1-44, instance=cube-1
  44
-*Elset, elset=Grain-Set-1-45, instance=PART-1-1
+*Elset, elset=Grain-Set-1-45, instance=cube-1
  45
-*Elset, elset=Grain-Set-1-46, instance=PART-1-1
+*Elset, elset=Grain-Set-1-46, instance=cube-1
  46
-*Elset, elset=Grain-Set-1-47, instance=PART-1-1
+*Elset, elset=Grain-Set-1-47, instance=cube-1
  47
-*Elset, elset=Grain-Set-1-48, instance=PART-1-1
+*Elset, elset=Grain-Set-1-48, instance=cube-1
  48
-*Elset, elset=Grain-Set-1-49, instance=PART-1-1
+*Elset, elset=Grain-Set-1-49, instance=cube-1
  49
-*Elset, elset=Grain-Set-1-50, instance=PART-1-1
+*Elset, elset=Grain-Set-1-50, instance=cube-1
  50
-*Elset, elset=Grain-Set-1-51, instance=PART-1-1
+*Elset, elset=Grain-Set-1-51, instance=cube-1
  51
-*Elset, elset=Grain-Set-1-52, instance=PART-1-1
+*Elset, elset=Grain-Set-1-52, instance=cube-1
  52
-*Elset, elset=Grain-Set-1-53, instance=PART-1-1
+*Elset, elset=Grain-Set-1-53, instance=cube-1
  53
-*Elset, elset=Grain-Set-1-54, instance=PART-1-1
+*Elset, elset=Grain-Set-1-54, instance=cube-1
  54
-*Elset, elset=Grain-Set-1-55, instance=PART-1-1
+*Elset, elset=Grain-Set-1-55, instance=cube-1
  55
-*Elset, elset=Grain-Set-1-56, instance=PART-1-1
+*Elset, elset=Grain-Set-1-56, instance=cube-1
  56
-*Elset, elset=Grain-Set-1-57, instance=PART-1-1
+*Elset, elset=Grain-Set-1-57, instance=cube-1
  57
-*Elset, elset=Grain-Set-1-58, instance=PART-1-1
+*Elset, elset=Grain-Set-1-58, instance=cube-1
  58
-*Elset, elset=Grain-Set-1-59, instance=PART-1-1
+*Elset, elset=Grain-Set-1-59, instance=cube-1
  59
-*Elset, elset=Grain-Set-1-60, instance=PART-1-1
+*Elset, elset=Grain-Set-1-60, instance=cube-1
  60
-*Elset, elset=Grain-Set-1-61, instance=PART-1-1
+*Elset, elset=Grain-Set-1-61, instance=cube-1
  61
-*Elset, elset=Grain-Set-1-62, instance=PART-1-1
+*Elset, elset=Grain-Set-1-62, instance=cube-1
  62
-*Elset, elset=Grain-Set-1-63, instance=PART-1-1
+*Elset, elset=Grain-Set-1-63, instance=cube-1
  63
-*Elset, elset=Grain-Set-1-64, instance=PART-1-1
+*Elset, elset=Grain-Set-1-64, instance=cube-1
  64
-*Elset, elset=Grain-Set-1-65, instance=PART-1-1
+*Elset, elset=Grain-Set-1-65, instance=cube-1
  65
-*Elset, elset=Grain-Set-1-66, instance=PART-1-1
+*Elset, elset=Grain-Set-1-66, instance=cube-1
  66
-*Elset, elset=Grain-Set-1-67, instance=PART-1-1
+*Elset, elset=Grain-Set-1-67, instance=cube-1
  67
-*Elset, elset=Grain-Set-1-68, instance=PART-1-1
+*Elset, elset=Grain-Set-1-68, instance=cube-1
  68
-*Elset, elset=Grain-Set-1-69, instance=PART-1-1
+*Elset, elset=Grain-Set-1-69, instance=cube-1
  69
-*Elset, elset=Grain-Set-1-70, instance=PART-1-1
+*Elset, elset=Grain-Set-1-70, instance=cube-1
  70
-*Elset, elset=Grain-Set-1-71, instance=PART-1-1
+*Elset, elset=Grain-Set-1-71, instance=cube-1
  71
-*Elset, elset=Grain-Set-1-72, instance=PART-1-1
+*Elset, elset=Grain-Set-1-72, instance=cube-1
  72
-*Elset, elset=Grain-Set-1-73, instance=PART-1-1
+*Elset, elset=Grain-Set-1-73, instance=cube-1
  73
-*Elset, elset=Grain-Set-1-74, instance=PART-1-1
+*Elset, elset=Grain-Set-1-74, instance=cube-1
  74
-*Elset, elset=Grain-Set-1-75, instance=PART-1-1
+*Elset, elset=Grain-Set-1-75, instance=cube-1
  75
-*Elset, elset=Grain-Set-1-76, instance=PART-1-1
+*Elset, elset=Grain-Set-1-76, instance=cube-1
  76
-*Elset, elset=Grain-Set-1-77, instance=PART-1-1
+*Elset, elset=Grain-Set-1-77, instance=cube-1
  77
-*Elset, elset=Grain-Set-1-78, instance=PART-1-1
+*Elset, elset=Grain-Set-1-78, instance=cube-1
  78
-*Elset, elset=Grain-Set-1-79, instance=PART-1-1
+*Elset, elset=Grain-Set-1-79, instance=cube-1
  79
-*Elset, elset=Grain-Set-1-80, instance=PART-1-1
+*Elset, elset=Grain-Set-1-80, instance=cube-1
  80
-*Elset, elset=Grain-Set-1-81, instance=PART-1-1
+*Elset, elset=Grain-Set-1-81, instance=cube-1
  81
-*Elset, elset=Grain-Set-1-82, instance=PART-1-1
+*Elset, elset=Grain-Set-1-82, instance=cube-1
  82
-*Elset, elset=Grain-Set-1-83, instance=PART-1-1
+*Elset, elset=Grain-Set-1-83, instance=cube-1
  83
-*Elset, elset=Grain-Set-1-84, instance=PART-1-1
+*Elset, elset=Grain-Set-1-84, instance=cube-1
  84
-*Elset, elset=Grain-Set-1-85, instance=PART-1-1
+*Elset, elset=Grain-Set-1-85, instance=cube-1
  85
-*Elset, elset=Grain-Set-1-86, instance=PART-1-1
+*Elset, elset=Grain-Set-1-86, instance=cube-1
  86
-*Elset, elset=Grain-Set-1-87, instance=PART-1-1
+*Elset, elset=Grain-Set-1-87, instance=cube-1
  87
-*Elset, elset=Grain-Set-1-88, instance=PART-1-1
+*Elset, elset=Grain-Set-1-88, instance=cube-1
  88
-*Elset, elset=Grain-Set-1-89, instance=PART-1-1
+*Elset, elset=Grain-Set-1-89, instance=cube-1
  89
-*Elset, elset=Grain-Set-1-90, instance=PART-1-1
+*Elset, elset=Grain-Set-1-90, instance=cube-1
  90
-*Elset, elset=Grain-Set-1-91, instance=PART-1-1
+*Elset, elset=Grain-Set-1-91, instance=cube-1
  91
-*Elset, elset=Grain-Set-1-92, instance=PART-1-1
+*Elset, elset=Grain-Set-1-92, instance=cube-1
  92
-*Elset, elset=Grain-Set-1-93, instance=PART-1-1
+*Elset, elset=Grain-Set-1-93, instance=cube-1
  93
-*Elset, elset=Grain-Set-1-94, instance=PART-1-1
+*Elset, elset=Grain-Set-1-94, instance=cube-1
  94
-*Elset, elset=Grain-Set-1-95, instance=PART-1-1
+*Elset, elset=Grain-Set-1-95, instance=cube-1
  95
-*Elset, elset=Grain-Set-1-96, instance=PART-1-1
+*Elset, elset=Grain-Set-1-96, instance=cube-1
  96
-*Elset, elset=Grain-Set-1-97, instance=PART-1-1
+*Elset, elset=Grain-Set-1-97, instance=cube-1
  97
-*Elset, elset=Grain-Set-1-98, instance=PART-1-1
+*Elset, elset=Grain-Set-1-98, instance=cube-1
  98
-*Elset, elset=Grain-Set-1-99, instance=PART-1-1
+*Elset, elset=Grain-Set-1-99, instance=cube-1
  99
-*Elset, elset=Grain-Set-1-100, instance=PART-1-1
+*Elset, elset=Grain-Set-1-100, instance=cube-1
  100
-*Elset, elset=Grain-Set-1-101, instance=PART-1-1
+*Elset, elset=Grain-Set-1-101, instance=cube-1
  101
-*Elset, elset=Grain-Set-1-102, instance=PART-1-1
+*Elset, elset=Grain-Set-1-102, instance=cube-1
  102
-*Elset, elset=Grain-Set-1-103, instance=PART-1-1
+*Elset, elset=Grain-Set-1-103, instance=cube-1
  103
-*Elset, elset=Grain-Set-1-104, instance=PART-1-1
+*Elset, elset=Grain-Set-1-104, instance=cube-1
  104
-*Elset, elset=Grain-Set-1-105, instance=PART-1-1
+*Elset, elset=Grain-Set-1-105, instance=cube-1
  105
-*Elset, elset=Grain-Set-1-106, instance=PART-1-1
+*Elset, elset=Grain-Set-1-106, instance=cube-1
  106
-*Elset, elset=Grain-Set-1-107, instance=PART-1-1
+*Elset, elset=Grain-Set-1-107, instance=cube-1
  107
-*Elset, elset=Grain-Set-1-108, instance=PART-1-1
+*Elset, elset=Grain-Set-1-108, instance=cube-1
  108
-*Elset, elset=Grain-Set-1-109, instance=PART-1-1
+*Elset, elset=Grain-Set-1-109, instance=cube-1
  109
-*Elset, elset=Grain-Set-1-110, instance=PART-1-1
+*Elset, elset=Grain-Set-1-110, instance=cube-1
  110
-*Elset, elset=Grain-Set-1-111, instance=PART-1-1
+*Elset, elset=Grain-Set-1-111, instance=cube-1
  111
-*Elset, elset=Grain-Set-1-112, instance=PART-1-1
+*Elset, elset=Grain-Set-1-112, instance=cube-1
  112
-*Elset, elset=Grain-Set-1-113, instance=PART-1-1
+*Elset, elset=Grain-Set-1-113, instance=cube-1
  113
-*Elset, elset=Grain-Set-1-114, instance=PART-1-1
+*Elset, elset=Grain-Set-1-114, instance=cube-1
  114
-*Elset, elset=Grain-Set-1-115, instance=PART-1-1
+*Elset, elset=Grain-Set-1-115, instance=cube-1
  115
-*Elset, elset=Grain-Set-1-116, instance=PART-1-1
+*Elset, elset=Grain-Set-1-116, instance=cube-1
  116
-*Elset, elset=Grain-Set-1-117, instance=PART-1-1
+*Elset, elset=Grain-Set-1-117, instance=cube-1
  117
-*Elset, elset=Grain-Set-1-118, instance=PART-1-1
+*Elset, elset=Grain-Set-1-118, instance=cube-1
  118
-*Elset, elset=Grain-Set-1-119, instance=PART-1-1
+*Elset, elset=Grain-Set-1-119, instance=cube-1
  119
-*Elset, elset=Grain-Set-1-120, instance=PART-1-1
+*Elset, elset=Grain-Set-1-120, instance=cube-1
  120
-*Elset, elset=Grain-Set-1-121, instance=PART-1-1
+*Elset, elset=Grain-Set-1-121, instance=cube-1
  121
-*Elset, elset=Grain-Set-1-122, instance=PART-1-1
+*Elset, elset=Grain-Set-1-122, instance=cube-1
  122
-*Elset, elset=Grain-Set-1-123, instance=PART-1-1
+*Elset, elset=Grain-Set-1-123, instance=cube-1
  123
-*Elset, elset=Grain-Set-1-124, instance=PART-1-1
+*Elset, elset=Grain-Set-1-124, instance=cube-1
  124
-*Elset, elset=Grain-Set-1-125, instance=PART-1-1
+*Elset, elset=Grain-Set-1-125, instance=cube-1
  125
 *End Assembly
 ** 
