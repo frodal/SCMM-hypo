@@ -638,8 +638,8 @@ def main():
     tests += CreateSimpleShearTests(usingCCCP,temp)
     tests += CreateUniaxialTensionTests(usingCCCP,temp)
     if shouldDoAllTests:
-        tests += CreatePlaneStrainTests(temp)
-        tests += CreateAxisymmetricTests(temp)
+        tests += CreatePlaneStrainTests(usingCCCP,temp)
+        tests += CreateAxisymmetricTests(usingCCCP,temp)
     tests += CreatePolycrystalTests(usingCCCP,temp)
 
     # Do stuff
