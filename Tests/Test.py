@@ -208,7 +208,7 @@ class AbaqusTest(Test):
         self.passed = False
         self.residual = np.inf
         # Call abaqus python with the post-processing script
-        subprocess.run('abaqus python '+str(self.postScript),
+        subprocess.run('abaqus python "'+str(self.postScript)+'"',
                        shell=True, cwd=self.testPath)
         # Read test result
         try:
