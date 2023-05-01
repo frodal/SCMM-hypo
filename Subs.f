@@ -574,11 +574,59 @@
       end subroutine RandomQuaternions
 !
 !-----------------------------------------------------------------------
-!                         SUBROUTINE UpdateDamage
+!                         SUBROUTINE UpdateDamageNonLocal
 !-----------------------------------------------------------------------
 ! Updates the damage variable / void volume fraction
 !-----------------------------------------------------------------------
 #if SCMM_HYPO_DFLAG != 0
+#ifdef SCMM_HYPO_NLFLAG
+      subroutine UpdateDamageNonLocal(VVF,DeltaVVFlocal,
+     .                            deltaVVFnonlocal,sigma,dgamma,q1,q2)
+!
+      implicit none
+!
+      integer, parameter :: alpha = 12
+      real*8, intent(inout) :: VVF, deltaVVFlocal
+      real*8, intent(in) :: deltaVVFnonlocal,
+     .                      sigma(6),dgamma(alpha),q1,q2
+!     Local variables
+      real*8 Seq,Sh,deltaGamma,oThree,small,one,zero,half,two,three,
+     .       threeFourths,threeOverTwo
+      parameter(zero=0.d0,one=1.d0,oThree=1.d0/3.d0,small=1.d-6,
+     +          half=5.d-1,two=2.d0,three=3.d0,threeFourths=0.75d0,
+     +          threeOverTwo=1.5d0)
+!-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+      VVF = VVF + deltaVVFnonlocal
+      VVF = max(VVF,zero)
+!-----------------------------------------------------------------------
+      Seq = sqrt(half*((sigma(1)-sigma(2))**2
+     +      +(sigma(2)-sigma(3))**2
+     +      +(sigma(3)-sigma(1))**2)
+     +      +three*sigma(4)**2+three*sigma(5)**2
+     +      +three*sigma(6)**2)! Equivalent von Mises stress
+!-----------------------------------------------------------------------
+      if(Seq.lt.small) return
+!-----------------------------------------------------------------------
+      Sh = (sigma(1)+sigma(2)+sigma(3))*oThree ! hydrostatic stress
+!-----------------------------------------------------------------------
+      deltaGamma = abs(dgamma(1))+abs(dgamma(2))+abs(dgamma(3))+
+     +             abs(dgamma(4))+abs(dgamma(5))+abs(dgamma(6))+
+     +             abs(dgamma(7))+abs(dgamma(8))+abs(dgamma(9))+
+     +            abs(dgamma(10))+abs(dgamma(11))+abs(dgamma(12))
+!-----------------------------------------------------------------------
+      deltaVVFlocal = deltaVVFlocal + threeFourths*q1*q2*VVF*(one-VVF)*
+     .            sinh(threeOverTwo*q2*Sh/Seq)*deltaGamma
+!-----------------------------------------------------------------------
+      return
+      end subroutine UpdateDamageNonLocal
+!
+!-----------------------------------------------------------------------
+!                         SUBROUTINE UpdateDamage
+!-----------------------------------------------------------------------
+! Updates the damage variable / void volume fraction
+!-----------------------------------------------------------------------
+#else
       subroutine UpdateDamage(VVF,sigma,dgamma,q1,q2)
 !
       implicit none
@@ -615,6 +663,7 @@
 !-----------------------------------------------------------------------
       return
       end subroutine UpdateDamage
+#endif
 #endif
 !
 !-----------------------------------------------------------------------

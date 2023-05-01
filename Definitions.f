@@ -26,6 +26,10 @@
 !   If SCMM_HYPO_MODEL is 4 then the FC-Taylor homogenization approach
 !   is used with the CCCP model.
 !   By default the rate-dependent model is used.
+!   If SCMM_HYPO_NLFLAG is defined, the non-local damage model is used.
+!   The non-local damage model is only supported with the rate-dependent 
+!   CP model and the RT damage model in Abaqus/Explicit.
+!   By default the non-local damage model is turned off.
 !-----------------------------------------------------------------------
 !   WARNING! The subroutines and Abaqus only supports plane strain and
 !   axisymmetric elements for certain crystallographic orientations.
@@ -44,6 +48,7 @@
 ! #define SCMM_HYPO_MODEL 2
 ! #define SCMM_HYPO_MODEL 3
 ! #define SCMM_HYPO_MODEL 4
+#define SCMM_HYPO_NLFLAG
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !   Do not edit the lines below!
@@ -70,8 +75,27 @@
 #warning "The SCMM_HYPO_DFLAG used is not supported"
 #warning "Using SCMM_HYPO_DFLAG == 1 instead"
 #endif
+#if SCMM_HYPO_MODEL != 1 && SCMM_HYPO_MODEL != 2 && SCMM_HYPO_MODEL != 3 && SCMM_HYPO_MODEL != 4
+#define SCMM_HYPO_MODEL 1
+#warning "The SCMM_HYPO_MODEL used is not supported"
+#warning "Using SCMM_HYPO_MODEL == 1 instead"
+#endif
+#if SCMM_HYPO_MODEL == 1 && SCMM_HYPO_DFLAG == 2
+#define SCMM_HYPO_DFLAG 1
+#warning "SCMM_HYPO_DFLAG == 2 is not supported with SCMM_HYPO_MODEL == 1"
+#warning "Using SCMM_HYPO_DFLAG == 1 instead"
+#endif
+#if defined SCMM_HYPO_NLFLAG && SCMM_HYPO_MODEL !=1 && SCMM_HYPO_DFLAG != 1
+#undef SCMM_HYPO_NLFLAG
+#warning "SCMM_HYPO_NLFLAG is only supported with SCMM_HYPO_MODEL == 1 and SCMM_HYPO_DFLAG == 1"
+#warning "SCMM_HYPO_NLFLAG is turned off"
+#endif
 #if SCMM_HYPO_DFLAG != 0
+#ifdef SCMM_HYPO_NLFLAG
+#define SCMM_HYPO_NSTATEV 32
+#else
 #define SCMM_HYPO_NSTATEV 30
+#endif
 #else
 #define SCMM_HYPO_NSTATEV 28
 #endif

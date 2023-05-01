@@ -95,6 +95,9 @@
       real*8 dti! Sub-stepping time step
 #if SCMM_HYPO_DFLAG != 0
       real*8 VVF0, VVFC, VVF, q1, q2 ! Damage variables
+#ifdef SCMM_HYPO_NLFLAG
+      real*8 DeltaVVFlocal, DeltaVVFnonLocal ! local and non-local damage increments
+#endif
       integer isActive ! Is the integration point active (0=deleted, 
 !                                                         1=active)
 #endif
@@ -289,6 +292,9 @@
 #if SCMM_HYPO_DFLAG != 0
         VVF   = STATEOLD(km,29)
         isActive = nint(STATEOLD(km,30))
+#ifdef SCMM_HYPO_NLFLAG
+        deltaVVFnonlocal = stateNew(km,32)
+#endif
 !-----------------------------------------------------------------------
 !       Check if integration point is active
 !-----------------------------------------------------------------------
@@ -296,6 +302,10 @@
         if(isActive.eq.0)then
             stressNew(km,1:6) = zero
             STATENEW(km,1:nstatev) = STATEOLD(km,1:nstatev)
+#ifdef SCMM_HYPO_NLFLAG
+            stateNew(km,31) = zero
+            stateNew(km,32) = deltaVVFnonlocal
+#endif
             Dissipation(km) = zero
             cycle ! Continue to next loop cycle
         endif
@@ -365,6 +375,10 @@
         epsinc  = epsinc/nsub
         spininc = spininc/nsub
         dti     = dt/nsub
+#ifdef SCMM_HYPO_NLFLAG
+        deltaVVFnonlocal = deltaVVFnonlocal/nsub
+        DeltaVVFlocal = zero
+#endif
         Dissipation(km) = zero
 !-----------------------------------------------------------------------
         do k=1,nsub
@@ -494,7 +508,12 @@
 !       Updating damage
 !-----------------------------------------------------------------------
 #if SCMM_HYPO_DFLAG != 0
+#ifdef SCMM_HYPO_NLFLAG
+          call UpdateDamageNonLocal(VVF,DeltaVVFlocal,deltaVVFnonlocal,
+     +                      sigma,dgamma,q1,q2)
+#else
           call UpdateDamage(VVF,sigma,dgamma,q1,q2)
+#endif
 #endif
 !-----------------------------------------------------------------------
 !       End sub-stepping
@@ -550,6 +569,9 @@
         STATENEW(km,29) = VVF ! Damage / void volume fraction
 ! Is the element active or should it be deleted (Abaqus status variable)
         STATENEW(km,30) = isActive
+#ifdef SCMM_HYPO_NLFLAG
+        stateNew(km,31) = DeltaVVFlocal
+#endif
 #endif
 !-----------------------------------------------------------------------
         call euler(R,ang)

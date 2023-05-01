@@ -94,8 +94,10 @@ the Kalidindi et al. (1992) hardening model is used with Abaqus Standard.
 |              28 | Number of sub-steps in the current time step n<sub>sub</sub>        |
 |              29 | Damage variable, *f*                                                |
 |              30 | Status variable used for element deletion in Abaqus/Explicit        |
+|              31 | Local increment of the damage variable, *Δf*                        |
+|              32 | Non-local increment of the damage variable, $\Delta \bar{f}$        |
 
-If the FC-Taylor homogenization approach is used in the subroutine, see [compiler directives](#Compiler-directives), then the 6 independent stress components are also stored in the solution dependent variables after the above given values (SDV's 31-36 if damage is included). The solution dependent variables are then repeated Ngrain number of times (By default Ngrain is 8, resulting in 36*8 = 288 solution dependent variables if damage is included).
+If the FC-Taylor homogenization approach is used in the subroutine, see [compiler directives](#Compiler-directives), then the 6 independent stress components are also stored in the solution dependent variables after the above given values (SDV's 31-36 if only local damage is included). The solution dependent variables are then repeated Ngrain number of times (By default Ngrain is 8, resulting in 36*8 = 288 solution dependent variables if only local damage is included).
 
 ## Prerequisites
 

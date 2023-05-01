@@ -77,6 +77,16 @@
 !-----------------------------------------------------------------------
       character*80 cmname
 !-----------------------------------------------------------------------
+#ifdef SCMM_HYPO_NLFLAG
+      integer i
+!-----------------------------------------------------------------------
+!     Retrive the non-local variable
+!-----------------------------------------------------------------------
+      do i=1,nblock
+        stateNew(i, 32) = tempNew(i)
+      enddo
+#endif
+!-----------------------------------------------------------------------
 !     This material subroutine is only for ... elements
 !-----------------------------------------------------------------------
 #ifdef SCMM_HYPO_3D_ONLY
@@ -607,6 +617,89 @@
 !-----------------------------------------------------------------------
       return
       end subroutine HypoExp2D
+#endif
+!
+!-----------------------------------------------------------------------
+#ifdef SCMM_HYPO_NLFLAG
+      subroutine vhetval (
+!-----------------------------------------------------------------------
+! Read only (unmodifiable)variables -
+!-----------------------------------------------------------------------
+     *     nblock, nElem, nIntPt, nLayer, nSectPt,
+     *     ntgrad, nstatev, nfieldv, nprops,
+     *     cmname, stepTime, totalTime, dt,
+     *     coordMp, density, props,
+     *     tempOld, fieldOld, stateOld,
+     *     tempNew, tempgradNew, fieldNew,
+!-----------------------------------------------------------------------
+! Write only (modifiable) variables -
+!-----------------------------------------------------------------------
+     *     stateNew, flux )
+!-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+      include 'vaba_param.inc'
+!-----------------------------------------------------------------------
+      dimension nElem(nblock)
+!-----------------------------------------------------------------------
+      dimension coordMp(nblock,*), density(nblock), props(nprops),
+     *    tempOld(nblock), fieldOld(nblock, nfieldv),
+     *    stateOld(nblock, nstatev), tempNew(nblock),
+     *    tempgradNew(nblock, ntgrad), fieldNew(nblock, nfieldv),
+     *    stateNew(nblock, nstatev), flux(nblock)
+!-----------------------------------------------------------------------
+      character*80 cmname
+      integer i
+!-----------------------------------------------------------------------
+!     Define heat flux
+!-----------------------------------------------------------------------
+      do i=1,nblock
+         flux(i) = stateNew(i,31) - tempOld(i)
+      enddo
+!-----------------------------------------------------------------------
+!     End Subroutine
+!-----------------------------------------------------------------------
+      return
+      end subroutine vhetval
+#else
+      subroutine vhetval (
+!-----------------------------------------------------------------------
+! Read only (unmodifiable)variables -
+!-----------------------------------------------------------------------
+     *     nblock, nElem, nIntPt, nLayer, nSectPt,
+     *     ntgrad, nstatev, nfieldv, nprops,
+     *     cmname, stepTime, totalTime, dt,
+     *     coordMp, density, props,
+     *     tempOld, fieldOld, stateOld,
+     *     tempNew, tempgradNew, fieldNew,
+!-----------------------------------------------------------------------
+! Write only (modifiable) variables -
+!-----------------------------------------------------------------------
+     *     stateNew, flux )
+!-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
+      include 'vaba_param.inc'
+!-----------------------------------------------------------------------
+      dimension nElem(nblock)
+!-----------------------------------------------------------------------
+      dimension coordMp(nblock,*), density(nblock), props(nprops),
+     *    tempOld(nblock), fieldOld(nblock, nfieldv),
+     *    stateOld(nblock, nstatev), tempNew(nblock),
+     *    tempgradNew(nblock, ntgrad), fieldNew(nblock, nfieldv),
+     *    stateNew(nblock, nstatev), flux(nblock)
+!-----------------------------------------------------------------------
+      character*80 cmname
+      integer i
+!-----------------------------------------------------------------------
+!     Define heat flux
+!-----------------------------------------------------------------------
+      do i=1,nblock
+         flux(i) = 0.d0
+      enddo
+!-----------------------------------------------------------------------
+!     End Subroutine
+!-----------------------------------------------------------------------
+      return
+      end subroutine vhetval
 #endif
 !-----------------------------------------------------------------------
 ! End preprocessor definitions
